@@ -2,7 +2,7 @@
 
 Landing page "link-in-bio" da **Carreiro Auto Peças**, rede com 5 lojas entre o Ceará e o Piauí. A página substitui o Linktree da empresa por uma experiência própria, rápida e focada em conversão via WhatsApp.
 
-🔗 **Site:** em breve na Netlify
+🔗 **Site:** [carreiro-autopecas.netlify.app](https://carreiro-autopecas.netlify.app)
 
 ## O que a página tem
 
