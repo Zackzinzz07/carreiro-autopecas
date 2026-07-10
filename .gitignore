@@ -1,0 +1,10 @@
+# Config local de ferramentas
+.claude/
+
+# Material bruto / arquivos de trabalho (não fazem parte do site)
+/*.mp4
+/plano_implementacao.md
+
+# Sistema
+Thumbs.db
+.DS_Store

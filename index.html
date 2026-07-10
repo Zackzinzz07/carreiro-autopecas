@@ -1,0 +1,1882 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Carreiro Auto Peças | A peça certa para o seu carro</title>
+  <meta name="description"
+    content="Carreiro Autopeças: milhares de peças em estoque, atendimento direto no WhatsApp e entrega rápida. Fale agora com a filial mais perto de você.">
+  <meta property="og:title" content="Carreiro Autopeças">
+  <meta property="og:description" content="A peça certa, na primeira conversa. Chame no WhatsApp.">
+  <meta name="theme-color" content="#0a0d14">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap"
+    rel="stylesheet">
+  <style>
+    /* ============================================================
+   CARREIRO AUTOPEÇAS — Landing Link-in-Bio Premium
+   Estética: Cinematic Dark / Engenharia de precisão
+   ============================================================ */
+    :root {
+      --bg-0: #06080d;
+      --bg-1: #0a0d14;
+      --bg-2: #121620;
+      --blue-800: #1e40af;
+      --blue-600: #2563eb;
+      --blue-500: #3b82f6;
+      --cyan-500: #06b6d4;
+      --cyan-400: #22d3ee;
+      --green-ok: #22c55e;
+      --txt: #ffffff;
+      --txt-dim: #94a3b8;
+      --line: rgba(148, 163, 184, .14);
+      --radius: 16px;
+      --font-display: 'Outfit', system-ui, sans-serif;
+      --font-body: 'Inter', system-ui, sans-serif;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box
+    }
+
+    html {
+      scroll-behavior: smooth
+    }
+
+    body {
+      background: var(--bg-1);
+      color: var(--txt);
+      font-family: var(--font-body);
+      font-size: 16px;
+      line-height: 1.6;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    img,
+    svg,
+    video,
+    canvas {
+      display: block;
+      max-width: 100%
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none
+    }
+
+    button {
+      font: inherit;
+      color: inherit;
+      background: none;
+      border: 0;
+      cursor: pointer
+    }
+
+    :focus-visible {
+      outline: 2px solid var(--cyan-400);
+      outline-offset: 3px;
+      border-radius: 6px
+    }
+
+    h1,
+    h2,
+    h3 {
+      font-family: var(--font-display);
+      line-height: 1.12
+    }
+
+    .container {
+      width: min(1120px, 92%);
+      margin-inline: auto
+    }
+
+    /* ---------- Cabeçalho ---------- */
+    .topbar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px clamp(16px, 4vw, 36px);
+    }
+
+    .copylink {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--txt-dim);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 8px 14px;
+      background: rgba(10, 13, 20, .55);
+      backdrop-filter: blur(8px);
+      transition: color .2s, border-color .2s;
+    }
+
+    .copylink:hover {
+      color: var(--cyan-400);
+      border-color: rgba(34, 211, 238, .4)
+    }
+
+    .topbar-spacer {
+      width: 110px
+    }
+
+    /* Logo Carreiro Auto Peças */
+    .logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      user-select: none
+    }
+
+    .logo-badge {
+      width: 96px;
+      height: auto;
+      filter: drop-shadow(0 4px 14px rgba(0, 0, 0, .55));
+    }
+
+    .footer .logo-badge {
+      width: 114px
+    }
+
+    /* ---------- HERO ---------- */
+    .hero {
+      position: relative;
+      min-height: 100svh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 120px 0 72px;
+      background: radial-gradient(120% 90% at 50% 0%, #101a33 0%, var(--bg-1) 60%);
+      overflow: hidden;
+    }
+
+    .hero-video {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: .5;
+    }
+
+    .hero-overlay {
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(180deg, rgba(6, 8, 13, .72) 0%, rgba(6, 8, 13, .42) 40%, rgba(10, 13, 20, .92) 82%, var(--bg-1) 100%),
+        radial-gradient(90% 60% at 50% 46%, rgba(37, 99, 235, .16), transparent 70%);
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      text-align: center
+    }
+
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: .24em;
+      text-transform: uppercase;
+      color: var(--cyan-400);
+      border: 1px solid rgba(34, 211, 238, .28);
+      border-radius: 999px;
+      padding: 7px 16px;
+      margin-bottom: 22px;
+      background: rgba(6, 182, 212, .06);
+    }
+
+    .hero h1 {
+      font-size: clamp(2.1rem, 6.4vw, 3.9rem);
+      font-weight: 800;
+      letter-spacing: -.015em;
+      max-width: 17ch;
+      margin-inline: auto;
+    }
+
+    .hero h1 .grad {
+      background: linear-gradient(92deg, var(--blue-500) 0%, var(--cyan-400) 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .hero-sub {
+      color: var(--txt-dim);
+      font-size: clamp(1rem, 2.4vw, 1.15rem);
+      max-width: 46ch;
+      margin: 18px auto 36px;
+    }
+
+    /* Botões WhatsApp (conversão) */
+    .branches {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      max-width: 680px;
+      margin-inline: auto;
+    }
+
+    /* quantidade ímpar: o último botão centraliza com a mesma largura dos demais */
+    .branches>.branch:last-child:nth-child(odd) {
+      grid-column: 1/-1;
+      justify-self: center;
+      width: min(100%, 333px);
+    }
+
+    .branch {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      text-align: left;
+      padding: 16px 18px;
+      border-radius: var(--radius);
+      background: linear-gradient(135deg, rgba(30, 64, 175, .92), rgba(37, 99, 235, .78));
+      border: 1px solid rgba(59, 130, 246, .45);
+      box-shadow: 0 8px 28px rgba(37, 99, 235, .22), inset 0 1px 0 rgba(255, 255, 255, .12);
+      transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+    }
+
+    .branch:hover {
+      transform: translateY(-3px);
+      border-color: rgba(34, 211, 238, .7);
+      box-shadow: 0 14px 36px rgba(37, 99, 235, .38);
+    }
+
+    .branch:active {
+      transform: translateY(-1px)
+    }
+
+    .branch-icon {
+      flex: 0 0 auto;
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      background: rgba(255, 255, 255, .14);
+    }
+
+    .branch-icon svg {
+      width: 24px;
+      height: 24px;
+      fill: #fff
+    }
+
+    .branch-info {
+      min-width: 0;
+      flex: 1
+    }
+
+    .branch-name {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 15.5px;
+      letter-spacing: .01em;
+    }
+
+    .branch-zone {
+      font-size: 12.5px;
+      color: rgba(255, 255, 255, .72)
+    }
+
+    .branch-status {
+      flex: 0 0 auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: #bbf7d0;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green-ok);
+      box-shadow: 0 0 0 0 rgba(34, 197, 94, .55);
+      animation: pulse 1.8s ease-out infinite;
+    }
+
+    @keyframes pulse {
+      0% {
+        box-shadow: 0 0 0 0 rgba(34, 197, 94, .55)
+      }
+
+      70% {
+        box-shadow: 0 0 0 9px rgba(34, 197, 94, 0)
+      }
+
+      100% {
+        box-shadow: 0 0 0 0 rgba(34, 197, 94, 0)
+      }
+    }
+
+    .hero-urgency {
+      margin-top: 26px;
+      font-size: 13.5px;
+      color: var(--txt-dim)
+    }
+
+    /* ---------- Seção RAIO-X (scroll scrub) ---------- */
+    .raiox {
+      position: relative;
+      background: var(--bg-0)
+    }
+
+    .rx-head {
+      padding: 84px 0 8px;
+      text-align: center
+    }
+
+    .rx-eyebrow {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: .3em;
+      text-transform: uppercase;
+      color: var(--cyan-400);
+    }
+
+    .rx-head h2 {
+      font-size: clamp(1.7rem, 4.6vw, 2.7rem);
+      font-weight: 800;
+      margin-top: 10px
+    }
+
+    .rx-head p {
+      color: var(--txt-dim);
+      max-width: 52ch;
+      margin: 12px auto 0
+    }
+
+    .rx-inner {
+      display: grid;
+      grid-template-columns: 1.05fr .95fr;
+      gap: clamp(20px, 4vw, 64px);
+      width: min(1120px, 94%);
+      margin-inline: auto;
+    }
+
+    .rx-canvas-wrap {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      height: 100svh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .rx-stage {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1/1;
+      max-height: 82vh
+    }
+
+    #engineCanvas {
+      width: 100%;
+      height: 100%;
+      touch-action: pan-y;
+      /* arraste horizontal gira, vertical continua rolando */
+      cursor: grab;
+      opacity: 0;
+      /* revelado gradualmente pelo scroll (JS) */
+      /* bordas suaves: nada é cortado a seco */
+      -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 9%, #000 91%, transparent 100%);
+      mask-image: linear-gradient(180deg, transparent 0, #000 9%, #000 91%, transparent 100%);
+    }
+
+    #engineCanvas.dragging {
+      cursor: grabbing
+    }
+
+    .rx-hud {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--txt-dim);
+      pointer-events: none;
+    }
+
+    .rx-hud .hud-val {
+      color: var(--cyan-400)
+    }
+
+    .rx-hint {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 11px;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--txt-dim);
+      opacity: .8;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    .rx-steps {
+      padding: 12vh 0 16vh;
+      display: flex;
+      flex-direction: column;
+      gap: 10vh
+    }
+
+    .rx-step {
+      min-height: 62vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 28px 26px;
+      border-left: 2px solid var(--line);
+      border-radius: 4px 18px 18px 4px;
+      transition: border-color .35s, background .35s, opacity .35s;
+      opacity: .38;
+    }
+
+    .rx-step.active {
+      opacity: 1;
+      border-left-color: var(--cyan-400);
+      background: linear-gradient(90deg, rgba(6, 182, 212, .07), transparent 70%);
+    }
+
+    .rx-step h3 {
+      font-size: clamp(1.25rem, 2.6vw, 1.7rem);
+      font-weight: 700;
+      margin-bottom: 12px
+    }
+
+    .rx-step p {
+      color: var(--txt-dim);
+      max-width: 44ch
+    }
+
+    /* ---------- Quem Somos ---------- */
+    .about {
+      padding: 110px 0 80px;
+      background: linear-gradient(180deg, var(--bg-0), var(--bg-1) 30%)
+    }
+
+    .about-grid {
+      display: grid;
+      grid-template-columns: .95fr 1.05fr;
+      gap: clamp(28px, 5vw, 64px);
+      align-items: center;
+    }
+
+    .about-photo {
+      margin: 0;
+      border-radius: 20px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      box-shadow: 0 18px 44px rgba(0, 0, 0, .4);
+    }
+
+    .about-photo img {
+      width: 100%;
+      display: block;
+    }
+
+    .about-photo figcaption {
+      font-size: 12.5px;
+      color: var(--txt-dim);
+      text-align: center;
+      padding: 10px 14px;
+      background: var(--bg-2);
+      border-top: 1px solid var(--line);
+    }
+
+    .about-copy {
+      text-align: left
+    }
+
+    .about-copy h2 {
+      font-size: clamp(1.7rem, 4.4vw, 2.5rem);
+      font-weight: 800;
+      margin: 0 0 18px
+    }
+
+    .about-copy p {
+      color: var(--txt-dim);
+      margin-bottom: 14px
+    }
+
+    .about-copy strong {
+      color: var(--txt);
+      font-weight: 600
+    }
+
+    /* ---------- Benefícios ---------- */
+    .benefits {
+      padding: 30px 0 90px
+    }
+
+    .benefits-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-top: 8px;
+    }
+
+    .benefit {
+      position: relative;
+      padding: 26px 22px;
+      border-radius: var(--radius);
+      background: linear-gradient(165deg, var(--bg-2), #0d1220);
+      border: 1px solid var(--line);
+      transition: border-color .25s, transform .25s, box-shadow .25s;
+      overflow: hidden;
+    }
+
+    .benefit::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transition: opacity .25s;
+      background: radial-gradient(120% 90% at 50% -10%, rgba(34, 211, 238, .13), transparent 60%);
+    }
+
+    .benefit:hover {
+      transform: translateY(-4px);
+      border-color: rgba(34, 211, 238, .4);
+      box-shadow: 0 14px 34px rgba(6, 182, 212, .12);
+    }
+
+    .benefit:hover::before {
+      opacity: 1
+    }
+
+    .benefit-icon {
+      width: 46px;
+      height: 46px;
+      border-radius: 12px;
+      margin-bottom: 16px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, rgba(30, 64, 175, .55), rgba(6, 182, 212, .28));
+      border: 1px solid rgba(59, 130, 246, .35);
+    }
+
+    .benefit-icon svg {
+      width: 24px;
+      height: 24px;
+      stroke: var(--cyan-400);
+      fill: none;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round
+    }
+
+    .benefit h3 {
+      font-size: 16.5px;
+      font-weight: 700;
+      margin-bottom: 8px
+    }
+
+    .benefit p {
+      font-size: 13.5px;
+      color: var(--txt-dim)
+    }
+
+    /* ---------- Onde estamos (lojas) ---------- */
+    .stores {
+      padding: 0 0 100px
+    }
+
+    .stores-head {
+      text-align: center;
+      margin-bottom: 30px
+    }
+
+    .stores-head h2 {
+      font-size: clamp(1.6rem, 4vw, 2.3rem);
+      font-weight: 800;
+      margin-top: 10px
+    }
+
+    .stores-head p {
+      color: var(--txt-dim);
+      max-width: 52ch;
+      margin: 12px auto 0
+    }
+
+    .stores-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px
+    }
+
+    /* quantidade ímpar: o último card ocupa a linha inteira */
+    .stores-grid>.store:last-child:nth-child(odd) {
+      grid-column: 1/-1;
+    }
+
+    .store {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding: 24px 22px;
+      border-radius: var(--radius);
+      background: linear-gradient(165deg, var(--bg-2), #0d1220);
+      border: 1px solid var(--line);
+      transition: border-color .25s, transform .25s;
+    }
+
+    .store:hover {
+      border-color: rgba(34, 211, 238, .4);
+      transform: translateY(-3px)
+    }
+
+    .store-city {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      color: var(--cyan-400);
+    }
+
+    .store h3 {
+      font-size: 18px;
+      font-weight: 700
+    }
+
+    .store-address {
+      font-size: 13.5px;
+      color: var(--txt-dim)
+    }
+
+    .store-rating {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12.5px;
+      color: var(--txt-dim);
+      margin-top: 2px;
+    }
+
+    .store-rating .stars {
+      color: #fbbf24;
+      letter-spacing: 1px;
+      font-size: 12px
+    }
+
+    .store-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 14px;
+      flex-wrap: wrap
+    }
+
+    .store-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 9px 16px;
+      border-radius: 999px;
+      border: 1px solid rgba(59, 130, 246, .45);
+      background: rgba(37, 99, 235, .14);
+      transition: background .2s, border-color .2s;
+    }
+
+    .store-btn:hover {
+      background: rgba(37, 99, 235, .3);
+      border-color: rgba(34, 211, 238, .6)
+    }
+
+    .store-btn svg {
+      width: 15px;
+      height: 15px;
+      stroke: var(--cyan-400);
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round
+    }
+
+    /* ---------- FAQ ---------- */
+    .faq {
+      padding: 0 0 110px
+    }
+
+    .faq-wrap {
+      max-width: 760px;
+      margin-inline: auto
+    }
+
+    .faq-head {
+      text-align: center;
+      margin-bottom: 34px
+    }
+
+    .faq-head h2 {
+      font-size: clamp(1.6rem, 4vw, 2.3rem);
+      font-weight: 800;
+      margin-top: 10px
+    }
+
+    .faq-item {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      margin-bottom: 12px;
+      background: linear-gradient(165deg, var(--bg-2), #0c111d);
+      transition: border-color .25s;
+    }
+
+    .faq-item.open {
+      border-color: rgba(34, 211, 238, .4)
+    }
+
+    .faq-q {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      text-align: left;
+      padding: 19px 22px;
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: 16px;
+    }
+
+    .faq-q .chev {
+      flex: 0 0 auto;
+      width: 22px;
+      height: 22px;
+      color: var(--cyan-400);
+      transition: transform .3s ease;
+    }
+
+    .faq-item.open .chev {
+      transform: rotate(180deg)
+    }
+
+    .faq-a {
+      max-height: 0;
+      opacity: 0;
+      overflow: hidden;
+      transition: max-height .38s ease, opacity .3s ease;
+    }
+
+    .faq-a p {
+      padding: 0 22px 20px;
+      color: var(--txt-dim);
+      font-size: 14.5px;
+      max-width: 62ch
+    }
+
+    .faq-item.open .faq-a {
+      max-height: 260px;
+      opacity: 1
+    }
+
+    /* ---------- Rodapé ---------- */
+    .footer {
+      border-top: 1px solid var(--line);
+      background: var(--bg-0);
+      padding: 56px 0 110px;
+    }
+
+    .footer-seals {
+      display: flex;
+      justify-content: center;
+      gap: 26px;
+      flex-wrap: wrap;
+      margin-bottom: 34px;
+    }
+
+    .seal {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      font-size: 12.5px;
+      font-weight: 500;
+      color: var(--txt-dim);
+    }
+
+    .seal svg {
+      width: 17px;
+      height: 17px;
+      stroke: var(--cyan-400);
+      fill: none;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round
+    }
+
+    .footer-info {
+      text-align: center;
+      color: var(--txt-dim);
+      font-size: 13px
+    }
+
+    .footer-info .logo {
+      margin-bottom: 14px
+    }
+
+    .footer-info p {
+      margin-top: 6px
+    }
+
+    .footer-legal {
+      margin-top: 20px;
+      font-size: 12px;
+      opacity: .65
+    }
+
+    /* ---------- Botão flutuante (telefone) ---------- */
+    .call-fab {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      z-index: 40;
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, var(--blue-600), var(--cyan-500));
+      box-shadow: 0 10px 30px rgba(6, 182, 212, .4);
+      transition: transform .18s;
+    }
+
+    .call-fab:hover {
+      transform: scale(1.07)
+    }
+
+    .call-fab svg {
+      width: 25px;
+      height: 25px;
+      fill: #fff
+    }
+
+    .call-fab::before {
+      content: "";
+      position: absolute;
+      inset: -5px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(34, 211, 238, .5);
+      animation: fabring 2.2s ease-out infinite;
+    }
+
+    @keyframes fabring {
+      0% {
+        transform: scale(.85);
+        opacity: 1
+      }
+
+      100% {
+        transform: scale(1.35);
+        opacity: 0
+      }
+    }
+
+    /* ---------- Toast ---------- */
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 26px;
+      transform: translate(-50%, 80px);
+      z-index: 60;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      background: var(--bg-2);
+      border: 1px solid rgba(34, 211, 238, .45);
+      color: var(--txt);
+      font-size: 14px;
+      font-weight: 500;
+      padding: 12px 20px;
+      border-radius: 999px;
+      box-shadow: 0 12px 34px rgba(0, 0, 0, .5);
+      opacity: 0;
+      transition: transform .35s ease, opacity .35s ease;
+      pointer-events: none;
+    }
+
+    .toast.show {
+      transform: translate(-50%, 0);
+      opacity: 1
+    }
+
+    .toast svg {
+      width: 17px;
+      height: 17px;
+      stroke: var(--green-ok);
+      fill: none;
+      stroke-width: 2.2;
+      stroke-linecap: round;
+      stroke-linejoin: round
+    }
+
+    /* ---------- Responsivo ---------- */
+    @media (max-width:880px) {
+      .stores-grid {
+        grid-template-columns: 1fr
+      }
+
+      .rx-inner {
+        grid-template-columns: 1fr;
+        gap: 0
+      }
+
+      .rx-canvas-wrap {
+        height: 52svh;
+        z-index: 5;
+        background: linear-gradient(180deg, var(--bg-0) 82%, transparent);
+      }
+
+      .rx-stage {
+        max-height: 48svh;
+        aspect-ratio: auto;
+        height: 100%;
+        width: 100%
+      }
+
+      .rx-steps {
+        padding: 6vh 0 12vh;
+        gap: 4vh
+      }
+
+      .rx-step {
+        min-height: 52vh
+      }
+
+      .benefits-grid {
+        grid-template-columns: repeat(2, 1fr)
+      }
+
+      .about-grid {
+        grid-template-columns: 1fr
+      }
+
+      .about-photo {
+        max-width: 480px;
+        margin-inline: auto;
+        width: 100%;
+      }
+    }
+
+    @media (max-width:560px) {
+      .branches {
+        grid-template-columns: 1fr
+      }
+
+      .branch {
+        padding: 14px 16px
+      }
+
+      .topbar {
+        padding: 14px 16px
+      }
+
+      .topbar-spacer {
+        width: 96px
+      }
+
+      /* mesmo tamanho do botão copiar: logo fica centralizada */
+      .copylink {
+        font-size: 12px;
+        padding: 7px 11px
+      }
+
+      .benefits-grid {
+        grid-template-columns: 1fr
+      }
+
+      .logo-badge {
+        width: 80px
+      }
+
+      .rx-hint {
+        font-size: 10px
+      }
+    }
+
+    /* ---------- Movimento reduzido ---------- */
+    @media (prefers-reduced-motion:reduce) {
+      html {
+        scroll-behavior: auto
+      }
+
+      *,
+      *::before,
+      *::after {
+        animation-duration: .001s !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .001s !important
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ============ HERO ============ -->
+  <header class="hero">
+    <video class="hero-video" autoplay muted loop playsinline preload="metadata" aria-hidden="true">
+      <source src="assets/hero.mp4" type="video/mp4">
+    </video>
+    <div class="hero-overlay" aria-hidden="true"></div>
+
+    <div class="topbar">
+      <button class="copylink" id="copyLinkBtn" type="button" aria-label="Copiar link desta página">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+          <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+        </svg>
+        Copiar link
+      </button>
+
+      <div class="logo">
+        <!-- Reserva em SVG (branco, sem fundo). A página usa assets/logo.png automaticamente quando existir. -->
+        <svg class="logo-badge" viewBox="0 0 120 120" role="img" aria-label="Carreiro Auto Peças">
+          <g fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M60 10 76 18v16L60 42 44 34V18Z" />
+            <path d="M66 21a8 8 0 1 0 0 10" />
+          </g>
+          <text x="60" y="73" text-anchor="middle" font-family="Outfit,Inter,sans-serif" font-size="20"
+            font-weight="800" fill="#ffffff" letter-spacing="0.5" font-style="italic">CARREIRO</text>
+          <path d="M14 80 C 45 86 82 84 106 74" stroke="#ffffff" stroke-width="1.8" fill="none"
+            stroke-linecap="round" />
+          <text x="60" y="96" text-anchor="middle" font-family="Outfit,Inter,sans-serif" font-size="11"
+            font-weight="700" font-style="italic" fill="#ffffff" letter-spacing="2">AUTOPEÇAS</text>
+        </svg>
+      </div>
+
+      <span class="topbar-spacer" aria-hidden="true"></span>
+    </div>
+
+    <div class="container hero-content">
+      <span class="hero-eyebrow">Peças originais &amp; primeira linha</span>
+      <h1>A peça certa,<br>na <span class="grad">primeira conversa</span>.</h1>
+      <p class="hero-sub">
+        Do parafuso ao motor completo: chame no WhatsApp e nossa equipe te atende
+        na hora, com nota fiscal e garantia.
+      </p>
+
+      <nav class="branches" aria-label="Lojas no WhatsApp">
+        <a class="branch"
+          href="https://wa.me/5588997270713?text=Ol%C3%A1%2C%20gostaria%20de%20comprar%20uma%20pe%C3%A7a!"
+          target="_blank" rel="noopener">
+          <span class="branch-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path
+                d="M12 2A10 10 0 0 0 2 12a9.9 9.9 0 0 0 1.5 5.3L2 22l4.8-1.4A10 10 0 1 0 12 2Zm5.5 14.1c-.2.7-1.3 1.3-1.9 1.4-.5.1-1.1.1-1.8-.1a16 16 0 0 1-6.9-6.1c-.5-.9-.9-2-.6-2.9.2-.6.9-1.6 1.5-1.7h.6c.2 0 .4 0 .6.5l.9 2.1c.1.2.1.4 0 .6l-.5.8c-.1.2-.2.4-.1.6a7.6 7.6 0 0 0 3.6 3.3c.2.1.5.1.6-.1l.8-.9c.2-.2.4-.3.6-.2l2.2.9c.4.2.4.4.4.6v1.2Z" />
+            </svg>
+          </span>
+          <span class="branch-info">
+            <span class="branch-name">Matriz Carreiro</span><br>
+            <span class="branch-zone">Poranga · CE</span>
+          </span>
+          <span class="branch-status"><span class="dot" aria-hidden="true"></span>Online</span>
+        </a>
+
+        <a class="branch"
+          href="https://wa.me/5586995337823?text=Ol%C3%A1%2C%20gostaria%20de%20comprar%20uma%20pe%C3%A7a!"
+          target="_blank" rel="noopener">
+          <span class="branch-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path
+                d="M12 2A10 10 0 0 0 2 12a9.9 9.9 0 0 0 1.5 5.3L2 22l4.8-1.4A10 10 0 1 0 12 2Zm5.5 14.1c-.2.7-1.3 1.3-1.9 1.4-.5.1-1.1.1-1.8-.1a16 16 0 0 1-6.9-6.1c-.5-.9-.9-2-.6-2.9.2-.6.9-1.6 1.5-1.7h.6c.2 0 .4 0 .6.5l.9 2.1c.1.2.1.4 0 .6l-.5.8c-.1.2-.2.4-.1.6a7.6 7.6 0 0 0 3.6 3.3c.2.1.5.1.6-.1l.8-.9c.2-.2.4-.3.6-.2l2.2.9c.4.2.4.4.4.6v1.2Z" />
+            </svg>
+          </span>
+          <span class="branch-info">
+            <span class="branch-name">Ceará Auto Peças Pedro II</span><br>
+            <span class="branch-zone">Pedro II · PI</span>
+          </span>
+          <span class="branch-status"><span class="dot" aria-hidden="true"></span>Online</span>
+        </a>
+
+        <a class="branch"
+          href="https://wa.me/5586994432802?text=Ol%C3%A1%2C%20gostaria%20de%20comprar%20uma%20pe%C3%A7a!"
+          target="_blank" rel="noopener">
+          <span class="branch-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path
+                d="M12 2A10 10 0 0 0 2 12a9.9 9.9 0 0 0 1.5 5.3L2 22l4.8-1.4A10 10 0 1 0 12 2Zm5.5 14.1c-.2.7-1.3 1.3-1.9 1.4-.5.1-1.1.1-1.8-.1a16 16 0 0 1-6.9-6.1c-.5-.9-.9-2-.6-2.9.2-.6.9-1.6 1.5-1.7h.6c.2 0 .4 0 .6.5l.9 2.1c.1.2.1.4 0 .6l-.5.8c-.1.2-.2.4-.1.6a7.6 7.6 0 0 0 3.6 3.3c.2.1.5.1.6-.1l.8-.9c.2-.2.4-.3.6-.2l2.2.9c.4.2.4.4.4.6v1.2Z" />
+            </svg>
+          </span>
+          <span class="branch-info">
+            <span class="branch-name">Ceará Auto Peças Piripiri</span><br>
+            <span class="branch-zone">Piripiri · PI</span>
+          </span>
+          <span class="branch-status"><span class="dot" aria-hidden="true"></span>Online</span>
+        </a>
+
+        <a class="branch"
+          href="https://wa.me/558698358408?text=Ol%C3%A1%2C%20gostaria%20de%20comprar%20uma%20pe%C3%A7a!"
+          target="_blank" rel="noopener">
+          <span class="branch-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path
+                d="M12 2A10 10 0 0 0 2 12a9.9 9.9 0 0 0 1.5 5.3L2 22l4.8-1.4A10 10 0 1 0 12 2Zm5.5 14.1c-.2.7-1.3 1.3-1.9 1.4-.5.1-1.1.1-1.8-.1a16 16 0 0 1-6.9-6.1c-.5-.9-.9-2-.6-2.9.2-.6.9-1.6 1.5-1.7h.6c.2 0 .4 0 .6.5l.9 2.1c.1.2.1.4 0 .6l-.5.8c-.1.2-.2.4-.1.6a7.6 7.6 0 0 0 3.6 3.3c.2.1.5.1.6-.1l.8-.9c.2-.2.4-.3.6-.2l2.2.9c.4.2.4.4.4.6v1.2Z" />
+            </svg>
+          </span>
+          <span class="branch-info">
+            <span class="branch-name">Ceará Auto Peças José de Freitas</span><br>
+            <span class="branch-zone">José de Freitas · PI</span>
+          </span>
+          <span class="branch-status"><span class="dot" aria-hidden="true"></span>Online</span>
+        </a>
+
+        <a class="branch"
+          href="https://wa.me/5586994784497?text=Ol%C3%A1%2C%20gostaria%20de%20comprar%20uma%20pe%C3%A7a!"
+          target="_blank" rel="noopener">
+          <span class="branch-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path
+                d="M12 2A10 10 0 0 0 2 12a9.9 9.9 0 0 0 1.5 5.3L2 22l4.8-1.4A10 10 0 1 0 12 2Zm5.5 14.1c-.2.7-1.3 1.3-1.9 1.4-.5.1-1.1.1-1.8-.1a16 16 0 0 1-6.9-6.1c-.5-.9-.9-2-.6-2.9.2-.6.9-1.6 1.5-1.7h.6c.2 0 .4 0 .6.5l.9 2.1c.1.2.1.4 0 .6l-.5.8c-.1.2-.2.4-.1.6a7.6 7.6 0 0 0 3.6 3.3c.2.1.5.1.6-.1l.8-.9c.2-.2.4-.3.6-.2l2.2.9c.4.2.4.4.4.6v1.2Z" />
+            </svg>
+          </span>
+          <span class="branch-info">
+            <span class="branch-name">Ceará Auto Peças Campo Maior</span><br>
+            <span class="branch-zone">Campo Maior · PI</span>
+          </span>
+          <span class="branch-status"><span class="dot" aria-hidden="true"></span>Online</span>
+        </a>
+      </nav>
+
+      <p class="hero-urgency">Consultores online prontos para te atender</p>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- ============ RAIO-X CARREIRO ============ -->
+    <section class="raiox" id="raiox" aria-label="Raio-X Carreiro: como funciona nosso atendimento">
+      <div class="rx-head container">
+        <h2>Cada peça no lugar certo.</h2>
+        <p>Role a página e monte o motor. É assim que a gente trabalha: peça por peça, até o seu carro voltar a rodar.
+        </p>
+      </div>
+
+      <div class="rx-inner">
+        <div class="rx-canvas-wrap">
+          <div class="rx-stage">
+            <span class="rx-hint" id="rxHint">Arraste para girar em 3D</span>
+            <canvas id="engineCanvas"
+              aria-label="Animação interativa de um motor 4 cilindros montando conforme a página rola"></canvas>
+            <div class="rx-hud" aria-hidden="true">
+              <span>Montagem <span class="hud-val" id="hudPct">0%</span></span>
+              <span class="hud-val" id="hudStatus">Desmontado</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="rx-steps" id="rxSteps">
+          <article class="rx-step" data-step="0">
+            <h3>Milhares de peças. A sua está aqui.</h3>
+            <p>Um dos maiores estoques da região, com linha leve e pesada. Do retentor ao motor completo, a peça que o
+              seu carro precisa já está na nossa prateleira.</p>
+          </article>
+          <article class="rx-step" data-step="1">
+            <h3>Atendimento que resolve.</h3>
+            <p>Quem te responde conhece peça de verdade. A equipe confere com você se o item serve no seu carro antes de
+              fechar, sem pressa e sem compra errada.</p>
+          </article>
+          <article class="rx-step" data-step="2">
+            <h3>Motor no lugar, carro na rua.</h3>
+            <p>Retire na loja ou receba por motoboy no mesmo dia. Tudo com nota fiscal e garantia de fábrica, pra você
+              instalar sem medo.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ QUEM SOMOS ============ -->
+    <section class="about" aria-labelledby="aboutTitle">
+      <div class="container about-grid">
+        <figure class="about-photo">
+          <img src="assets/equipe.jpg"
+            alt="Três funcionários da Carreiro Auto Peças sorrindo no balcão da loja, com as prateleiras de produtos ao fundo"
+            loading="lazy" width="960" height="720">
+          <figcaption>A equipe da Carreiro, pronta pra te atender no balcão e no WhatsApp.</figcaption>
+        </figure>
+        <div class="about-copy">
+          <h2 id="aboutTitle">Uma família, um estoque gigante e um combinado simples: te atender bem.</h2>
+          <p>A <strong>Carreiro Auto Peças</strong> nasceu de balcão, no meio de prateleira, caixa de papelão e cliente
+            com pressa. Crescemos porque tratamos cada carro como se fosse o nosso.</p>
+          <p>Hoje somos <strong>5 lojas entre o Ceará e o Piauí</strong> e um dos maiores estoques da região. Quem
+            responde seu WhatsApp continua sendo gente da casa, que sabe o que é um carro parado na porta.</p>
+          <p><strong>Peça original ou primeira linha, nota fiscal em tudo e garantia de verdade.</strong> É o nosso
+            jeito desde o primeiro dia.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ BENEFÍCIOS ============ -->
+    <section class="benefits" aria-label="Por que comprar na Carreiro">
+      <div class="container">
+        <div class="benefits-grid">
+          <div class="benefit">
+            <span class="benefit-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path d="M3 7.5 12 3l9 4.5M3 7.5v9L12 21m-9-13.5L12 12m9-4.5v9L12 21m9-13.5L12 12m0 9V12" />
+              </svg>
+            </span>
+            <h3>Estoque gigante</h3>
+            <p>Peças, baterias, pneus, óleos, filtros e acessórios à pronta entrega, para linha leve e pesada. Se não
+              tiver, a gente localiza pra você.</p>
+          </div>
+          <div class="benefit">
+            <span class="benefit-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path d="M12 3l7 3v5c0 4.5-3 8.5-7 10-4-1.5-7-5.5-7-10V6l7-3Z" />
+                <path d="m9 12 2 2 4-4" />
+              </svg>
+            </span>
+            <h3>Garantia e nota fiscal</h3>
+            <p>Toda venda sai com NF e garantia de fábrica. Deu problema? A gente resolve, sem burocracia.</p>
+          </div>
+          <div class="benefit">
+            <span class="benefit-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path d="M3 16V7a1 1 0 0 1 1-1h10v10M14 9h4l3 3v4h-2.5M3 16h1.5m9.5 0h-5" />
+                <circle cx="7" cy="17.5" r="1.8" />
+                <circle cx="16.5" cy="17.5" r="1.8" />
+              </svg>
+            </span>
+            <h3>Entrega no mesmo dia</h3>
+            <p>Motoboy na cidade e envio para todo o Brasil. Seu mecânico não fica esperando.</p>
+          </div>
+          <div class="benefit">
+            <span class="benefit-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path d="M14.7 6.3a4.5 4.5 0 0 0-6 6L3 18v3h3l5.7-5.7a4.5 4.5 0 0 0 6-6L14 12l-2-2 2.7-3.7Z" />
+              </svg>
+            </span>
+            <h3>Quem atende, entende</h3>
+            <p>Consultores que tiram suas dúvidas, confirmam a peça certa e ainda fazem troca de bateria e instalação
+              na loja.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ ONDE ESTAMOS ============ -->
+    <section class="stores" aria-labelledby="storesTitle">
+      <div class="container">
+        <div class="stores-head">
+          <h2 id="storesTitle">5 lojas entre o Ceará e o Piauí</h2>
+          <p>Cada cidade conhece a gente por um nome, mas a família e o estoque são os mesmos. Chame no WhatsApp ou
+            venha nos visitar.</p>
+        </div>
+
+        <div class="stores-grid">
+          <div class="store">
+            <span class="store-city">Matriz · Poranga - CE</span>
+            <h3>Matriz Carreiro</h3>
+            <p class="store-address">Tv. Dr. Epitácio de Pinho, 537, Centro, CEP 62220-000</p>
+            <p class="store-rating"><span class="stars" aria-hidden="true">★★★★</span>4,2 no Google · 22 avaliações</p>
+            <div class="store-actions">
+              <a class="store-btn"
+                href="https://wa.me/5588997270713?text=Ol%C3%A1%2C%20gostaria%20de%20comprar%20uma%20pe%C3%A7a!"
+                target="_blank" rel="noopener">
+                <svg viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                  <path
+                    d="M12 2A10 10 0 0 0 2 12a9.9 9.9 0 0 0 1.5 5.3L2 22l4.8-1.4A10 10 0 1 0 12 2Zm5.5 14.1c-.2.7-1.3 1.3-1.9 1.4-.5.1-1.1.1-1.8-.1a16 16 0 0 1-6.9-6.1c-.5-.9-.9-2-.6-2.9.2-.6.9-1.6 1.5-1.7h.6c.2 0 .4 0 .6.5l.9 2.1c.1.2.1.4 0 .6l-.5.8c-.1.2-.2.4-.1.6a7.6 7.6 0 0 0 3.6 3.3c.2.1.5.1.6-.1l.8-.9c.2-.2.4-.3.6-.2l2.2.9c.4.2.4.4.4.6v1.2Z" />
+                </svg>
+                WhatsApp
+              </a>
+              <a class="store-btn"
+                href="https://www.google.com/maps/search/?api=1&query=Tv.+Dr.+Epit%C3%A1cio+de+Pinho+537+Poranga+CE"
+                target="_blank" rel="noopener">
+                <svg viewBox="0 0 24 24">
+                  <path d="M12 21s7-6.1 7-11a7 7 0 1 0-14 0c0 4.9 7 11 7 11Z" />
+                  <circle cx="12" cy="10" r="2.6" />
+                </svg>
+                Ver no mapa
+              </a>
+            </div>
+          </div>
+
+          <div class="store">
+            <span class="store-city">Filial 1 · Pedro II - PI</span>
+            <h3>Cearense Auto Peças</h3>
+            <p class="store-address">Av. Dr. José Lourenço Mourão, 66, Chapadinha, CEP 64255-000</p>
+            <div class="store-actions">
+              <a class="store-btn"
+                href="https://wa.me/5586995337823?text=Ol%C3%A1%2C%20gostaria%20de%20comprar%20uma%20pe%C3%A7a!"
+                target="_blank" rel="noopener">
+                <svg viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                  <path
+                    d="M12 2A10 10 0 0 0 2 12a9.9 9.9 0 0 0 1.5 5.3L2 22l4.8-1.4A10 10 0 1 0 12 2Zm5.5 14.1c-.2.7-1.3 1.3-1.9 1.4-.5.1-1.1.1-1.8-.1a16 16 0 0 1-6.9-6.1c-.5-.9-.9-2-.6-2.9.2-.6.9-1.6 1.5-1.7h.6c.2 0 .4 0 .6.5l.9 2.1c.1.2.1.4 0 .6l-.5.8c-.1.2-.2.4-.1.6a7.6 7.6 0 0 0 3.6 3.3c.2.1.5.1.6-.1l.8-.9c.2-.2.4-.3.6-.2l2.2.9c.4.2.4.4.4.6v1.2Z" />
+                </svg>
+                WhatsApp
+              </a>
+              <a class="store-btn"
+                href="https://www.google.com/maps/search/?api=1&query=Av.+Dr.+Jos%C3%A9+Louren%C3%A7o+Mour%C3%A3o+66+Pedro+II+PI"
+                target="_blank" rel="noopener">
+                <svg viewBox="0 0 24 24">
+                  <path d="M12 21s7-6.1 7-11a7 7 0 1 0-14 0c0 4.9 7 11 7 11Z" />
+                  <circle cx="12" cy="10" r="2.6" />
+                </svg>
+                Ver no mapa
+              </a>
+            </div>
+          </div>
+
+          <div class="store">
+            <span class="store-city">Filial 2 · Piripiri - PI</span>
+            <h3>Ceará Auto Peças</h3>
+            <p class="store-address">Av. Aderson Alves Ferreira, 1877, Paciência, CEP 64260-000</p>
+            <div class="store-actions">
+              <a class="store-btn"
+                href="https://wa.me/5586994432802?text=Ol%C3%A1%2C%20gostaria%20de%20comprar%20uma%20pe%C3%A7a!"
+                target="_blank" rel="noopener">
+                <svg viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                  <path
+                    d="M12 2A10 10 0 0 0 2 12a9.9 9.9 0 0 0 1.5 5.3L2 22l4.8-1.4A10 10 0 1 0 12 2Zm5.5 14.1c-.2.7-1.3 1.3-1.9 1.4-.5.1-1.1.1-1.8-.1a16 16 0 0 1-6.9-6.1c-.5-.9-.9-2-.6-2.9.2-.6.9-1.6 1.5-1.7h.6c.2 0 .4 0 .6.5l.9 2.1c.1.2.1.4 0 .6l-.5.8c-.1.2-.2.4-.1.6a7.6 7.6 0 0 0 3.6 3.3c.2.1.5.1.6-.1l.8-.9c.2-.2.4-.3.6-.2l2.2.9c.4.2.4.4.4.6v1.2Z" />
+                </svg>
+                WhatsApp
+              </a>
+              <a class="store-btn"
+                href="https://www.google.com/maps/search/?api=1&query=Av.+Aderson+Alves+Ferreira+1877+Piripiri+PI"
+                target="_blank" rel="noopener">
+                <svg viewBox="0 0 24 24">
+                  <path d="M12 21s7-6.1 7-11a7 7 0 1 0-14 0c0 4.9 7 11 7 11Z" />
+                  <circle cx="12" cy="10" r="2.6" />
+                </svg>
+                Ver no mapa
+              </a>
+            </div>
+          </div>
+
+          <div class="store">
+            <span class="store-city">Filial 3 · Campo Maior - PI</span>
+            <h3>Carreiro Auto Peças</h3>
+            <p class="store-address">Av. Heróis do Jenipapo, 1977, Matadouro, CEP 64280-000</p>
+            <div class="store-actions">
+              <a class="store-btn"
+                href="https://www.google.com/maps/search/?api=1&query=Av.+Her%C3%B3is+do+Jenipapo+1977+Campo+Maior+PI"
+                target="_blank" rel="noopener">
+                <svg viewBox="0 0 24 24">
+                  <path d="M12 21s7-6.1 7-11a7 7 0 1 0-14 0c0 4.9 7 11 7 11Z" />
+                  <circle cx="12" cy="10" r="2.6" />
+                </svg>
+                Ver no mapa
+              </a>
+            </div>
+          </div>
+
+          <div class="store">
+            <span class="store-city">Filial 4 · José de Freitas - PI</span>
+            <h3>Carreiro Auto Peças</h3>
+            <p class="store-address">Av. Governador Petrônio Portela, S/N, Centro, CEP 64110-000</p>
+            <div class="store-actions">
+              <a class="store-btn"
+                href="https://www.google.com/maps/search/?api=1&query=Av.+Governador+Petr%C3%B4nio+Portela+Jos%C3%A9+de+Freitas+PI"
+                target="_blank" rel="noopener">
+                <svg viewBox="0 0 24 24">
+                  <path d="M12 21s7-6.1 7-11a7 7 0 1 0-14 0c0 4.9 7 11 7 11Z" />
+                  <circle cx="12" cy="10" r="2.6" />
+                </svg>
+                Ver no mapa
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ FAQ ============ -->
+    <section class="faq" aria-labelledby="faqTitle">
+      <div class="container faq-wrap">
+        <div class="faq-head">
+          <h2 id="faqTitle">Antes de chamar no WhatsApp</h2>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q" type="button" aria-expanded="false">
+            Como sei se a peça serve no meu carro?
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" aria-hidden="true">
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </button>
+          <div class="faq-a">
+            <p>Manda o modelo e o ano do carro no WhatsApp (se tiver a placa, melhor ainda). Nosso consultor confirma
+              com você se a peça serve antes de fechar. Você não paga sem ter certeza.</p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q" type="button" aria-expanded="false">
+            Vocês entregam?
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" aria-hidden="true">
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </button>
+          <div class="faq-a">
+            <p>Sim. Na cidade, entrega por motoboy no mesmo dia. Para outras regiões, enviamos para todo o Brasil por
+              transportadora ou Correios, com código de rastreio.</p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q" type="button" aria-expanded="false">
+            As peças têm garantia?
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" aria-hidden="true">
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </button>
+          <div class="faq-a">
+            <p>Todas. Cada venda sai com nota fiscal e garantia de fábrica. Se a peça apresentar defeito dentro do
+              prazo, trocamos sem burocracia. É só voltar com a NF.</p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q" type="button" aria-expanded="false">
+            Vocês só vendem peças?
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" aria-hidden="true">
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </button>
+          <div class="faq-a">
+            <p>Não. Além de peças, baterias, pneus, óleos, filtros e acessórios, fazemos troca de bateria, instalação
+              de alguns produtos e conferência da peça certa pro seu carro. Percebeu algo diferente no veículo? Passa
+              na loja que a equipe olha pra você.</p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q" type="button" aria-expanded="false">
+            Quais formas de pagamento vocês aceitam?
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" aria-hidden="true">
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </button>
+          <div class="faq-a">
+            <p>Pix, dinheiro, débito e crédito parcelado. Para oficinas e frotas, temos condições especiais. É só avisar
+              no WhatsApp da loja mais perto de você.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============ RODAPÉ ============ -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-seals">
+        <span class="seal"><svg viewBox="0 0 24 24">
+            <rect x="4" y="10" width="16" height="10" rx="2" />
+            <path d="M8 10V7a4 4 0 0 1 8 0v3" />
+          </svg>Compra segura</span>
+        <span class="seal"><svg viewBox="0 0 24 24">
+            <path d="M6 3h9l4 4v14H6zM14 3v5h5" />
+            <path d="m9 14 2 2 4-4" />
+          </svg>Nota fiscal em todas as vendas</span>
+        <span class="seal"><svg viewBox="0 0 24 24">
+            <path d="M12 3l7 3v5c0 4.5-3 8.5-7 10-4-1.5-7-5.5-7-10V6l7-3Z" />
+          </svg>Garantia de fábrica</span>
+      </div>
+
+      <div class="footer-info">
+        <div class="logo">
+          <svg class="logo-badge" viewBox="0 0 120 120" role="img" aria-label="Carreiro Auto Peças">
+            <g fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M60 10 76 18v16L60 42 44 34V18Z" />
+              <path d="M66 21a8 8 0 1 0 0 10" />
+            </g>
+            <text x="60" y="73" text-anchor="middle" font-family="Outfit,Inter,sans-serif" font-size="20"
+              font-weight="800" fill="#ffffff" letter-spacing="0.5" font-style="italic">CARREIRO</text>
+            <path d="M14 80 C 45 86 82 84 106 74" stroke="#ffffff" stroke-width="1.8" fill="none"
+              stroke-linecap="round" />
+            <text x="60" y="96" text-anchor="middle" font-family="Outfit,Inter,sans-serif" font-size="11"
+              font-weight="700" font-style="italic" fill="#ffffff" letter-spacing="2">AUTOPEÇAS</text>
+          </svg>
+        </div>
+        <p>Matriz: Tv. Dr. Epitácio de Pinho, 537, Centro, Poranga - CE, CEP 62220-000</p>
+        <p>Lojas em Poranga, Pedro II, Piripiri, Campo Maior e José de Freitas</p>
+        <p>CNPJ 14.634.245/0001-85</p>
+        <p class="footer-legal">© 2026 Carreiro Auto Peças. Todos os direitos reservados.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Botão flutuante: WhatsApp da Matriz -->
+  <a class="call-fab" href="https://wa.me/5588997270713?text=Ol%C3%A1%2C%20gostaria%20de%20comprar%20uma%20pe%C3%A7a!"
+    target="_blank" rel="noopener" aria-label="Chamar a Carreiro Auto Peças no WhatsApp">
+    <svg viewBox="0 0 24 24">
+      <path
+        d="M12 2A10 10 0 0 0 2 12a9.9 9.9 0 0 0 1.5 5.3L2 22l4.8-1.4A10 10 0 1 0 12 2Zm5.5 14.1c-.2.7-1.3 1.3-1.9 1.4-.5.1-1.1.1-1.8-.1a16 16 0 0 1-6.9-6.1c-.5-.9-.9-2-.6-2.9.2-.6.9-1.6 1.5-1.7h.6c.2 0 .4 0 .6.5l.9 2.1c.1.2.1.4 0 .6l-.5.8c-.1.2-.2.4-.1.6a7.6 7.6 0 0 0 3.6 3.3c.2.1.5.1.6-.1l.8-.9c.2-.2.4-.3.6-.2l2.2.9c.4.2.4.4.4.6v1.2Z" />
+    </svg>
+  </a>
+
+  <!-- Toast -->
+  <div class="toast" id="toast" role="status" aria-live="polite">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="m4 12 5 5L20 6" />
+    </svg>
+    <span>Link copiado!</span>
+  </div>
+
+  <script>
+    "use strict";
+    const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    /* ============ Copiar link + Toast ============ */
+    (() => {
+      const btn = document.getElementById("copyLinkBtn");
+      const toast = document.getElementById("toast");
+      let timer;
+      btn.addEventListener("click", async () => {
+        try {
+          await navigator.clipboard.writeText(location.href);
+        } catch {
+          const ta = document.createElement("textarea");
+          ta.value = location.href;
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand("copy");
+          ta.remove();
+        }
+        toast.classList.add("show");
+        clearTimeout(timer);
+        timer = setTimeout(() => toast.classList.remove("show"), 2200);
+      });
+    })();
+
+    /* ============ Logo oficial: usa assets/logo.png se o arquivo existir ============ */
+    (() => {
+      const probe = new Image();
+      probe.onload = () => {
+        document.querySelectorAll(".logo-badge").forEach(svg => {
+          const img = document.createElement("img");
+          img.src = "assets/logo.png";
+          img.alt = "Carreiro Auto Peças";
+          img.className = "logo-badge";
+          svg.replaceWith(img);
+        });
+      };
+      probe.src = "assets/logo.png";
+    })();
+
+    /* ============ Vídeo: respeita movimento reduzido ============ */
+    (() => {
+      const v = document.querySelector(".hero-video");
+      if (reduceMotion && v) { v.removeAttribute("autoplay"); v.pause(); }
+    })();
+
+    /* ============ FAQ Accordion ============ */
+    document.querySelectorAll(".faq-q").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const item = btn.parentElement;
+        const open = item.classList.toggle("open");
+        btn.setAttribute("aria-expanded", open);
+        document.querySelectorAll(".faq-item.open").forEach(other => {
+          if (other !== item) {
+            other.classList.remove("open");
+            other.querySelector(".faq-q").setAttribute("aria-expanded", "false");
+          }
+        });
+      });
+    });
+
+    /* ============================================================
+       RAIO-X CARREIRO — Motor 4 cilindros em Canvas 2D
+       Holograma vetorial · scroll-scrub · órbita por arraste
+       ============================================================ */
+    (() => {
+      const canvas = document.getElementById("engineCanvas");
+      const ctx = canvas.getContext("2d");
+      const section = document.getElementById("raiox");
+      const steps = [...document.querySelectorAll(".rx-step")];
+      const hudPct = document.getElementById("hudPct");
+      const hudStatus = document.getElementById("hudStatus");
+      const hint = document.getElementById("rxHint");
+
+      /* ---- Parâmetros do mecanismo (slider-crank) ---- */
+      const R = 0.55;             // raio do virabrequim
+      const L = 1.60;             // comprimento da biela
+      const CYL_X = [-1.5, -0.5, 0.5, 1.5];   // posição dos 4 cilindros no eixo X
+      const PHASE = [0, Math.PI, Math.PI, 0]; // pinos desalinhados 180° (inline-4)
+      const Y_CENTER = 1.15;      // centraliza o modelo na vertical
+
+      const C_CYAN = "#22d3ee", C_CYAN2 = "#67e8f9", C_BLUE = "#3b82f6", C_BLUE2 = "#60a5fa";
+
+      /* ---- Estado ---- */
+      let W = 0, H = 0, DPR = 1;
+      let explode = 1;            // 1 = desmontado · 0 = montado
+      let crankAngle = 0.7;
+      let rpm = 0;                // velocidade atual (rad/s)
+      let running = false;
+      let yaw = -0.55, pitch = 0.33;
+      let tYaw = yaw, tPitch = pitch;
+      let dragging = false, dragged = false, lastX = 0, lastY = 0;
+      let visible = false;
+      let lastT = performance.now();
+
+      function resize() {
+        const r = canvas.getBoundingClientRect();
+        DPR = Math.min(devicePixelRatio || 1, 2);
+        W = r.width; H = r.height;
+        canvas.width = Math.round(W * DPR);
+        canvas.height = Math.round(H * DPR);
+        ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+      }
+      addEventListener("resize", resize);
+      resize();
+
+      /* ---- Projeção 3D → 2D ---- */
+      const FOV = 7;
+      function project(x, y, z, out) {
+        y -= Y_CENTER;
+        // rotação Yaw (eixo Y)
+        const ca = Math.cos(yaw), sa = Math.sin(yaw);
+        const x1 = x * ca - z * sa;
+        const z1 = x * sa + z * ca;
+        // rotação Pitch (eixo X)
+        const cb = Math.cos(pitch), sb = Math.sin(pitch);
+        const y2 = y * cb - z1 * sb;
+        const z2 = y * sb + z1 * cb;
+        // zoom dinâmico: desmontado afasta a câmera (tudo cabe na cena),
+        // e vai aproximando conforme o motor monta
+        const zoomOut = 5.6 + 3.0 * explode;
+        const scale = Math.min(W, H) / zoomOut;
+        const p = FOV / (FOV + z2);
+        out[0] = W / 2 + x1 * scale * p;
+        out[1] = H / 2 - y2 * scale * p;
+        out[2] = z2;
+      }
+
+      /* ---- Desenho de arestas com brilho (2 passadas) ---- */
+      const pa = [0, 0, 0], pb = [0, 0, 0];
+      function line3(x1, y1, z1, x2, y2, z2, color, alpha = 1) {
+        project(x1, y1, z1, pa);
+        project(x2, y2, z2, pb);
+        const depth = (pa[2] + pb[2]) / 2;
+        const a = alpha * Math.max(0.3, Math.min(1, 0.78 - depth * 0.18));
+        ctx.strokeStyle = color;
+        // halo
+        ctx.globalAlpha = a * 0.22;
+        ctx.lineWidth = 4;
+        ctx.beginPath(); ctx.moveTo(pa[0], pa[1]); ctx.lineTo(pb[0], pb[1]); ctx.stroke();
+        // traço
+        ctx.globalAlpha = a;
+        ctx.lineWidth = 1.4;
+        ctx.beginPath(); ctx.moveTo(pa[0], pa[1]); ctx.lineTo(pb[0], pb[1]); ctx.stroke();
+      }
+      function dot3(x, y, z, color, r = 2.4, alpha = 1) {
+        project(x, y, z, pa);
+        ctx.globalAlpha = alpha * Math.max(0.3, Math.min(1, 0.78 - pa[2] * 0.18));
+        ctx.fillStyle = color;
+        ctx.beginPath(); ctx.arc(pa[0], pa[1], r, 0, Math.PI * 2); ctx.fill();
+      }
+
+      /* Anel octogonal no plano XZ (para cilindros e pistões) */
+      function ring(cx, cy, cz, radius, color, alpha) {
+        const N = 8;
+        for (let i = 0; i < N; i++) {
+          const a1 = (i / N) * Math.PI * 2, a2 = ((i + 1) / N) * Math.PI * 2;
+          line3(cx + radius * Math.cos(a1), cy, cz + radius * Math.sin(a1),
+            cx + radius * Math.cos(a2), cy, cz + radius * Math.sin(a2), color, alpha);
+        }
+      }
+
+      /* ---- Renderização do motor ---- */
+      function drawEngine() {
+        ctx.clearRect(0, 0, W, H);
+        const e = explode;
+        const eEase = e * e * (3 - 2 * e); // suaviza a dispersão
+
+        /* BLOCO (gaiola dos cilindros) — sobe ao explodir */
+        const bY = 1.7 * eEase;
+        const blkA = 0.85;
+        for (let i = 0; i < 4; i++) {
+          const cx = CYL_X[i];
+          ring(cx, 2.85 + bY, 0, 0.5, C_BLUE, blkA);
+          ring(cx, 1.05 + bY, 0, 0.5, C_BLUE, blkA * 0.55);
+          for (let k = 0; k < 4; k++) {
+            const a = (k / 4) * Math.PI * 2 + Math.PI / 8;
+            line3(cx + 0.5 * Math.cos(a), 1.05 + bY, 0.5 * Math.sin(a),
+              cx + 0.5 * Math.cos(a), 2.85 + bY, 0.5 * Math.sin(a), C_BLUE, blkA * 0.5);
+          }
+        }
+        // trilhos do deck (topo do bloco)
+        line3(-2.05, 2.85 + bY, 0.55, 2.05, 2.85 + bY, 0.55, C_BLUE2, blkA);
+        line3(-2.05, 2.85 + bY, -0.55, 2.05, 2.85 + bY, -0.55, C_BLUE2, blkA);
+        line3(-2.05, 2.85 + bY, 0.55, -2.05, 2.85 + bY, -0.55, C_BLUE2, blkA);
+        line3(2.05, 2.85 + bY, 0.55, 2.05, 2.85 + bY, -0.55, C_BLUE2, blkA);
+
+        /* VIRABREQUIM — desce ao explodir */
+        const cY = -1.5 * eEase;
+        const W2 = 0.14; // meia largura do pino
+        let prevX = -2.0;
+        for (let i = 0; i < 4; i++) {
+          const cx = CYL_X[i];
+          const th = crankAngle + PHASE[i];
+          const py = R * Math.cos(th), pz = R * Math.sin(th);
+          // munhão principal até o mancal deste cilindro
+          line3(prevX, cY, 0, cx - W2, cY, 0, C_CYAN, 1);
+          // contrapesos (opostos ao pino)
+          line3(cx - W2, cY, 0, cx - W2, cY - py * 0.75, -pz * 0.75, C_CYAN, 0.7);
+          line3(cx + W2, cY, 0, cx + W2, cY - py * 0.75, -pz * 0.75, C_CYAN, 0.7);
+          // braços (webs)
+          line3(cx - W2, cY, 0, cx - W2, cY + py, pz, C_CYAN, 1);
+          line3(cx + W2, cY, 0, cx + W2, cY + py, pz, C_CYAN, 1);
+          // pino da biela
+          line3(cx - W2, cY + py, pz, cx + W2, cY + py, pz, C_CYAN2, 1);
+          dot3(cx, cY + py, pz, C_CYAN2, 2.6);
+          prevX = cx + W2;
+        }
+        line3(prevX, cY, 0, 2.0, cY, 0, C_CYAN, 1);
+        dot3(-2.0, cY, 0, C_CYAN, 3);
+        dot3(2.0, cY, 0, C_CYAN, 3);
+
+        /* PISTÕES + BIELAS */
+        for (let i = 0; i < 4; i++) {
+          const cx = CYL_X[i];
+          const th = crankAngle + PHASE[i];
+          const py = R * Math.cos(th), pz = R * Math.sin(th);
+          // cinemática real: altura do pino do pistão
+          const wy = py + Math.sqrt(L * L - pz * pz);
+
+          const pistOff = (1.0 + 0.18 * i) * eEase; // dispersão vertical dos pistões
+          const rodOff = (0.45 + 0.09 * i) * eEase; // bielas ficam no meio do caminho
+
+          /* Biela: olhal maior (pino do virabrequim) → olhal menor (pino do pistão).
+             Montada (e=0) conecta pino ↔ pistão; explodida flutua entre os dois. */
+          const lowY = (1 - eEase) * cY + py + rodOff;
+          const upY = wy + rodOff;
+          line3(cx - 0.06, lowY, pz, cx - 0.06, upY, 0, C_CYAN2, 0.95);
+          line3(cx + 0.06, lowY, pz, cx + 0.06, upY, 0, C_CYAN2, 0.95);
+
+          /* Pistão (prisma octogonal) */
+          const pY = wy + pistOff;
+          const pr = 0.4;
+          ring(cx, pY + 0.52, 0, pr, C_CYAN, 1);
+          ring(cx, pY - 0.16, 0, pr, C_CYAN, 0.8);
+          for (let k = 0; k < 4; k++) {
+            const a = (k / 4) * Math.PI * 2 + Math.PI / 8;
+            line3(cx + pr * Math.cos(a), pY - 0.16, pr * Math.sin(a),
+              cx + pr * Math.cos(a), pY + 0.52, pr * Math.sin(a), C_CYAN, 0.75);
+          }
+          // pino do pistão (wrist pin)
+          line3(cx - 0.2, pY, 0, cx + 0.2, pY, 0, C_CYAN2, 1);
+          dot3(cx, pY, 0, C_CYAN2, 2.2);
+        }
+
+        ctx.globalAlpha = 1;
+      }
+
+      /* ---- Progresso de scroll → explode / run / passos ---- */
+      function updateScroll() {
+        const rect = section.getBoundingClientRect();
+        const vh = innerHeight;
+        const total = rect.height - vh;
+        const p = Math.min(1, Math.max(0, -rect.top / Math.max(1, total)));
+        visible = rect.bottom > 0 && rect.top < vh;
+
+        // revelação gradual: a visibilidade aumenta conforme a seção entra na tela
+        // e diminui suavemente na saída (sem corte seco)
+        const enter = Math.min(1, Math.max(0, (vh - rect.top) / (vh * 0.75)));
+        const exit = Math.min(1, Math.max(0, rect.bottom / (vh * 0.55)));
+        canvas.style.opacity = Math.min(enter, exit).toFixed(3);
+
+        const raw = Math.min(1, p / 0.7);
+        explode = 1 - (raw * raw * (3 - 2 * raw)); // smoothstep
+        running = p > 0.7 && !reduceMotion;
+
+        const pct = Math.round((1 - explode) * 100);
+        hudPct.textContent = pct + "%";
+        hudStatus.textContent = pct >= 100 ? (reduceMotion ? "Montado" : "Motor em funcionamento") : (pct === 0 ? "Desmontado" : "Montando…");
+
+        const idx = p < 0.30 ? 0 : p < 0.62 ? 1 : 2;
+        steps.forEach((s, i) => s.classList.toggle("active", i === idx));
+      }
+      addEventListener("scroll", updateScroll, { passive: true });
+      updateScroll();
+
+      /* ---- Órbita por arraste (mouse: livre · toque: horizontal) ---- */
+      canvas.addEventListener("pointerdown", ev => {
+        dragging = true;
+        lastX = ev.clientX; lastY = ev.clientY;
+        canvas.classList.add("dragging");
+        canvas.setPointerCapture(ev.pointerId);
+      });
+      canvas.addEventListener("pointermove", ev => {
+        if (!dragging) return;
+        const dx = ev.clientX - lastX, dy = ev.clientY - lastY;
+        lastX = ev.clientX; lastY = ev.clientY;
+        tYaw += dx * 0.008;
+        if (ev.pointerType === "mouse") {
+          tPitch = Math.max(-1.15, Math.min(1.15, tPitch + dy * 0.006));
+        }
+        if (Math.abs(dx) + Math.abs(dy) > 2) { dragged = true; hint.style.opacity = 0; }
+      });
+      const endDrag = () => { dragging = false; canvas.classList.remove("dragging"); };
+      canvas.addEventListener("pointerup", endDrag);
+      canvas.addEventListener("pointercancel", endDrag);
+
+      /* ---- Loop principal ---- */
+      function frame(now) {
+        const dt = Math.min(0.05, (now - lastT) / 1000);
+        lastT = now;
+
+        if (visible) {
+          // rotação do virabrequim: acelera quando montado, para quando desmonta
+          const targetRpm = running ? 4.2 : 0;
+          rpm += (targetRpm - rpm) * Math.min(1, dt * 2.2);
+          crankAngle += rpm * dt;
+
+          // deriva suave de câmera quando o motor roda e o usuário não interage
+          if (running && !dragging && !dragged && !reduceMotion) {
+            tYaw += dt * 0.12;
+          }
+          yaw += (tYaw - yaw) * Math.min(1, dt * 8);
+          pitch += (tPitch - pitch) * Math.min(1, dt * 8);
+
+          drawEngine();
+        }
+        requestAnimationFrame(frame);
+      }
+      requestAnimationFrame(frame);
+    })();
+  </script>
+</body>
+
+</html>
