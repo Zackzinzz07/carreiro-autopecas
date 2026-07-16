@@ -1027,6 +1027,20 @@
       }
     }
 
+    /* ---------- Scroll reveal (imersão) ---------- */
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity .75s cubic-bezier(.22, .61, .36, 1), transform .75s cubic-bezier(.22, .61, .36, 1);
+      transition-delay: var(--rv-delay, 0s);
+      will-change: opacity, transform;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: none;
+    }
+
     /* ---------- Movimento reduzido ---------- */
     @media (prefers-reduced-motion:reduce) {
       html {
@@ -1617,6 +1631,37 @@
     (() => {
       const v = document.querySelector(".hero-video");
       if (reduceMotion && v) { v.removeAttribute("autoplay"); v.pause(); }
+    })();
+
+    /* ============ Scroll reveal (imersão) ============ */
+    (() => {
+      // A classe .reveal é aplicada via JS: se o JS não rodar, tudo continua visível.
+      const alvos = [
+        ".rx-head", ".about-photo", ".about-copy",
+        ".benefits-grid .benefit", ".stores-head", ".stores-grid .store",
+        ".faq-head", ".faq-item", ".footer-seals", ".footer-info"
+      ];
+      const els = document.querySelectorAll(alvos.join(","));
+      if (!("IntersectionObserver" in window) || reduceMotion) return;
+
+      els.forEach(el => {
+        // escalona irmãos dentro do mesmo pai (cards surgem em cascata)
+        const irmaos = [...el.parentElement.children].filter(c => c.matches(alvos.join(",")));
+        const i = irmaos.indexOf(el);
+        if (i > 0) el.style.setProperty("--rv-delay", Math.min(i * 90, 450) + "ms");
+        el.classList.add("reveal");
+      });
+
+      const io = new IntersectionObserver(entries => {
+        entries.forEach(e => {
+          if (e.isIntersecting) {
+            e.target.classList.add("visible");
+            io.unobserve(e.target);
+          }
+        });
+      }, { threshold: 0.12, rootMargin: "0px 0px -6% 0px" });
+
+      els.forEach(el => io.observe(el));
     })();
 
     /* ============ FAQ Accordion ============ */
