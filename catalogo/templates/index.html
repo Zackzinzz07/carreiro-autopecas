@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% if categoria_atual %}{{ categoria_atual }} · {% endif %}Catálogo · {{ nome_loja }}</title>
+  <meta name="description" content="Catálogo de peças da {{ nome_loja }} — 5 lojas no Ceará e Piauí. Peça pelo WhatsApp da loja mais perto de você.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="icon" href="/static/logo.png">
+  <link rel="stylesheet" href="/static/catalogo.css">
+</head>
+<body>
+<header class="topo">
+  <div class="wrap topo-in">
+    <a class="marca" href="/"><img src="/static/logo.png" alt="" width="36" height="36"><span>{{ nome_loja }}<small>Catálogo de peças</small></span></a>
+    <form class="busca" action="/" method="get" role="search">
+      {% if categoria_atual %}<input type="hidden" name="categoria" value="{{ slug(categoria_atual) }}">{% endif %}
+      <input type="search" name="busca" value="{{ busca_atual }}" placeholder="Buscar peça, veículo ou código (ex.: amortecedor gol, 008087)" aria-label="Buscar peça" maxlength="80" autocomplete="off">
+      <button type="submit" class="btn btn-dark">Buscar</button>
+    </form>
+    <a class="voltar" href="{{ site_url }}">← Voltar ao site</a>
+  </div>
+</header>
+
+<main class="wrap">
+  <p class="aviso">Preço e disponibilidade variam por loja — confirmamos tudo direto no WhatsApp da unidade que você escolher.</p>
+
+  <nav class="cats" aria-label="Categorias">
+    <a class="chip{{ ' on' if not categoria_atual }}" href="{{ url_limpar }}">Todas <b>{{ por_categoria.values()|sum }}</b></a>
+    {% for nome, n in por_categoria.items() %}
+      <a class="chip{{ ' on' if nome == categoria_atual }}" href="{{ url_categoria(slug(nome)) }}">
+        <span class="chip-ico">{{ icone(nome) }}</span>{{ nome }} <b>{{ n }}</b>
+      </a>
+    {% endfor %}
+  </nav>
+
+  {% if tipos %}
+  <form class="tipo" action="/" method="get">
+    <input type="hidden" name="categoria" value="{{ slug(categoria_atual) }}">
+    {% if busca_atual %}<input type="hidden" name="busca" value="{{ busca_atual }}">{% endif %}
+    <label for="tipo">Tipo de peça</label>
+    <select id="tipo" name="tipo" onchange="this.form.submit()">
+      <option value="">Todos</option>
+      {% for t, n in tipos %}<option value="{{ t }}"{{ ' selected' if t == tipo_atual }}>{{ t|title }} ({{ n }})</option>{% endfor %}
+    </select>
+    <noscript><button class="btn btn-dark" type="submit">Filtrar</button></noscript>
+  </form>
+  {% endif %}
+
+  <p class="resumo">
+    <strong>{{ '{:,}'.format(total).replace(',', '.') }}</strong> {{ 'peça' if total == 1 else 'peças' }}
+    {% if busca_atual %} para “{{ busca_atual }}”{% endif %}
+    {% if categoria_atual %} em {{ categoria_atual }}{% endif %}
+    {% if busca_atual or categoria_atual or tipo_atual %}· <a href="/">limpar filtros</a>{% endif %}
+  </p>
+
+  {% if produtos %}
+  <section class="grid" aria-label="Peças">
+    {% for p in produtos %}{% include "_card_produto.html" %}{% endfor %}
+  </section>
+
+  {% if total_paginas > 1 %}
+  <nav class="pag" aria-label="Paginação">
+    {% if pagina > 1 %}<a class="btn btn-line" href="{{ url_pagina(pagina - 1) }}" rel="prev">← Anterior</a>{% endif %}
+    <span>Página {{ pagina }} de {{ total_paginas }}</span>
+    {% if pagina < total_paginas %}<a class="btn btn-line" href="{{ url_pagina(pagina + 1) }}" rel="next">Próxima →</a>{% endif %}
+  </nav>
+  {% endif %}
+  {% else %}
+  <section class="vazio">
+    <h2>Nenhuma peça encontrada</h2>
+    <p>Tente menos palavras (ex.: só o nome da peça) ou o código. Se não achar, chame uma loja — o estoque muda todo dia.</p>
+    <p><a class="btn btn-dark" href="/">Ver todas as peças</a></p>
+  </section>
+  {% endif %}
+</main>
+
+<footer class="rodape">
+  <div class="wrap">
+    <h2>Nossas lojas</h2>
+    <ul class="lojas-lista">
+      {% for l in lojas %}<li><strong>{{ l.cidade }}/{{ l.uf }}</strong>{% if l.matriz %} <em>matriz</em>{% endif %}<span>{{ l.endereco }}</span></li>{% endfor %}
+    </ul>
+    <p class="mini">Catálogo em construção: as categorias são organizadas automaticamente pela descrição das peças e ainda não há fotos nem preços online.</p>
+  </div>
+</footer>
+
+<dialog id="dlg-loja" aria-labelledby="dlg-titulo">
+  <form method="dialog" class="dlg-topo">
+    <h2 id="dlg-titulo">Pedir em qual loja?</h2>
+    <button class="dlg-x" aria-label="Fechar">×</button>
+  </form>
+  <p class="dlg-peca" id="dlg-peca"></p>
+  <ul class="dlg-lojas">
+    {% for l in lojas %}
+    <li><a class="loja-op" href="#" target="_blank" rel="noopener" data-wa="{{ l.whatsapp }}" data-slug="{{ l.slug }}">
+      <span><strong>{{ l.cidade }}/{{ l.uf }}</strong>{% if l.matriz %} <em>matriz</em>{% endif %}<small>{{ l.fone }}</small></span>
+      <span class="ir">Abrir WhatsApp →</span></a></li>
+    {% endfor %}
+  </ul>
+</dialog>
+<script src="/static/catalogo.js" defer></script>
+</body>
+</html>
