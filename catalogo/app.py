@@ -23,6 +23,12 @@ SLUG_PARA_CATEGORIA = {slug(c): c for c in CATEGORIAS}
 app = FastAPI(title="Catálogo Carreiro Auto Peças")
 app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
 
+# Fotos aprovadas pelo pipeline (catalogo/fotos/). A pasta precisa existir: o StaticFiles
+# do Starlette confere o diretório na 1ª requisição e quebra (RuntimeError) se ele faltar.
+_FOTOS_DIR = Path(get_settings().fotos_dir)
+_FOTOS_DIR.mkdir(parents=True, exist_ok=True)
+app.mount("/fotos", StaticFiles(directory=str(_FOTOS_DIR)), name="fotos")
+
 templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 templates.env.globals.update(
     icone=lambda categoria: Markup(icone_svg(categoria)),

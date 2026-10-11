@@ -1,5 +1,12 @@
 <article class="card">
+  {% if p.imagem_url %}
+  <figure class="card-foto">
+    <img src="{{ p.imagem_url }}" alt="{{ p.descricao }}" loading="lazy" decoding="async" width="400" height="400">
+    <figcaption>Imagem ilustrativa</figcaption>
+  </figure>
+  {% else %}
   <div class="card-ico" aria-hidden="true">{{ icone(p.categoria) }}</div>
+  {% endif %}
   <div class="card-body">
     <span class="card-cat">{{ p.categoria }}</span>
     <h3 class="card-nome">{{ p.descricao }}</h3>
