@@ -23,7 +23,7 @@ def _img(cor) -> bytes:
 
 
 IMAGENS = {"https://img/vermelha.png": _img("red"), "https://img/azul.png": _img("blue"),
-           "https://img/cinza.png": _img("gray")}
+           "https://img/cinza.png": _img("gray"), "https://img/verde.png": _img("green")}
 
 
 class Visao:
@@ -31,6 +31,8 @@ class Visao:
 
     def ranking(self, dados, tipo_en):
         r, g, b = Image.open(io.BytesIO(dados)).convert("RGB").getpixel((200, 200))
+        if g > 100 and r < 80 and b < 80:
+            raise RuntimeError("modelo engasgou nesta imagem")
         if r > 200 and b < 80:
             return (1 if tipo_en else None), False, tipo_en or "car tire"
         if b > 200 and r < 80:
@@ -155,3 +157,10 @@ def test_main_sem_pendentes_e_relatorio(tmp_path, capsys):
     assert executar.main(["--db", str(db)]) == 4
     assert executar.main(["--db", str(db), "--relatorio"]) == 0
     assert "produtos_ativos" in capsys.readouterr().out
+
+
+def test_candidata_que_da_erro_e_ignorada_e_o_grupo_segue(conn, tmp_path, capsys):
+    ctx = _ctx(conn, tmp_path, [("https://img/verde.png", "Pastilha Freio Dianteira Agile"),
+                                ("https://img/vermelha.png", "Pastilha Freio Dianteira Agile Cobreq")])
+    assert executar.processar_grupo(ctx, _grupo(conn, "1")) == "aprovada"
+    assert "candidata ignorada" in capsys.readouterr().out

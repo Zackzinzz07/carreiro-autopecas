@@ -6,6 +6,22 @@ from ddgs.exceptions import DDGSException, RatelimitException  # noqa: E402
 
 from catalogo.fotos import busca  # noqa: E402
 
+_RESOLVER_REAL = busca._enderecos
+_DNS_FALSO = {"interno.example": ["10.0.0.7"], "misto.example": ["93.184.216.34", "127.0.0.1"]}
+
+
+@pytest.fixture(autouse=True)
+def dns_de_teste(monkeypatch):
+    """Hosts .example (e o 'x' dos testes) resolvem para um IP público fixo; o resto usa o resolvedor real."""
+    def resolver(host):
+        if host in _DNS_FALSO:
+            return _DNS_FALSO[host]
+        if host == "x" or host.endswith(".example"):
+            return ["93.184.216.34"]
+        return _RESOLVER_REAL(host)
+
+    monkeypatch.setattr(busca, "_enderecos", resolver)
+
 
 class Cliente:
     def __init__(self, resposta=None, erro=None):
@@ -118,3 +134,84 @@ def test_baixar_segue_redirecionamento_publico_e_recusa_o_interno():
         assert busca.baixar("https://x.example/vai", cliente=cliente) == b"\xff" * 5000
         assert busca.baixar("https://x.example/armadilha", cliente=cliente) is None
         assert busca.baixar("https://x.example/laco", cliente=cliente) is None
+
+
+@pytest.mark.parametrize("url", [
+    "https://interno.example/a.jpg",     # nome público que resolve para rede interna
+    "https://misto.example/a.jpg",       # um dos endereços é interno: recusa
+    "http://2130706433/a.jpg",           # 127.0.0.1 em decimal
+    "http://0x7f.0.0.1/a.jpg",           # 127.0.0.1 em hexadecimal
+    "http://127.1/a.jpg",                # 127.0.0.1 abreviado
+    "https://host-que-nao-existe.invalid/a.jpg",
+])
+def test_baixar_confere_o_endereco_resolvido_e_nao_so_o_texto_do_host(url):
+    def nao_deveria_chamar(req):
+        raise AssertionError(f"requisição indevida: {req.url}")
+
+    with httpx.Client(transport=httpx.MockTransport(nao_deveria_chamar)) as cliente:
+        assert busca.baixar(url, cliente=cliente) is None
+
+
+def test_baixar_pede_sem_compressao_e_recusa_resposta_comprimida():
+    vistos = []
+
+    def responder(req):
+        vistos.append(req.headers.get("accept-encoding"))
+        cabecalhos = {"content-type": "image/jpeg"}
+        if req.url.path == "/comprimida.jpg":
+            cabecalhos["content-encoding"] = "gzip"
+        return httpx.Response(200, content=b"\xff" * 5000, headers=cabecalhos)
+
+    with httpx.Client(transport=httpx.MockTransport(responder)) as cliente:
+        assert busca.baixar("https://x.example/ok.jpg", cliente=cliente) == b"\xff" * 5000
+        assert busca.baixar("https://x.example/comprimida.jpg", cliente=cliente) is None
+    assert vistos == ["identity", "identity"]
+
+
+def test_baixar_desiste_de_servidor_que_pinga_bytes_devagar(monkeypatch):
+    relogio = {"t": 0.0}
+    monkeypatch.setattr(busca.time, "monotonic", lambda: relogio["t"])
+
+    def gerador():
+        for _ in range(50):
+            relogio["t"] += 20.0          # cada pedaço "demora" 20 s
+            yield b"\xff" * 1000
+
+    def responder(req):
+        return httpx.Response(200, content=gerador(), headers={"content-type": "image/jpeg"})
+
+    with httpx.Client(transport=httpx.MockTransport(responder)) as cliente:
+        assert busca.baixar("https://x.example/lenta.jpg", cliente=cliente) is None
+    assert relogio["t"] <= busca.PRAZO_TOTAL + 40
+
+
+@pytest.mark.parametrize("url", [
+    "http://[", "http://exa mple.example/a.jpg", "https://x.example\\@127.0.0.1/a.jpg",
+    "https://x.example:99999/a.jpg", "http://x.example\t@127.0.0.1/", "https://127.0.0.1\\.x.example/a.jpg",
+    "http:////127.0.0.1/a.jpg", "\x00", "https://",
+])
+def test_url_malformada_nao_derruba_e_nunca_alcanca_endereco_interno(url):
+    hosts = []
+
+    def responder(req):
+        hosts.append(req.url.host)
+        return httpx.Response(200, content=b"\xff" * 5000, headers={"content-type": "image/jpeg"})
+
+    with httpx.Client(transport=httpx.MockTransport(responder)) as cliente:
+        resultado = busca.baixar(url, cliente=cliente)   # não pode levantar exceção
+    assert resultado is None or isinstance(resultado, bytes)
+    assert all(h.endswith(".example") for h in hosts), hosts
+
+
+def test_o_host_validado_e_o_mesmo_que_o_cliente_http_requisita():
+    """Validação e requisição usam o MESMO analisador (httpx.URL): não há 'URL vista de dois jeitos'."""
+    for url in ("https://x.example/a.jpg", "https://X.Example:443/a.jpg", "http://127.0.0.1/a", "http://[::1]/a"):
+        assert busca.url_publica(url) is (httpx.URL(url).host.lower().endswith(".example"))
+
+
+def test_erro_inesperado_do_cliente_vira_none():
+    class ClienteQuebrado:
+        def stream(self, *a, **k):
+            raise httpx.InvalidURL("url esquisita")
+
+    assert busca.baixar("https://x.example/a.jpg", cliente=ClienteQuebrado()) is None

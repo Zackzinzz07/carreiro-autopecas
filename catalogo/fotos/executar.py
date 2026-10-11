@@ -68,23 +68,33 @@ def _avaliar(ctx: Contexto, ch: Chave, resultados: list[busca.Resultado]) -> lis
             break
         if busca.bloqueado(r) or imagem.termo_placeholder(f"{r.titulo} {r.url_imagem}"):
             continue
-        dados = ctx.baixador(r.url_imagem)
         baixadas += 1
-        if not dados or imagem.sha1(dados) in ctx.hashes_bloqueados:
+        try:
+            avaliada = _avaliar_uma(ctx, ch, r)
+        except Exception as erro:  # noqa: BLE001: conteúdo de terceiros; uma candidata ruim não para o lote
+            print(f"  candidata ignorada ({type(erro).__name__}: {erro}): {r.url_imagem[:80]}", flush=True)
             continue
-        processada, _motivo = imagem.processar(dados)
-        if processada is None:
-            continue
-        rank, lixo, topo = ctx.visao.ranking(processada.webp, ch.tipo_en)
-        texto_ocr = ctx.ocr.ler(dados) if ch.marca else ""
-        sinais = Sinais(
-            valida=True, clip_rank=rank, clip_top_lixo=lixo, **sinais_de_texto(ch, r.titulo),
-            ocr_marca=bool(ch.marca) and marca_no_ocr(ch.marca, texto_ocr),
-            ocr_outra_marca=bool(ch.marca) and outra_marca_no_ocr(ch.marca, texto_ocr),
-            dominio_loja=busca.eh_loja(r), fundo_branco=processada.fundo_branco,
-        )
-        avaliadas.append(Avaliada(decidir(ch, sinais), r, processada.webp, rank, topo, texto_ocr))
+        if avaliada is not None:
+            avaliadas.append(avaliada)
     return avaliadas
+
+
+def _avaliar_uma(ctx: Contexto, ch: Chave, r: busca.Resultado) -> Avaliada | None:
+    dados = ctx.baixador(r.url_imagem)
+    if not dados or imagem.sha1(dados) in ctx.hashes_bloqueados:
+        return None
+    processada, _motivo = imagem.processar(dados)
+    if processada is None:
+        return None
+    rank, lixo, topo = ctx.visao.ranking(processada.webp, ch.tipo_en)
+    texto_ocr = ctx.ocr.ler(dados) if ch.marca else ""
+    sinais = Sinais(
+        valida=True, clip_rank=rank, clip_top_lixo=lixo, **sinais_de_texto(ch, r.titulo),
+        ocr_marca=bool(ch.marca) and marca_no_ocr(ch.marca, texto_ocr),
+        ocr_outra_marca=bool(ch.marca) and outra_marca_no_ocr(ch.marca, texto_ocr),
+        dominio_loja=busca.eh_loja(r), fundo_branco=processada.fundo_branco,
+    )
+    return Avaliada(decidir(ch, sinais), r, processada.webp, rank, topo, texto_ocr)
 
 
 def _nome_candidata(chave: str, i: int) -> str:

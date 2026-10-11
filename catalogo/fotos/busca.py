@@ -7,6 +7,8 @@ de produto; 'loja' é apenas um pequeno bônus na pontuação.
 from __future__ import annotations
 
 import ipaddress
+import socket
+import time
 from dataclasses import dataclass
 from urllib.parse import urljoin, urlparse
 
@@ -26,6 +28,7 @@ DOMINIOS_LOJA = (
 MIN_BYTES = 3_000
 MAX_BYTES = 12_000_000
 MAX_REDIRECIONAMENTOS = 3
+PRAZO_TOTAL = 30.0  # segundos por download, somando redirecionamentos
 _CABECALHOS = {"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) "
                              "Chrome/126.0 Safari/537.36"}
 
@@ -79,58 +82,103 @@ def eh_loja(r: Resultado) -> bool:
     return any(host == d or host.endswith("." + d) for host in _hosts(r) if host for d in DOMINIOS_LOJA)
 
 
-def url_publica(url: str) -> bool:
-    """Só http(s) para host público. As URLs vêm de resultado de busca: nada de file://, localhost ou rede interna."""
+def _enderecos(host: str) -> list[str]:
+    """IPs para os quais o host resolve, do jeito que o sistema resolveria ao conectar.
+
+    Cobre também as grafias numéricas que o cliente HTTP aceita mas `ipaddress` não
+    ("2130706433", "0x7f.0.0.1", "127.1" são todas 127.0.0.1). Lista vazia = não resolve.
+    """
     try:
-        partes = urlparse(url or "")
-    except ValueError:
-        return False
-    host = (partes.hostname or "").lower()
-    if partes.scheme not in ("http", "https") or not host:
-        return False
-    if host == "localhost" or host.endswith((".localhost", ".local", ".internal")):
-        return False
-    try:
-        return ipaddress.ip_address(host).is_global
-    except ValueError:
-        return True  # nome de domínio
+        return sorted({info[4][0] for info in socket.getaddrinfo(host, None, proto=socket.IPPROTO_TCP)})
+    except (OSError, UnicodeError):
+        return []
 
 
-def baixar(url: str, *, timeout: float = 12.0, cliente=None) -> bytes | None:
-    """Baixa uma imagem lendo em pedaços e desistindo ao passar de MAX_BYTES.
+def _analisar(url):
+    """URL do jeito que o cliente HTTP a entende (httpx.URL), ou None se ele não a aceita.
 
-    Redirecionamentos são seguidos à mão (no máximo MAX_REDIRECIONAMENTOS), conferindo
-    `url_publica` a cada salto: um anúncio não pode nos mandar buscar um endereço interno.
+    Validar com um analisador e requisitar com outro deixaria uma URL malformada ser "vista de
+    dois jeitos". Por isso a conferência usa o objeto que depois é entregue ao cliente.
     """
     import httpx
 
-    proprio = cliente is None
-    if proprio:
-        cliente = httpx.Client(headers=_CABECALHOS, follow_redirects=False, timeout=timeout)
+    if isinstance(url, httpx.URL):
+        return url
     try:
+        return httpx.URL(url or "")
+    except (httpx.InvalidURL, ValueError, TypeError):
+        return None
+
+
+def url_publica(url) -> bool:
+    """Só http(s) para host cujos endereços RESOLVIDOS são todos públicos.
+
+    As URLs vêm de resultado de busca: nada de file://, localhost ou rede interna, nem por nome
+    que resolva para dentro. Resta a janela entre esta conferência e a conexão (DNS que muda de
+    resposta no meio); para uma ferramenta local de lote, o risco residual é aceito.
+    """
+    analisada = _analisar(url)
+    if analisada is None:
+        return False
+    host = (analisada.host or "").lower()
+    if analisada.scheme not in ("http", "https") or not host:
+        return False
+    if host == "localhost" or host.endswith((".localhost", ".local", ".internal")):
+        return False
+    enderecos = _enderecos(host)
+    if not enderecos:
+        return False
+    try:
+        return all(ipaddress.ip_address(e.split("%")[0]).is_global for e in enderecos)
+    except ValueError:
+        return False
+
+
+def baixar(url: str, *, timeout: float = 12.0, cliente=None) -> bytes | None:
+    """Baixa uma imagem com teto de bytes, de tempo e de redirecionamentos. Nunca levanta exceção:
+    URL ou resposta estranha vira None (uma candidata a menos), para não derrubar o lote.
+
+    - Lê os bytes como chegam e desiste ao passar de MAX_BYTES. Pede sem compressão e recusa
+      resposta comprimida: descomprimir é o que deixaria poucos KB virarem centenas de MB.
+    - PRAZO_TOTAL vale para o download inteiro (o timeout do cliente é só por leitura).
+    - Redirecionamentos são seguidos à mão, conferindo `url_publica` a cada salto.
+    """
+    import httpx
+
+    inicio = time.monotonic()
+    proprio = cliente is None
+    try:
+        if proprio:
+            cliente = httpx.Client(headers=_CABECALHOS, follow_redirects=False, timeout=timeout)
+        atual = _analisar(url)
         for _ in range(MAX_REDIRECIONAMENTOS + 1):
-            if not url_publica(url):
+            if atual is None or not url_publica(atual):
                 return None
-            with cliente.stream("GET", url) as resposta:
+            with cliente.stream("GET", atual, headers={"Accept-Encoding": "identity"}) as resposta:
                 if resposta.status_code in (301, 302, 303, 307, 308):
-                    url = urljoin(url, resposta.headers.get("location", ""))
+                    atual = _analisar(atual.join(resposta.headers.get("location", "")))
                     continue
                 tipo = resposta.headers.get("content-type", "").lower()
                 if resposta.status_code != 200 or "html" in tipo or "text" in tipo:
+                    return None
+                if resposta.headers.get("content-encoding", "identity").strip().lower() not in ("", "identity"):
                     return None
                 declarado = resposta.headers.get("content-length", "")
                 if declarado.isdigit() and int(declarado) > MAX_BYTES:
                     return None
                 pedacos, total = [], 0
-                for pedaco in resposta.iter_bytes(65_536):
+                # Sem tamanho de pedaço: cada leitura da rede passa pelo teste de prazo (com tamanho fixo
+                # o httpx só entrega ao juntar o pedaço inteiro, e um servidor lento escaparia do prazo).
+                # Resposta comprimida já foi recusada acima, então isto são os bytes crus.
+                for pedaco in resposta.iter_bytes():
                     total += len(pedaco)
-                    if total > MAX_BYTES:
+                    if total > MAX_BYTES or time.monotonic() - inicio > PRAZO_TOTAL:
                         return None
                     pedacos.append(pedaco)
                 return b"".join(pedacos) if total >= MIN_BYTES else None
         return None  # redirecionamentos demais
-    except httpx.HTTPError:
+    except (httpx.HTTPError, httpx.InvalidURL, httpx.StreamError, ValueError, OSError, UnicodeError):
         return None
     finally:
-        if proprio:
+        if proprio and cliente is not None:
             cliente.close()
