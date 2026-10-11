@@ -19,6 +19,9 @@ _QUALIFICADORES = frozenset({
     "dianteiro", "traseiro", "superior", "inferior", "externo", "interno", "lado", "direito", "esquerdo",
     "com", "sem", "central", "jogo", "kit", "par", "intermediario", "auxiliar", "lateral",
 })
+# Tipos em que a marca não aparece legível na foto (fica na lateral do pneu): o OCR não é exigido,
+# e a marca é garantida por título + medida + modelo. Em todo o resto, marca citada tem de ser LIDA.
+_SEM_ROTULO_LEGIVEL = frozenset({"pneu", "camara"})
 # (presente na peça, oposto no título): título com o oposto e sem o próprio = conflito
 _OPOSTOS = (("diant", "trase"), ("trase", "diant"), ("direit", "esquerd"), ("esquerd", "direit"),
             ("superior", "inferior"), ("inferior", "superior"))
@@ -157,6 +160,8 @@ def decidir(chave: Chave, s: Sinais) -> Decisao:
         motivos.append("titulo_sem_marca")
     if chave.marca and s.ocr_outra_marca:
         motivos.append("ocr_outra_marca")
+    if chave.marca and not s.ocr_marca and chave.peca.split()[0] not in _SEM_ROTULO_LEGIVEL:
+        motivos.append("ocr_sem_marca")
 
     pontuacao = (20 * s.titulo_peca + 15 * s.titulo_veiculo + 10 * s.titulo_spec
                  + 15 * (bool(chave.marca) and s.titulo_marca) + 10 * s.ocr_marca

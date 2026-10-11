@@ -94,3 +94,17 @@ def test_lixo_e_invalida_nao_sao_nem_plausiveis():
 def test_pontuacao_prefere_clip_em_primeiro():
     segundo = decidir(PASTILHA, Sinais(**{**TUDO_OK.__dict__, "clip_rank": 2}))
     assert decidir(PASTILHA, TUDO_OK).pontuacao > segundo.pontuacao
+
+
+def test_marca_em_embalagem_precisa_ser_lida_no_rotulo():
+    """Título com a marca não basta: o anúncio pode citar Petronas e a foto ser de outro frasco."""
+    sem_leitura = decidir(OLEO, Sinais(**{**TUDO_OK.__dict__, "ocr_marca": False}))
+    assert not sem_leitura.aprovada and sem_leitura.plausivel and "ocr_sem_marca" in sem_leitura.motivos
+
+
+def test_pneu_dispensa_ocr_porque_a_marca_fica_na_lateral():
+    assert decidir(PNEU, Sinais(**{**TUDO_OK.__dict__, "ocr_marca": False})).aprovada
+
+
+def test_peca_sem_marca_nao_depende_de_ocr():
+    assert decidir(PASTILHA, Sinais(**{**TUDO_OK.__dict__, "ocr_marca": False})).aprovada
