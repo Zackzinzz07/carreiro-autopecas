@@ -56,5 +56,45 @@ Descrição contendo a palavra `INATIVO` é ignorada. Reimportar atualiza os exi
 1. Confirmar com o cliente o que é `Cód Barras` quando difere do código.
 2. Preços (planilha ou outra fonte). Sem isso é catálogo de consulta, não de venda.
 3. Revisar as categorias inferidas e o "Variados".
-4. Fotos (pipeline de imagens como no Agrocarreiro) e nomes mais legíveis (a descrição vem cortada em 45 caracteres do sistema de origem).
+4. Fotos: pipeline pronto (seção "Fotos"); falta rodar o catálogo inteiro e a revisão do Agy. A descrição continua vindo cortada em 45 caracteres do sistema de origem.
 5. Decidir hospedagem: FastAPI não roda no Netlify estático da landing.
+
+## Fotos
+
+Design: `docs/superpowers/specs/2026-10-05-fotos-catalogo-design.md`. A planilha não tem
+EAN nem código de fabricante, então a foto é **ilustrativa** e só entra quando tipo de
+peça, carro, lado e marca batem. Na dúvida, o produto fica sem foto.
+
+```bash
+# uma vez: venv separado (Python 3.12 + torch CPU); pesos dos modelos em /mnt/dados/cache
+uv venv --python 3.12 catalogo/.venv-fotos
+uv pip install --python catalogo/.venv-fotos/bin/python -r catalogo/requirements-fotos.txt \
+  --index-url https://pypi.org/simple --extra-index-url https://download.pytorch.org/whl/cpu \
+  --index-strategy unsafe-best-match
+
+catalogo/.venv-fotos/bin/python -m catalogo.fotos.executar --piloto      # amostra fixa, audita 100%
+catalogo/.venv-fotos/bin/python -m catalogo.fotos.executar --relatorio
+nohup catalogo/fotos/loop.sh >> /tmp/fotos_carreiro.log 2>&1 &         # catálogo inteiro (~12-24h)
+catalogo/.venv-fotos/bin/python -m catalogo.fotos.revisar --gerar       # folhas para o Agy
+catalogo/.venv-fotos/bin/python -m pytest catalogo/tests -q             # testes (todos)
+```
+
+- **Grupo:** produtos com a mesma peça+carro+lado+marca dividem a foto (`produtos.foto_grupo`).
+- **Aprovação automática:** título do anúncio com peça e carro (e marca e medida quando houver),
+  CLIP com o tipo da peça no top 3 e nada de lixo, e, se o produto tem marca, o OCR lendo essa
+  marca no rótulo (pneu e câmara dispensam: a marca fica na lateral). Constantes em
+  `catalogo/fotos/verificar.py`.
+- **Revisão do Agy:** diga a ele "Leia `catalogo/revisao/PROMPT_AGY.md` e execute". O contexto
+  (o que é foto correta, glossário de siglas) está em `catalogo/revisao/CONTEXTO_AGY.md`.
+- **Auditoria:** 3% das aprovações automáticas (100% no piloto) entram na fila como `auditoria`.
+  Se o erro medido passar de 1% (com pelo menos 100 auditadas), pare o loop, aperte a regra
+  (com teste) e refaça as aprovações automáticas do tipo de peça afetado.
+- **Foto de tipo de peça:** só para produto sem marca, e sempre revisada.
+- **Placeholder recorrente:** acrescente o SHA-1 do arquivo baixado em
+  `catalogo/data/hashes_bloqueados.txt` (um por linha) e ele nunca mais é usado.
+- **Siglas, carros, marcas e rótulos do CLIP:** `catalogo/fotos/dados/`. Cobertura medida em
+  2026-10-05 (17.149 produtos): 100% com peça reconhecida, 85,7% com rótulo para o CLIP, 8.539
+  grupos. Metas no teste `test_cobertura_no_catalogo_real`: ≥ 99%, ≥ 83% e ≤ 9.000.
+- **Conteúdo de terceiros:** as imagens vêm de sites desconhecidos. O download só aceita http(s)
+  para endereço público (inclusive após redirecionamento), até 12 MB e 30 s, sem compressão; a
+  imagem só é aberta se for JPEG/PNG/WebP com até 40 MP. Limites em `busca.py` e `imagem.py`.
