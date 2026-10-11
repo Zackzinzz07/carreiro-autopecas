@@ -5,7 +5,6 @@ peça errada) e pôs o tipo certo no top 3 em 79% das fotos boas. Pesado: import
 """
 from __future__ import annotations
 
-from io import BytesIO
 from pathlib import Path
 
 # O disco principal tem pouco espaço; os pesos já estão aqui (compartilhados com o Agrocarreiro).
@@ -36,9 +35,9 @@ class Visao:
             self.textos = textos / textos.norm(dim=-1, keepdim=True)
 
     def ranking(self, dados: bytes, tipo_en: str) -> tuple[int | None, bool, str]:
-        from PIL import Image
+        from catalogo.fotos.imagem import abrir
 
-        imagem = Image.open(BytesIO(dados)).convert("RGB")
+        imagem = abrir(dados).convert("RGB")  # mesmos limites de formato e tamanho do pipeline
         with self._torch.no_grad():
             f = self.modelo.encode_image(self.preparo(imagem).unsqueeze(0))
             f = f / f.norm(dim=-1, keepdim=True)
@@ -58,8 +57,9 @@ class Ocr:
 
     def ler(self, dados: bytes) -> str:
         import numpy as np
-        from PIL import Image
 
-        imagem = Image.open(BytesIO(dados)).convert("RGB")
+        from catalogo.fotos.imagem import abrir
+
+        imagem = abrir(dados).convert("RGB")  # mesmos limites de formato e tamanho do pipeline
         imagem.thumbnail((1200, 1200))
         return " ".join(self.leitor.readtext(np.array(imagem), detail=0)).upper()

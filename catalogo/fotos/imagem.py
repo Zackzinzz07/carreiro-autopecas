@@ -16,6 +16,10 @@ PESO_ALVO = 38_000  # bytes
 LADO_MINIMO = 140
 PROPORCAO_MAXIMA = 2.1
 VARIACAO_MAXIMA_CANTOS = 45
+# As imagens vêm de sites desconhecidos: só os formatos comuns de anúncio e um teto de pixels,
+# conferido pelo cabeçalho ANTES de decodificar (uma "bomba" de poucos KB declara bilhões de pixels).
+FORMATOS = ("JPEG", "PNG", "WEBP")
+MAX_PIXELS = 40_000_000
 
 _PLACEHOLDER = re.compile(
     r"sem[\s_-]*imagem|indispon[ií]vel|no[\s_-]*image|not[\s_-]*available"
@@ -37,6 +41,28 @@ def termo_placeholder(texto: str) -> bool:
 
 def sha1(dados: bytes) -> str:
     return hashlib.sha1(dados).hexdigest()
+
+
+class ImagemRecusada(ValueError):
+    """Bytes que não vamos decodificar: formato fora da lista, grande demais ou corrompido."""
+
+
+def abrir(dados: bytes):
+    """Abre bytes vindos da internet com os limites acima. Levanta ImagemRecusada."""
+    from PIL import Image
+
+    try:
+        imagem = Image.open(BytesIO(dados), formats=FORMATOS)
+    except Exception as erro:
+        raise ImagemRecusada(f"imagem inválida ({type(erro).__name__})") from erro
+    largura, altura = imagem.size
+    if largura * altura > MAX_PIXELS:
+        raise ImagemRecusada(f"grande demais ({largura}x{altura})")
+    try:
+        imagem.load()
+    except Exception as erro:
+        raise ImagemRecusada(f"imagem inválida ({type(erro).__name__})") from erro
+    return imagem
 
 
 def _fundo_uniforme(imagem) -> bool:
@@ -64,10 +90,9 @@ def processar(dados: bytes) -> tuple[Processada | None, str]:
     from PIL import Image
 
     try:
-        imagem = Image.open(BytesIO(dados))
-        imagem.load()
-    except Exception as erro:
-        return None, f"imagem inválida ({type(erro).__name__})"
+        imagem = abrir(dados)
+    except ImagemRecusada as erro:
+        return None, str(erro)
 
     largura, altura = imagem.size
     if min(largura, altura) < LADO_MINIMO:
