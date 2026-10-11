@@ -20,6 +20,10 @@ class Settings:
     db_path: str
     fonte_xlsx_path: str
     por_pagina: int = 48
+    fotos_dir: str = str(BASE_DIR / "data" / "fotos")
+    candidatas_dir: str = str(BASE_DIR / "data" / "fotos_candidatas")
+    backups_dir: str = str(BASE_DIR / "data" / "backups")
+    revisao_dir: str = str(BASE_DIR / "revisao" / "folhas")
 
 
 def get_settings() -> Settings:
@@ -30,4 +34,9 @@ def get_settings() -> Settings:
         # Planilha exportada do sistema da loja (ver README, seção "Planilha real").
         fonte_xlsx_path=os.getenv("FONTE_XLSX_PATH", ""),
         por_pagina=int(os.getenv("POR_PAGINA", "48")),
+        # Pipeline de fotos (ver README, seção "Fotos")
+        fotos_dir=os.getenv("FOTOS_DIR", str(BASE_DIR / "data" / "fotos")),
+        candidatas_dir=os.getenv("CANDIDATAS_DIR", str(BASE_DIR / "data" / "fotos_candidatas")),
+        backups_dir=os.getenv("BACKUPS_DIR", str(BASE_DIR / "data" / "backups")),
+        revisao_dir=os.getenv("REVISAO_DIR", str(BASE_DIR / "revisao" / "folhas")),
     )
