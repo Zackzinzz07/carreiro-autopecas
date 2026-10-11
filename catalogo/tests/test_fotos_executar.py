@@ -42,9 +42,10 @@ class Visao:
 
 class Ocr:
     def __init__(self, texto=""):
-        self.texto = texto
+        self.texto, self.chamadas = texto, 0
 
     def ler(self, dados):
+        self.chamadas += 1
         return self.texto
 
 
@@ -164,3 +165,22 @@ def test_candidata_que_da_erro_e_ignorada_e_o_grupo_segue(conn, tmp_path, capsys
                                 ("https://img/vermelha.png", "Pastilha Freio Dianteira Agile Cobreq")])
     assert executar.processar_grupo(ctx, _grupo(conn, "1")) == "aprovada"
     assert "candidata ignorada" in capsys.readouterr().out
+
+
+def test_imagem_com_telefone_de_vendedor_vai_para_revisao(conn, tmp_path):   # erro R14 do piloto
+    ctx = _ctx(conn, tmp_path, [("https://img/vermelha.png", "Pastilha Freio Dianteira Agile Cobreq")],
+               ocr="VOLKSWAGEN 67 DDD 3416-2172")
+    assert executar.processar_grupo(ctx, _grupo(conn, "1")) == "revisao"
+    assert ctx.ocr.chamadas == 1
+
+
+def test_ocr_de_propaganda_so_roda_em_quem_ia_ser_aprovada(conn, tmp_path):
+    ctx = _ctx(conn, tmp_path, [("https://img/azul.png", "Pastilha Freio Dianteira Agile"),       # CLIP reprova
+                                ("https://img/vermelha.png", "Pastilha Freio Dianteira Cobreq")])  # sem carro
+    assert executar.processar_grupo(ctx, _grupo(conn, "1")) == "revisao"
+    assert ctx.ocr.chamadas == 0
+
+
+def test_espera_padrao_e_pausas_de_nova_tentativa():
+    assert executar.ESPERA_PADRAO <= 1.5
+    assert executar.PAUSAS_BLOQUEIO[:2] == (0, 5)      # falha passageira do buscador: tenta de novo logo

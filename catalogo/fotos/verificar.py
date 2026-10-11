@@ -22,7 +22,8 @@ _QUALIFICADORES = frozenset({
 # Tipos em que a marca não aparece legível na foto (fica na lateral do pneu): o OCR não é exigido,
 # e a marca é garantida por título + medida + modelo. Em todo o resto, marca citada tem de ser LIDA.
 _SEM_ROTULO_LEGIVEL = frozenset({"pneu", "camara"})
-# (presente na peça, oposto no título): título com o oposto e sem o próprio = conflito
+# (presente na peça, oposto no título): o oposto no título é conflito MESMO com o próprio junto.
+# Anúncio "dianteiro e traseiro" ou "superior inferior" é kit das duas peças (erros R33 e R17 do piloto).
 _OPOSTOS = (("diant", "trase"), ("trase", "diant"), ("direit", "esquerd"), ("esquerd", "direit"),
             ("superior", "inferior"), ("inferior", "superior"))
 
@@ -68,10 +69,53 @@ def sinais_de_texto(chave: Chave, titulo: str) -> dict[str, bool]:
         medidas = [_norm(w).replace(" ", "") for w in chave.peca.split() if re.search(r"\d", w)][:4]
         titulo_spec = all(m in compacto for m in medidas)
     alvo = _norm(f"{chave.peca} {chave.lado}")
-    titulo_conflito = any(a in alvo and b in t and a not in t for a, b in _OPOSTOS)
+    titulo_conflito = any(a in alvo and b in t for a, b in _OPOSTOS)
     titulo_marca = not chave.marca or contem(chave.marca)
+    titulo_kit = bool(_KIT.search(titulo)) and not (_PRODUTO_E_KIT & set(chave.peca.split()))
     return {"titulo_peca": titulo_peca, "titulo_veiculo": titulo_veiculo, "titulo_spec": titulo_spec,
-            "titulo_conflito": titulo_conflito, "titulo_marca": titulo_marca}
+            "titulo_conflito": titulo_conflito, "titulo_marca": titulo_marca,
+            "titulo_ano": _ano_compativel(chave, titulo), "titulo_kit": titulo_kit}
+
+
+# Kit/combo/"peça + outra peça" no anúncio de um produto que não é kit: a foto traz peças a mais.
+_KIT = re.compile(r"\b(?:kit|combo)\b|\+", re.IGNORECASE)
+_PRODUTO_E_KIT = frozenset({"kit", "jogo", "conjunto"})
+_ANO_TITULO = re.compile(r"(?<!\d)((?:19[5-9]|20[0-3])\d)(?!\d)")
+_FAIXA_TITULO = re.compile(
+    r"(?<!\d)((?:19[5-9]|20[0-3])\d)\s*(?:a|à|ao|ate|até|-|–|/)\s*((?:19[5-9]|20[0-3])\d)(?!\d)", re.IGNORECASE)
+
+
+def anos_do_titulo(titulo: str) -> set[int]:
+    """Anos de 4 dígitos citados no anúncio; "2009 a 2013" conta todos os anos do intervalo."""
+    anos = {int(a) for a in _ANO_TITULO.findall(titulo)}
+    for ini, fim in _FAIXA_TITULO.findall(titulo):
+        anos.update(range(int(ini), int(fim) + 1))
+    return anos
+
+
+def _ano_compativel(chave: Chave, titulo: str) -> bool:
+    """Falso só quando o anúncio cita anos e NENHUM cai na faixa do produto (outra geração do carro).
+
+    Anúncio sem ano não é reprovado por isso: não dá para negar o que ele não diz.
+    """
+    ini, fim = chave.faixa
+    if ini is None and fim is None:
+        return True
+    anos = anos_do_titulo(titulo)
+    if not anos:
+        return True
+    return any((ini is None or a >= ini) and (fim is None or a <= fim) for a in anos)
+
+
+_TELEFONE = re.compile(r"(?<!\d)\d{4,5}[-.\s]\d{4}(?!\d)")
+_PALAVRAS_DE_ANUNCIO = ("WHATS", "ZAP ", "WWW", ".COM", "@", "AUTO PECAS", "AUTO PEÇAS", "AUTOPECAS", "AUTOPEÇAS",
+                        "DISTRIBUIDORA", "DDD", "FRETE", "PROMO", "OFERTA", "PARCEL")
+
+
+def anuncio_na_imagem(texto_ocr: str) -> bool:
+    """A imagem traz telefone, site ou propaganda de quem vendeu (erro R14 do piloto)? Não é foto para o nosso catálogo."""
+    texto = f"{(texto_ocr or '').upper()} "
+    return bool(_TELEFONE.search(texto)) or any(p in texto for p in _PALAVRAS_DE_ANUNCIO)
 
 
 def _so_alnum(texto: str) -> str:
@@ -120,6 +164,9 @@ class Sinais:
     titulo_spec: bool = False
     titulo_conflito: bool = False
     titulo_marca: bool = False
+    titulo_ano: bool = False       # anúncio é de ano compatível (ou não cita ano)
+    titulo_kit: bool = False       # anúncio de kit/combo para produto que não é kit
+    imagem_anuncio: bool = False   # telefone/site/propaganda de vendedor escrito na imagem
     ocr_marca: bool = False
     ocr_outra_marca: bool = False
     dominio_loja: bool = False
@@ -156,6 +203,12 @@ def decidir(chave: Chave, s: Sinais) -> Decisao:
         motivos.append("titulo_sem_medida")
     if s.titulo_conflito:
         motivos.append("titulo_lado_ou_posicao_oposta")
+    if not s.titulo_ano:
+        motivos.append("titulo_ano_fora")
+    if s.titulo_kit:
+        motivos.append("titulo_kit")
+    if s.imagem_anuncio:
+        motivos.append("imagem_com_texto_de_vendedor")
     if chave.marca and not s.titulo_marca:
         motivos.append("titulo_sem_marca")
     if chave.marca and s.ocr_outra_marca:

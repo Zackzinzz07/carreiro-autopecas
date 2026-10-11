@@ -20,7 +20,7 @@ nesse processo.
 
 2. Abra cada `catalogo/revisao/folhas/folha_NNN.png` (você consegue ver imagens) junto com
    o `folha_NNN.txt` correspondente. Para cada item `R<número>`, decida seguindo os
-   critérios do contexto (tipo de peça → posição → carro → lado → marca → medida):
+   critérios do contexto (tipo de peça → posição → carro → ano → lado → marca → medida):
 
    - item `[revisao]`: o número da imagem que está CERTA (0, 1, 2 ou 3), ou `x` se nenhuma serve.
      Se mais de uma serve, escolha a mais limpa (só a peça, fundo claro).

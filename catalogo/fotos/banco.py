@@ -104,8 +104,13 @@ def foto_tipo_de(ch: Chave) -> str:
     return ch.tipo_pt if ch.tipo_pt and not ch.marca and not ch.marca_incerta and not ch.e_tipo else ""
 
 
-def sincronizar_grupos(conn: sqlite3.Connection, quando: str) -> int:
-    """Calcula o grupo de cada produto ativo e cria os grupos que faltam. Idempotente."""
+def sincronizar_grupos(conn: sqlite3.Connection, quando: str, dir_candidatas: Path | None = None) -> int:
+    """Calcula o grupo de cada produto ativo, cria os grupos que faltam e remove os que ficaram vazios.
+
+    Idempotente. Grupo sem nenhum produto (descrição mudou, produto saiu da planilha, ou a regra da
+    chave mudou) é apagado junto com candidatas e revisões pendentes: a foto dele não vale mais para
+    ninguém. Havendo qualquer mudança, as fotos dos produtos são recalculadas.
+    """
     novos = 0
     vistos: set[str] = set()
     atualizacoes = []
@@ -117,14 +122,23 @@ def sincronizar_grupos(conn: sqlite3.Connection, quando: str) -> int:
         if ch.texto not in vistos:
             vistos.add(ch.texto)
             novos += _inserir_grupo(conn, ch, r["descricao"], quando)
-    conn.executemany(
+    mudaram = conn.executemany(
         "UPDATE produtos SET foto_grupo = ?, foto_tipo = ? WHERE id = ? AND (foto_grupo != ? OR foto_tipo != ?)",
         [(g, t, i, g, t) for g, t, i in atualizacoes],
-    )
+    ).rowcount
     conn.execute("UPDATE foto_grupos SET n_produtos = (SELECT count(*) FROM produtos p"
                  " WHERE p.ativo = 1 AND p.foto_grupo = foto_grupos.chave) WHERE e_tipo = 0")
     conn.execute("UPDATE foto_grupos SET n_produtos = (SELECT count(*) FROM produtos p"
                  " WHERE p.ativo = 1 AND 'TIPO:' || p.foto_tipo = foto_grupos.chave) WHERE e_tipo = 1")
+    orfaos = [r["chave"] for r in conn.execute("SELECT chave FROM foto_grupos WHERE e_tipo = 0 AND n_produtos = 0")]
+    for chave in orfaos:
+        if dir_candidatas is not None:
+            limpar_candidatas(conn, chave, dir_candidatas)
+        conn.execute("DELETE FROM foto_candidatas WHERE chave = ?", (chave,))
+        conn.execute("UPDATE foto_revisao SET status = 'obsoleta' WHERE chave = ? AND status = 'pendente'", (chave,))
+        conn.execute("DELETE FROM foto_grupos WHERE chave = ?", (chave,))
+    if novos or mudaram or orfaos:
+        propagar(conn)
     conn.commit()
     return novos
 

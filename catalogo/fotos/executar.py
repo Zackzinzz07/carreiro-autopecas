@@ -18,7 +18,7 @@ import random
 import sqlite3
 import time
 from collections import Counter
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Any, Callable
 
@@ -27,11 +27,15 @@ from catalogo.db import conectar, criar_schema
 from catalogo.fotos import banco, busca, imagem
 from catalogo.fotos.dados.tipos_en import TIPOS_EN
 from catalogo.fotos.normalizar import Chave
-from catalogo.fotos.verificar import Decisao, Sinais, decidir, marca_no_ocr, outra_marca_no_ocr, sinais_de_texto
+from catalogo.fotos.verificar import (Decisao, Sinais, anuncio_na_imagem, decidir, marca_no_ocr,
+                                      outra_marca_no_ocr, sinais_de_texto)
 
 MAX_DOWNLOADS = 8        # candidatas baixadas por consulta
 MAX_REVISAO = 4          # candidatas mostradas ao Agy
-PAUSAS_BLOQUEIO = (0, 30, 90, 300)  # segundos antes de cada tentativa quando o DuckDuckGo recusa
+ESPERA_PADRAO = 1.5      # segundos entre buscas
+# Segundos antes de cada tentativa quando o buscador falha. No piloto, as 25 falhas foram "malformed
+# headers" do cliente HTTP do ddgs (passageiras, não limite de uso): a 2ª tentativa vem logo.
+PAUSAS_BLOQUEIO = (0, 5, 30, 120, 300)
 
 
 @dataclass
@@ -92,9 +96,17 @@ def _avaliar_uma(ctx: Contexto, ch: Chave, r: busca.Resultado) -> Avaliada | Non
         valida=True, clip_rank=rank, clip_top_lixo=lixo, **sinais_de_texto(ch, r.titulo),
         ocr_marca=bool(ch.marca) and marca_no_ocr(ch.marca, texto_ocr),
         ocr_outra_marca=bool(ch.marca) and outra_marca_no_ocr(ch.marca, texto_ocr),
+        imagem_anuncio=anuncio_na_imagem(texto_ocr),
         dominio_loja=busca.eh_loja(r), fundo_branco=processada.fundo_branco,
     )
-    return Avaliada(decidir(ch, sinais), r, processada.webp, rank, topo, texto_ocr)
+    decisao = decidir(ch, sinais)
+    if decisao.aprovada and not ch.marca:
+        # Produto sem marca não passou pelo OCR. Antes de aprovar sozinho, lê a imagem para ver se
+        # ela traz telefone/propaganda do vendedor. Só nas que iam ser aprovadas: OCR é o passo lento.
+        texto_ocr = ctx.ocr.ler(dados)
+        if anuncio_na_imagem(texto_ocr):
+            decisao = decidir(ch, replace(sinais, imagem_anuncio=True))
+    return Avaliada(decisao, r, processada.webp, rank, topo, texto_ocr)
 
 
 def _nome_candidata(chave: str, i: int) -> str:
@@ -189,7 +201,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--limite", type=int, default=100, help="grupos por lote")
     ap.add_argument("--piloto", action="store_true", help="só a amostra fixa (~100 produtos); audita 100%%")
     ap.add_argument("--refazer-piloto", action="store_true", help="volta os grupos do piloto para pendente")
-    ap.add_argument("--espera", type=float, default=3.0, help="segundos entre buscas")
+    ap.add_argument("--espera", type=float, default=ESPERA_PADRAO, help="segundos entre buscas")
     ap.add_argument("--auditar", type=float, default=0.03, help="fração das aprovações automáticas auditada")
     ap.add_argument("--relatorio", action="store_true")
     args = ap.parse_args(argv)
@@ -201,7 +213,7 @@ def main(argv: list[str] | None = None) -> int:
         if args.relatorio:
             _imprimir_relatorio(conn)
             return 0
-        banco.sincronizar_grupos(conn, banco.agora())
+        banco.sincronizar_grupos(conn, banco.agora(), Path(s.candidatas_dir))
         chaves = selecionar_piloto(conn) if (args.piloto or args.refazer_piloto) else None
         if args.refazer_piloto:
             n = banco.resetar_grupos(conn, chaves or [], Path(s.candidatas_dir))

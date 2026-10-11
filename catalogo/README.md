@@ -74,13 +74,16 @@ uv pip install --python catalogo/.venv-fotos/bin/python -r catalogo/requirements
 
 catalogo/.venv-fotos/bin/python -m catalogo.fotos.executar --piloto      # amostra fixa, audita 100%
 catalogo/.venv-fotos/bin/python -m catalogo.fotos.executar --relatorio
-nohup catalogo/fotos/loop.sh >> /tmp/fotos_carreiro.log 2>&1 &         # catálogo inteiro (~12-24h)
+nohup catalogo/fotos/loop.sh >> /tmp/fotos_carreiro.log 2>&1 &         # catálogo inteiro (dias)
 catalogo/.venv-fotos/bin/python -m catalogo.fotos.revisar --gerar       # folhas para o Agy
 catalogo/.venv-fotos/bin/python -m pytest catalogo/tests -q             # testes (todos)
 ```
 
-- **Grupo:** produtos com a mesma peça+carro+lado+marca dividem a foto (`produtos.foto_grupo`).
-- **Aprovação automática:** título do anúncio com peça e carro (e marca e medida quando houver),
+- **Grupo:** produtos com a mesma peça+carro+ano+lado+marca dividem a foto (`produtos.foto_grupo`).
+  O ano entrou na chave depois do piloto: sem ele, uma grade de Corolla 2020 foi parar no Corolla 12/14.
+- **Aprovação automática:** título do anúncio com peça e carro (e marca e medida quando houver), de ano
+  compatível, sem a posição/lado oposto, sem ser kit com peças a mais e sem telefone/propaganda de
+  vendedor na imagem,
   CLIP com o tipo da peça no top 3 e nada de lixo, e, se o produto tem marca, o OCR lendo essa
   marca no rótulo (pneu e câmara dispensam: a marca fica na lateral). Constantes em
   `catalogo/fotos/verificar.py`.
@@ -93,8 +96,8 @@ catalogo/.venv-fotos/bin/python -m pytest catalogo/tests -q             # testes
 - **Placeholder recorrente:** acrescente o SHA-1 do arquivo baixado em
   `catalogo/data/hashes_bloqueados.txt` (um por linha) e ele nunca mais é usado.
 - **Siglas, carros, marcas e rótulos do CLIP:** `catalogo/fotos/dados/`. Cobertura medida em
-  2026-10-05 (17.149 produtos): 100% com peça reconhecida, 85,7% com rótulo para o CLIP, 8.539
-  grupos. Metas no teste `test_cobertura_no_catalogo_real`: ≥ 99%, ≥ 83% e ≤ 9.000.
+  2026-10-11 (17.149 produtos): 100% com peça reconhecida, 85,7% com rótulo para o CLIP, 10.607
+  grupos. Metas no teste `test_cobertura_no_catalogo_real`: ≥ 99%, ≥ 83% e ≤ 11.500.
 - **Conteúdo de terceiros:** as imagens vêm de sites desconhecidos. O download só aceita http(s)
   para endereço público (inclusive após redirecionamento), até 12 MB e 30 s, sem compressão; a
   imagem só é aberta se for JPEG/PNG/WebP com até 40 MP. Limites em `busca.py` e `imagem.py`.

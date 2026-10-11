@@ -125,9 +125,12 @@ def _exigencias(item: sqlite3.Row) -> str:
     if item["e_tipo"]:
         return "FOTO GENÉRICA DO TIPO DE PEÇA (sem carro, sem marca)"
     partes = ["tipo de peça"]
-    veiculo = item["chave"].split("|")[1]  # chave = "peca|veiculo|lado|marca"
-    if veiculo:
-        partes.append(f"carro {veiculo}")
+    campos = item["chave"].split("|")     # chave = "peca|veiculo|lado|marca|anos"
+    if campos[1]:
+        partes.append(f"carro {campos[1]}")
+    if len(campos) > 4 and campos[4]:
+        ini, _, fim = campos[4].partition("-")
+        partes.append(f"ano {ini} a {fim}" if ini and fim else f"ano {ini} em diante" if ini else f"ano até {fim}")
     if item["lado"]:
         partes.append(f"lado {item['lado']}")
     if item["marca"]:

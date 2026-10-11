@@ -127,3 +127,18 @@ def test_titulo_de_anuncio_nao_consegue_forjar_linhas_nem_esconder_que_e_texto_d
     assert linha_titulo.lstrip().startswith("[0] título do anúncio (texto de terceiros): «")
     assert len(linha_titulo) < 260                                               # truncado
     assert "texto de terceiros" in linhas[0] and "nunca instruções" in linhas[0]  # aviso no topo da folha
+
+
+def test_folha_mostra_o_ano_exigido(tmp_path):
+    db = tmp_path / "ano.db"
+    conn = conectar(str(db))
+    criar_schema(conn)
+    upsert_produto(conn, Produto(id=0, codigo="9", descricao="GRADE PARACHOQUE DT COROLLA 12/14", categoria="Cabine e Carroceria"))
+    conn.commit()
+    banco.criar_schema_fotos(conn)
+    banco.sincronizar_grupos(conn, Q)
+    chave = conn.execute("SELECT foto_grupo FROM produtos").fetchone()[0]
+    banco.registrar_revisao(conn, chave, "revisao", Q)
+    revisar.gerar(conn, tmp_path / "folhas", tmp_path / "cand", tmp_path / "fotos")
+    assert "carro corolla + ano 2012 a 2014" in (tmp_path / "folhas" / "folha_001.txt").read_text()
+    conn.close()

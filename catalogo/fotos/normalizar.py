@@ -39,6 +39,7 @@ class Chave:
     tipo_en: str = ""       # rótulo do CLIP: "brake pad"
     marca_incerta: bool = False
     e_tipo: bool = False    # grupo de foto genérica por tipo de peça
+    anos: str = ""          # faixa do 1º carro: "2012-2014", "2008-" (em diante), "-2013" (até); "" = sem ano
 
     @classmethod
     def para_tipo(cls, tipo_pt: str, tipo_en: str) -> "Chave":
@@ -48,10 +49,21 @@ class Chave:
     def texto(self) -> str:
         if self.e_tipo:
             return f"TIPO:{self.peca}"
-        return f"{self.peca}|{self.veiculo}|{self.lado}|{self.marca}"
+        return f"{self.peca}|{self.veiculo}|{self.lado}|{self.marca}|{self.anos}"
 
-    def _montar(self, veiculo: str) -> str:
+    @property
+    def faixa(self) -> tuple[int | None, int | None]:
+        """(ano inicial, ano final); None = aberto. Sem ano na descrição: (None, None)."""
+        if not self.anos:
+            return None, None
+        ini, _, fim = self.anos.partition("-")
+        return (int(ini) if ini else None), (int(fim) if fim else None)
+
+    def _montar(self, veiculo: str, com_ano: bool = False) -> str:
         partes = [self.peca, veiculo]
+        if com_ano and self.anos:
+            ini, fim = self.faixa
+            partes.append(str(ini or fim))   # geração do carro: o anúncio certo costuma citar o ano
         if self.marca and self.marca.lower() not in self.peca:
             partes.append(self.marca.lower())
         if self.lado:
@@ -60,7 +72,7 @@ class Chave:
 
     @property
     def consulta(self) -> str:
-        return self.peca if self.e_tipo else self._montar(self.veiculo)
+        return self.peca if self.e_tipo else self._montar(self.veiculo, com_ano=True)
 
     @property
     def consulta_alt(self) -> str:
@@ -77,11 +89,46 @@ def _preparar(descricao: str) -> str:
     d = re.sub(r"\bL/E\b", " LE ", d)
     d = re.sub(r"\bD/E\b", " ", d)
     d = re.sub(r"\b([CS])/", r" \1_ ", d)
+    d = re.sub(r"([A-Z]{3,})(\d\.\d)", r"\1 \2", d)   # "CORSA1.0" → "CORSA 1.0"
     for padrao, troca in SIGLAS_COMPOSTAS:
         d = re.sub(padrao, troca, d)
     for nome in MARCAS_COMPOSTAS:
         d = d.replace(nome, nome.replace(" ", "_"))
     return d
+
+
+# "12/14", "08/" (em diante), "/13" (até), "2017/". O que vem colado em dígito, ponto, X ou barra não é ano:
+# "1.6/1.8" e "8/16V" são motor, "206/207" e "C10/14/15" são carros, "07.89/" é mês.ano, "60/55W" é potência.
+_ANO = re.compile(
+    r"(?<![\d.,X/])((?:19|20)\d{2})/((?:19|20)?\d{2})?(?![\d.])"
+    r"|(?<![\d.,X/])(\d{2})/(\d{2})?(?![\d.VW])"
+    r"|(?<![\d.\w])/(\d{2})(?![\d.])"
+)
+
+
+def _ano(texto: str | None) -> int | None:
+    if not texto:
+        return None
+    n = int(texto)
+    if n < 100:
+        n += 1900 if n >= 50 else 2000
+    return n
+
+
+def _faixa_de_anos(preparada: str, token_do_veiculo: str) -> str:
+    """Faixa de anos que vem logo depois do primeiro carro citado ('' se não houver ou não fizer sentido)."""
+    onde = re.search(r"(?<![A-Z0-9])" + re.escape(token_do_veiculo) + r"(?![A-Z0-9])", preparada)
+    m = _ANO.search(preparada, onde.end()) if onde else None
+    if not m:
+        return ""
+    if m.group(5):
+        ini, fim = None, _ano(m.group(5))
+    else:
+        ini, fim = _ano(m.group(1) or m.group(3)), _ano(m.group(2) or m.group(4))
+    validos = [a for a in (ini, fim) if a is not None]
+    if any(not 1950 <= a <= 2035 for a in validos) or (ini and fim and fim < ini):
+        return ""
+    return f"{ini or ''}-{fim or ''}"
 
 
 def tokens(descricao: str) -> list[str]:
@@ -139,12 +186,15 @@ def normalizar(descricao: str) -> Chave:
 
     modelos: list[str] = []
     montadoras: list[str] = []
+    cru_modelo = cru_montadora = ""   # como o 1º carro está escrito na descrição (para achar o ano dele)
     fim: int | None = None
     for i, t in enumerate(toks[1:], start=1):
         modelo = _modelo(t, sem_veiculo)
         if modelo and modelo not in modelos:
+            cru_modelo = cru_modelo or t
             modelos.append(modelo)
         elif not modelo and t in MONTADORAS and MONTADORAS[t] not in montadoras:
+            cru_montadora = cru_montadora or t
             montadoras.append(MONTADORAS[t])
         if fim is None and (modelo or t in MONTADORAS or re.search(r"\d", t)):
             fim = i
@@ -159,4 +209,5 @@ def normalizar(descricao: str) -> Chave:
     tipo_pt, tipo_en = _tipo(peca)
     primeira = peca.split()[0] if peca else ""
     marca_incerta = not veiculo and not marca and primeira in CONSUMIVEIS
-    return Chave(peca, veiculo, veiculo_alt, lado, marca, tipo_pt, tipo_en, marca_incerta)
+    anos = _faixa_de_anos(_preparar(descricao), cru_modelo or cru_montadora) if veiculo else ""
+    return Chave(peca, veiculo, veiculo_alt, lado, marca, tipo_pt, tipo_en, marca_incerta, anos=anos)

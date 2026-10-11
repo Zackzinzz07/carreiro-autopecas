@@ -10,7 +10,7 @@ from catalogo.models import Produto
 Q = "2026-10-05T12:00:00"
 PRODUTOS = [
     ("1", "PASTILHA FREIO DT AGILE/CELTA"),
-    ("2", "PASTILHA FREIO DT AGILE 09/ CELTA"),
+    ("2", "PASTILHA FREIO DT AGILE/CELTA/PRISMA"),
     ("3", "PASTILHA FREIO DT UNO 10/"),
     ("4", "OLEO MOTOR 15W40 PETRONAS SYNTIUM 800 SE"),
 ]
@@ -58,7 +58,7 @@ def test_schema_idempotente_cria_colunas(conn):
 
 
 def test_sincronizar_agrupa_mesma_peca_e_carro(conn):
-    assert _grupo(conn, "1") == _grupo(conn, "2") == "pastilha freio dianteiro|agile||"
+    assert _grupo(conn, "1") == _grupo(conn, "2") == "pastilha freio dianteiro|agile|||"
     assert _grupo(conn, "3") != _grupo(conn, "1")
     g = conn.execute("SELECT * FROM foto_grupos WHERE chave = ?", (_grupo(conn, "1"),)).fetchone()
     assert g["n_produtos"] == 2 and g["status"] == "pendente" and g["consulta"] == "pastilha freio dianteiro agile"
@@ -162,3 +162,19 @@ def test_backup_gera_copia_legivel(tmp_path):
 def test_relatorio(conn):
     r = banco.relatorio(conn)
     assert r["grupos"] == {"pendente": 3} and r["produtos_ativos"] == 4 and r["produtos_com_foto"] == 0
+
+
+def test_grupo_que_ficou_sem_produto_some_e_a_foto_antiga_nao_fica_no_produto(conn, tmp_path):
+    """Descrição mudou (ou a chave mudou de formato): o produto vai para outro grupo e não leva a foto do antigo."""
+    chave_velha = _grupo(conn, "3")                       # só o produto 3 está neste grupo
+    cid = _candidata(conn, tmp_path / "cand", chave_velha, b"foto-uno")
+    banco.aprovar(conn, chave_velha, cid, origem="auto", quando=Q, dir_candidatas=tmp_path / "cand", dir_fotos=tmp_path / "f")
+    pendente = banco.registrar_revisao(conn, chave_velha, "auditoria", Q)
+    assert _imagem(conn, "3") != ""
+    upsert_produto(conn, Produto(id=0, codigo="3", descricao="PASTILHA FREIO DT UNO 15/", categoria="Freios"))
+    conn.commit()
+    banco.sincronizar_grupos(conn, Q, dir_candidatas=tmp_path / "cand")
+    assert _grupo(conn, "3") != chave_velha and _imagem(conn, "3") == ""
+    assert conn.execute("SELECT count(*) FROM foto_grupos WHERE chave = ?", (chave_velha,)).fetchone()[0] == 0
+    assert conn.execute("SELECT status FROM foto_revisao WHERE id = ?", (pendente,)).fetchone()[0] == "obsoleta"
+    assert conn.execute("SELECT count(*) FROM foto_candidatas WHERE chave = ?", (chave_velha,)).fetchone()[0] == 0

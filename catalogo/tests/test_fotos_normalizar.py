@@ -42,19 +42,20 @@ def test_normaliza_descricoes_reais(descricao, peca, veiculo, alt, lado, marca, 
 
 def test_consultas_e_chave():
     c = normalizar("PASTILHA FREIO DT AGILE/CELTA/CORSA/PRISMA")
-    assert c.texto == "pastilha freio dianteiro|agile||"
+    assert c.texto == "pastilha freio dianteiro|agile|||"
     assert c.consulta == "pastilha freio dianteiro agile"
     assert c.consulta_alt == "pastilha freio dianteiro celta"
     lado = normalizar("AMORT DT COROLLA 08/14 L/D")
-    assert lado.consulta == "amortecedor dianteiro corolla lado direito"
+    assert lado.consulta == "amortecedor dianteiro corolla 2008 lado direito"
     assert lado.consulta_alt == "amortecedor dianteiro lado direito"
     oleo = normalizar("OLEO MOTOR 15W40 PETRONAS SYNTIUM 800 SE")
     assert oleo.consulta == "oleo motor 15w40 petronas syntium 800 se" and oleo.consulta_alt == ""
-    assert oleo.texto == "oleo motor 15w40 petronas syntium 800 se|||PETRONAS"
+    assert oleo.texto == "oleo motor 15w40 petronas syntium 800 se|||PETRONAS|"
 
 
 def test_mesmo_grupo_para_mesma_peca_e_carro():
-    assert normalizar("PASTILHA FREIO DT AGILE/CELTA").texto == normalizar("PASTILHA FREIO DT AGILE 09/ CELTA").texto
+    assert normalizar("PASTILHA FREIO DT AGILE/CELTA").texto == normalizar("PASTILHA FREIO DT AGILE/CELTA/PRISMA").texto
+    assert normalizar("GRADE CENTR PARACH COROLLA 12/14").texto == normalizar("GRADE CENTR PARACH COROLLA 12/14 PRETA").texto
     assert normalizar("PNEU 205/65 R15 MAZZINI 94V").texto != normalizar("PNEU 175/70 R14 MAZZINI 84T").texto
 
 
@@ -86,4 +87,39 @@ def test_cobertura_no_catalogo_real():
     print(f"\n{n} produtos | peça {com_peca:.1%} | rótulo CLIP {com_tipo:.1%} | {grupos} grupos")
     assert com_peca >= 0.99
     assert com_tipo >= 0.83
-    assert grupos <= 9_000
+    assert grupos <= 11_500   # com o ano na chave (decisão de 2026-10-11): 10.607 medidos
+
+
+@pytest.mark.parametrize("descricao,anos", [
+    ("GRADE PARACHOQUE DT COROLLA 12/14", "2012-2014"),
+    ("GRADE PARACHOQUE DT COROLLA 15/17", "2015-2017"),
+    ("AMORT DT UNO 10/ S/BARRA ESTAB L/D", "2010-"),
+    ("ALAVANCA CAMBIO UNO MILLE /13 S/CABO/MANOPLA", "-2013"),
+    ("BARRA AXIAL ASTRA/ZAFIRA 99/ VECTRA 06/ C/DH", "1999-"),          # o ano do PRIMEIRO carro
+    ("PASTILHA FREIO DT PALIO 00/ STRADA 98/ IDEA", "2000-"),
+    ("CAPA RETROVISOR MOBI 2017/ LD", "2017-"),
+    ("TERMINAL DIR GOL/VOYALE/PARATI/SAVEIRO 80/04", "1980-2004"),
+    ("PASTILHA FREIO DT AGILE/CELTA/CORSA/PRISMA", ""),                 # sem ano na descrição
+    ("BOMBA DAGUA GOL/SAVEIRO 1.6/1.8 95/", "1995-"),                   # 1.6/1.8 é motor, não ano
+    ("JUNTA TAMPA VALV ONIX/PRISMA 1.0/1.4 8V 12/", "2012-"),           # 8V não é ano
+    ("BANDEJA DT C/PIVO 206/207 99/ LD", "1999-"),                      # 206/207 são carros
+    ("ESCOVA MTR PART C10/14/15 WAPSA", ""),                            # C10/C14/C15 são caminhonetes
+    ("CABO EMBR PAMPA/D.REY/SCALA 1.8 07.89/ AP", ""),                  # mês.ano: não arrisca
+    ("PNEU 205/65 R15 MAZZINI 94V", ""),                                # medida de pneu
+    ("LAMPADA FAROL H4 HALOGENA 12V 60/55W", ""),                       # potência
+])
+def test_faixa_de_anos_do_primeiro_carro(descricao, anos):
+    assert normalizar(descricao).anos == anos
+
+
+def test_ano_separa_geracoes_e_entra_na_busca():
+    a, b = normalizar("GRADE PARACHOQUE DT COROLLA 12/14"), normalizar("GRADE PARACHOQUE DT COROLLA 15/17")
+    assert a.texto != b.texto and a.texto == "grade parachoque dianteiro|corolla|||2012-2014"
+    assert a.consulta == "grade parachoque dianteiro corolla 2012" and a.faixa == (2012, 2014)
+    assert normalizar("ALAVANCA CAMBIO UNO MILLE /13").consulta.endswith("uno 2013")
+    assert normalizar("PASTILHA FREIO DT AGILE/CELTA").faixa == (None, None)
+
+
+def test_carro_colado_no_motor_e_reconhecido():
+    c = normalizar("CABOS VELAS CORSA1.0/1.4/1.6 8V MPFI/PALIO/PU")
+    assert (c.peca, c.veiculo, c.veiculo_alt) == ("cabos velas", "corsa", "palio")

@@ -1,7 +1,8 @@
 import pytest
 
 from catalogo.fotos.normalizar import Chave, normalizar
-from catalogo.fotos.verificar import Sinais, decidir, marca_no_ocr, outra_marca_no_ocr, sinais_de_texto
+from catalogo.fotos.verificar import (Sinais, anos_do_titulo, anuncio_na_imagem, decidir, marca_no_ocr,
+                                      outra_marca_no_ocr, sinais_de_texto)
 
 PASTILHA = normalizar("PASTILHA FREIO DT AGILE/CELTA/CORSA/PRISMA")
 OLEO = normalizar("OLEO MOTOR 15W40 PETRONAS SYNTIUM 800 SE")
@@ -12,7 +13,7 @@ PNEU = normalizar("PNEU 175/75 R13 GOLDEN CROWN 85T PRETO NA")
 def test_titulo_bom_de_mercado_livre():
     s = sinais_de_texto(PASTILHA, "Pastilha De Freio Dianteira Agile 2009 2010 Cobreq")
     assert s == {"titulo_peca": True, "titulo_veiculo": True, "titulo_spec": True,
-                 "titulo_conflito": False, "titulo_marca": True}
+                 "titulo_conflito": False, "titulo_marca": True, "titulo_ano": True, "titulo_kit": False}
 
 
 def test_carro_alternativo_tambem_vale_e_bomba_dagua_com_apostrofo():
@@ -23,7 +24,11 @@ def test_carro_alternativo_tambem_vale_e_bomba_dagua_com_apostrofo():
 
 def test_posicao_e_lado_opostos_sao_conflito():
     assert sinais_de_texto(PASTILHA, "Pastilha Freio Traseira Agile")["titulo_conflito"]
-    assert not sinais_de_texto(PASTILHA, "Pastilha Freio Dianteira E Traseira Agile")["titulo_conflito"]
+    # anúncio que oferece as duas posições é kit das duas: não serve para produto de uma só
+    assert sinais_de_texto(PASTILHA, "Pastilha Freio Dianteira E Traseira Agile")["titulo_conflito"]
+    mangote = normalizar("MANGOTE SUP RADIAD UNO 1.0/1.4 8V MT EVO 10/")
+    assert sinais_de_texto(mangote, "Mangote Superior Inferior Radiador Uno Elba")["titulo_conflito"]
+    assert not sinais_de_texto(mangote, "Mangote Superior Radiador Uno 2012")["titulo_conflito"]
     assert sinais_de_texto(BIELETA_LD, "Bieleta Estabilizadora S10 Lado Esquerdo")["titulo_conflito"]
 
 
@@ -49,7 +54,7 @@ def test_ocr_de_marca():
 
 
 TUDO_OK = Sinais(clip_rank=1, titulo_peca=True, titulo_veiculo=True, titulo_spec=True, titulo_marca=True,
-                 ocr_marca=True, dominio_loja=True, fundo_branco=True)
+                 titulo_ano=True, ocr_marca=True, dominio_loja=True, fundo_branco=True)
 
 
 def test_aprova_quando_todos_os_sinais_concordam():
@@ -64,6 +69,9 @@ def test_aprova_quando_todos_os_sinais_concordam():
     ({"titulo_veiculo": False}, "titulo_sem_veiculo"),
     ({"titulo_spec": False}, "titulo_sem_medida"),
     ({"titulo_conflito": True}, "titulo_lado_ou_posicao_oposta"),
+    ({"titulo_ano": False}, "titulo_ano_fora"),
+    ({"titulo_kit": True}, "titulo_kit"),
+    ({"imagem_anuncio": True}, "imagem_com_texto_de_vendedor"),
 ])
 def test_qualquer_sinal_ruim_manda_para_revisao(mudanca, motivo):
     s = Sinais(**{**TUDO_OK.__dict__, **mudanca})
@@ -108,3 +116,39 @@ def test_pneu_dispensa_ocr_porque_a_marca_fica_na_lateral():
 
 def test_peca_sem_marca_nao_depende_de_ocr():
     assert decidir(PASTILHA, Sinais(**{**TUDO_OK.__dict__, "ocr_marca": False})).aprovada
+
+
+GRADE = normalizar("GRADE PARACHOQUE DT COROLLA 12/14")
+
+
+def test_anuncio_de_outra_geracao_do_carro_nao_serve():   # erro R81 do piloto
+    assert not sinais_de_texto(GRADE, "Grade Parachoque Dianteiro Corolla 2020 2021 2022")["titulo_ano"]
+    assert sinais_de_texto(GRADE, "Grade Parachoque Dianteiro Corolla 2012 2013 2014")["titulo_ano"]
+    assert sinais_de_texto(GRADE, "Grade Parachoque Corolla 2009 a 2013")["titulo_ano"]       # faixa que alcança 2012
+    assert not sinais_de_texto(GRADE, "Grade Parachoque Corolla 2003 - 2008")["titulo_ano"]
+    assert sinais_de_texto(GRADE, "Grade Parachoque Dianteiro Corolla")["titulo_ano"]          # sem ano: não dá para negar
+    aberto = normalizar("AMORT DT UNO 10/")
+    assert sinais_de_texto(aberto, "Amortecedor Dianteiro Uno 2015")["titulo_ano"]
+    assert not sinais_de_texto(aberto, "Amortecedor Dianteiro Uno 1995 a 2004")["titulo_ano"]
+    assert sinais_de_texto(PASTILHA, "Pastilha Freio Dianteira Agile 2011")["titulo_ano"]      # produto sem ano
+    assert anos_do_titulo("Cabo 2009 2010 e 2015 a 2017 ref 123456") == {2009, 2010, 2015, 2016, 2017}
+
+
+def test_kit_com_pecas_a_mais_nao_aprova_sozinho():       # erros R33, R52, R70 do piloto
+    correia = normalizar("CORREIA ALT 306/405 2.0 16V 93/98")
+    assert sinais_de_texto(correia, "Kit Correia Alternador Polias Peugeot 306 1.8 16v")["titulo_kit"]
+    assert sinais_de_texto(PASTILHA, "Par Amortecedor + Kit Batente Agile")["titulo_kit"]
+    assert not sinais_de_texto(correia, "Correia Alternador Peugeot 306 Dayco 6pk1035")["titulo_kit"]
+    assert not sinais_de_texto(correia, "Par Correia Alternador 306")["titulo_kit"]
+    embreagem = normalizar("KIT EMBR GOL 1.0 8V 97/")          # o próprio produto é um kit
+    assert not sinais_de_texto(embreagem, "Kit Embreagem Gol 1.0 Luk")["titulo_kit"]
+
+
+def test_telefone_ou_propaganda_de_vendedor_na_imagem():  # erro R14 do piloto
+    assert anuncio_na_imagem("VOLKSWAGEN 67 DDD 3416-2172 CARACTERISTICAS MARCA")
+    assert anuncio_na_imagem("SD SAO DOMINGOS AUTO PECAS")
+    assert anuncio_na_imagem("PECA NO WHATSAPP")
+    assert anuncio_na_imagem("WWW.LOJA.COM.BR")
+    assert not anuncio_na_imagem("BOSCH 0 986 B01 000 OB 1000")
+    assert not anuncio_na_imagem("TOYOTA 17801-21050 DENSO PECA ORIGINAL")
+    assert not anuncio_na_imagem("")

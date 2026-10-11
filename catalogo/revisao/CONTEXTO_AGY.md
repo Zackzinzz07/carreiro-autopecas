@@ -27,10 +27,14 @@ nesta ordem e pare no primeiro "não":
 2. **Posição.** Dianteiro não é traseiro. Superior não é inferior.
 3. **Carro.** Quando a folha diz `carro X`, o anúncio precisa ser para esse carro (olhe o
    título do anúncio, embaixo de cada imagem e completo no `.txt`).
-4. **Lado.** Quando diz `lado direito` ou `lado esquerdo`, o anúncio não pode ser do outro lado.
-5. **Marca.** Quando diz `marca X`, a embalagem ou o título precisam ser dessa marca.
+4. **Ano.** Quando a folha diz `ano 2012 a 2014` (ou `ano 2010 em diante`, `ano até 2013`), o
+   anúncio precisa ser de um ano dessa faixa. Corolla 2020 não serve para Corolla 12/14: é outra
+   geração, e peças de lataria (grade, para-choque, farol, lanterna, retrovisor) mudam de formato.
+   Se o anúncio não diz o ano e você não consegue reconhecer a geração pela foto, rejeite.
+5. **Lado.** Quando diz `lado direito` ou `lado esquerdo`, o anúncio não pode ser do outro lado.
+6. **Marca.** Quando diz `marca X`, a embalagem ou o título precisam ser dessa marca.
    Óleo Petronas com foto de óleo Mobil é ERRADO, mesmo sendo "óleo 15W40".
-6. **Medida.** Em pneu, óleo, lâmpada e correia a medida faz parte do produto:
+7. **Medida.** Em pneu, óleo, lâmpada e correia a medida faz parte do produto:
    175/75 R13 não é 175/75 R14; 5W30 não é 15W40; H4 não é H7.
 
 Rejeite sempre, mesmo que o título pareça certo:
@@ -90,7 +94,7 @@ Você pode ler esses arquivos, mas não editar.
 
 - `R123 [revisao]` ou `R123 [auditoria]`: o número do item e o tipo;
 - o nome original da planilha;
-- `exige:` o que a foto precisa mostrar (tipo de peça + carro + lado + marca);
+- `exige:` o que a foto precisa mostrar (tipo de peça + carro + ano + lado + marca);
 - até 4 imagens, cada uma com um número num quadrado vermelho (0, 1, 2, 3) e o começo do
   título do anúncio.
 
@@ -107,6 +111,20 @@ Dois tipos de item:
 
 Item marcado `FOTO GENÉRICA DO TIPO DE PEÇA`: serve qualquer foto limpa daquele tipo de
 peça, sem carro específico e sem marca aparente (ela vai cobrir vários produtos sem marca).
+
+## Erros que o robô já cometeu sozinho (piloto de 11/10/2026)
+
+Estes passaram pela aprovação automática e só a auditoria pegou. Fique atento a eles:
+
+- grade do Corolla 2020 num produto Corolla 12/14 (geração errada);
+- bomba d'água da S10 4.3 V6 num produto S10 MWM diesel (motor errado);
+- kit de 4 amortecedores, dianteiros e traseiros, num produto "amortecedor dianteiro";
+- kit de correia com polias e tensor num produto que é só a correia;
+- mangotes superior e inferior juntos num produto "mangote superior";
+- foto com telefone, texto ou logotipo de outra loja por cima da peça.
+
+Regra para kit: se o produto é UMA peça e a foto mostra essa peça junto com OUTRAS peças
+diferentes, rejeite. Duas ou mais unidades da mesma peça (par de pastilhas, jogo de velas) pode.
 
 ## Erros que já vimos o robô encontrar
 
