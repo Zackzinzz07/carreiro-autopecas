@@ -35,6 +35,7 @@
 ## Desvios em relação ao spec (detalhes de implementação, mesma intenção)
 
 - `fotos/auditar.py` não existe como arquivo: o sorteio da auditoria fica em `executar.py` (no momento da aprovação) e a decisão fica em `revisar.py`.
+- As instruções do Agy são dois arquivos (`CONTEXTO_AGY.md` + `PROMPT_AGY.md`) em vez de um `INSTRUCOES_AGY.md` (pedido do Isac em 2026-10-11).
 - As folhas do Agy são PNG com 5 grupos cada (mais um `.txt` e um `index.html`), não HTML com 20: é a "folha de contato" que funcionou no Agrocarreiro.
 - `foto_grupos` ganhou `descricao_ref`, `e_tipo`, `tipo_pt` e `n_produtos`; `produtos` ganhou também `foto_tipo` (necessário para a foto por tipo de peça).
 - Regra extra, mais rígida que o spec: produto sem carro precisa ter as **medidas** no título (`175/75 R13`, `15W40`, `H4`); consumível sem marca reconhecida nunca aprova sozinho.
@@ -2526,7 +2527,8 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 
 **Files:**
 - Create: `catalogo/fotos/revisar.py`
-- Create: `catalogo/revisao/INSTRUCOES_AGY.md`
+- Create: `catalogo/revisao/CONTEXTO_AGY.md`
+- Create: `catalogo/revisao/PROMPT_AGY.md`
 - Test: `catalogo/tests/test_fotos_revisar.py`
 
 **Interfaces:**
@@ -2894,78 +2896,199 @@ if __name__ == "__main__":
     raise SystemExit(main())
 ```
 
-- [ ] **Step 4: Escrever as instruções do Agy**
+- [ ] **Step 4: Escrever o contexto e o prompt do Agy**
 
-`catalogo/revisao/INSTRUCOES_AGY.md`:
+Dois arquivos: o **contexto** (o que é o projeto, o que é foto correta, como ler as descrições)
+e o **prompt** (a tarefa, passo a passo). Para colocar o Agy para trabalhar, basta dizer a ele:
+"Leia `catalogo/revisao/PROMPT_AGY.md` e execute."
+
+`catalogo/revisao/CONTEXTO_AGY.md`:
 
 ````markdown
-# Revisão de fotos do catálogo Carreiro Auto Peças
+# Contexto: fotos do catálogo Carreiro Auto Peças
+
+Leia este arquivo inteiro antes de revisar qualquer foto.
+
+## O projeto
+
+A Carreiro Auto Peças é uma rede de 5 lojas de autopeças (CE/PI). O catálogo online tem
+cerca de 17 mil peças e nenhuma tinha foto. A planilha da loja só traz um **nome abreviado**
+de cada produto (sem código de barras, sem código do fabricante), por exemplo:
+
+    PASTILHA FREIO DT AGILE/CELTA/CORSA/PRISMA
+
+Um robô (`catalogo/fotos/executar.py`) transforma esse nome numa busca
+("pastilha freio dianteiro agile"), baixa fotos de anúncios (quase sempre Mercado Livre) e
+aprova sozinho só quando todos os sinais batem. **O que ficou em dúvida vem para você.**
+
+Produtos com a mesma peça e o mesmo carro dividem a foto: cada decisão sua vale para todos
+os produtos daquele grupo (o número aparece na folha, ex.: "(7 produtos)").
+
+## O que é uma foto CORRETA
+
+A foto é **ilustrativa** (o site avisa isso), mas precisa mostrar a coisa certa. Confira
+nesta ordem e pare no primeiro "não":
+
+1. **Tipo de peça.** É a peça descrita? Pastilha não é disco nem sapata. Amortecedor não é
+   kit de batente. Bomba d'água não é bomba de combustível.
+2. **Posição.** Dianteiro não é traseiro. Superior não é inferior.
+3. **Carro.** Quando a folha diz `carro X`, o anúncio precisa ser para esse carro (olhe o
+   título do anúncio, embaixo de cada imagem e completo no `.txt`).
+4. **Lado.** Quando diz `lado direito` ou `lado esquerdo`, o anúncio não pode ser do outro lado.
+5. **Marca.** Quando diz `marca X`, a embalagem ou o título precisam ser dessa marca.
+   Óleo Petronas com foto de óleo Mobil é ERRADO, mesmo sendo "óleo 15W40".
+6. **Medida.** Em pneu, óleo, lâmpada e correia a medida faz parte do produto:
+   175/75 R13 não é 175/75 R14; 5W30 não é 15W40; H4 não é H7.
+
+Rejeite sempre, mesmo que o título pareça certo:
+
+- desenho técnico ou esquema com cotas;
+- foto só do carro, sem a peça;
+- caixa fechada sem a peça visível;
+- kit com peças que o produto não inclui (ex.: produto "cabos de vela", foto de cabos + velas);
+- imagem de "indisponível", banner de propaganda, logotipo;
+- marca d'água grande cobrindo a peça;
+- foto borrada ou tão pequena que não dá para reconhecer a peça.
+
+Aceite sem problema: fundo branco ou não; peça com um carrinho pequeno desenhado ao lado
+(é comum no Mercado Livre); par de peças quando o produto é unitário (duas pastilhas, dois
+amortecedores), desde que seja a mesma peça.
+
+**Regra de ouro: foto errada é pior que nenhuma foto. Na dúvida, rejeite.**
+
+## Como ler os nomes abreviados
+
+O nome segue o formato `PEÇA + detalhes + CARRO(S) + ano + lado`. As siglas mais comuns:
+
+| Sigla | Significa | Sigla | Significa |
+|---|---|---|---|
+| DT, DIANT | dianteiro | TS, TRAS | traseiro |
+| LD, L/D | lado direito | LE, L/E | lado esquerdo |
+| SUP / INF | superior / inferior | EXT / INT | externo / interno |
+| AMORT | amortecedor | ESTAB | (barra) estabilizadora |
+| BAND | bandeja | DIR | direção |
+| DH, DIR HIDR | direção hidráulica | CX DIR | caixa de direção |
+| MT, MTR | motor | MT PART | motor de partida |
+| MT VENT | motor da ventoinha | ALT | alternador |
+| EMBR | embreagem | HOMOC | homocinética |
+| RADIAD, RAD | radiador | DAGUA | d'água |
+| VALV | válvula | TERMOST | termostática |
+| CABEC | cabeçote | ADM / ESC | admissão / escape |
+| COMB | combustível | INJ | injetor |
+| IGN | ignição | VOLT | voltagem |
+| ACD, AR COND | ar-condicionado | LIMP PARAB | limpador de para-brisa |
+| LANT | lanterna | PARACH | para-choque |
+| RETROV | retrovisor | SILENC | silencioso (escapamento) |
+| ROL | rolamento | JG / CJ | jogo / conjunto |
+| C/ | com | S/ | sem |
+| SAV, VOY, PAR | Saveiro, Voyage, Parati | D.REY, WEEK | Del Rey, Weekend |
+| MBB, MB | Mercedes-Benz | GM | Chevrolet |
+
+Números como `99/`, `08/14`, `1.0/1.6`, `8V` são ano e motor: ajudam a entender, mas não
+dá para conferir por foto. Não rejeite por causa deles.
+
+A lista completa de siglas está em `catalogo/fotos/dados/siglas.py`, a de carros em
+`catalogo/fotos/dados/veiculos.py` e a de marcas em `catalogo/fotos/dados/marcas.py`.
+Você pode ler esses arquivos, mas não editar.
+
+## O que você vai ver nas folhas
+
+`catalogo/revisao/folhas/folha_NNN.png` tem até 5 itens. Cada item traz:
+
+- `R123 [revisao]` ou `R123 [auditoria]`: o número do item e o tipo;
+- o nome original da planilha;
+- `exige:` o que a foto precisa mostrar (tipo de peça + carro + lado + marca);
+- até 4 imagens, cada uma com um número num quadrado vermelho (0, 1, 2, 3) e o começo do
+  título do anúncio.
+
+O `folha_NNN.txt` ao lado repete tudo em texto, com o título completo, o link do anúncio, o
+caminho do arquivo de cada imagem (para você abrir uma imagem sozinha e ver melhor) e o
+motivo de o robô não ter aprovado sozinho.
+
+Dois tipos de item:
+
+- **revisao:** o robô ficou em dúvida. Escolha a imagem certa ou diga que nenhuma serve.
+- **auditoria:** o robô aprovou sozinho e a foto JÁ ESTÁ no site. Só há uma imagem.
+  Confirme ou derrube. Seja tão rigoroso quanto na revisão: é assim que medimos se o robô
+  está acertando.
+
+Item marcado `FOTO GENÉRICA DO TIPO DE PEÇA`: serve qualquer foto limpa daquele tipo de
+peça, sem carro específico e sem marca aparente (ela vai cobrir vários produtos sem marca).
+
+## Erros que já vimos o robô encontrar
+
+- foto de "imagem indisponível" com título de anúncio certo;
+- óleo ou aditivo de outra marca;
+- pneu do mesmo modelo, mas de outro aro;
+- desenho técnico no lugar da foto;
+- kit com peças a mais;
+- peça de posição trocada (traseira no lugar de dianteira).
+````
+
+`catalogo/revisao/PROMPT_AGY.md`:
+
+````markdown
+# Tarefa: revisar a fila de fotos do catálogo Carreiro Auto Peças
 
 Projeto: `/home/salati/Documentos/projetos/carreiro autopeças/carreiro-autopecas`
-Python:  `catalogo/.venv-fotos/bin/python`  (rode tudo a partir da pasta do projeto)
+Rode todos os comandos a partir dessa pasta, com `catalogo/.venv-fotos/bin/python`.
 
-## Contexto
+**Antes de começar, leia `catalogo/revisao/CONTEXTO_AGY.md` inteiro.** Ele explica o
+projeto, o que é uma foto correta e como ler os nomes abreviados.
 
-O catálogo tem 17 mil peças sem foto. Um robô (`catalogo/fotos/executar.py`) busca fotos
-na internet e aprova sozinho só quando tem certeza. O que ficou em dúvida vem para você.
-Também cai aqui uma amostra das fotos que o robô aprovou sozinho (auditoria), para
-conferir se ele está acertando.
+A busca de fotos pode estar rodando em segundo plano enquanto você trabalha (processo
+`loop.sh` / `catalogo.fotos.executar`). Isso é esperado: a fila cresce sozinha. Não mexa
+nesse processo.
 
-**Regra de ouro: foto errada é pior que nenhuma foto. Na dúvida, rejeite (`x`).**
+## O que fazer
 
-## Passo a passo
-
-1. Gere as folhas:
+1. Gere as folhas da fila atual:
 
    ```bash
    catalogo/.venv-fotos/bin/python -m catalogo.fotos.revisar --gerar
    ```
 
-   Elas ficam em `catalogo/revisao/folhas/`. Cada `folha_NNN.png` tem até 5 itens. Cada item
-   traz um número `R123`, a descrição original da planilha, o que a foto precisa mostrar
-   (`exige: ...`) e até 4 imagens numeradas no canto (0, 1, 2, 3). O `folha_NNN.txt` ao
-   lado tem o título completo de cada anúncio, o link e o caminho de cada imagem, caso você
-   precise abrir uma imagem sozinha para ver melhor.
+2. Abra cada `catalogo/revisao/folhas/folha_NNN.png` (você consegue ver imagens) junto com
+   o `folha_NNN.txt` correspondente. Para cada item `R<número>`, decida seguindo os
+   critérios do contexto (tipo de peça → posição → carro → lado → marca → medida):
 
-2. Olhe cada folha (você consegue ver imagens) e decida cada item, nesta ordem:
-   - **Tipo de peça:** é a peça descrita? (pastilha ≠ disco ≠ sapata; dianteira ≠ traseira)
-   - **Carro:** quando a folha diz `carro X`, o anúncio é para esse carro? (o título ajuda)
-   - **Lado:** quando diz `lado direito/esquerdo`, a foto e o título não podem ser do outro lado.
-   - **Marca:** quando diz `marca X`, a embalagem ou o título precisam ser dessa marca.
+   - item `[revisao]`: o número da imagem que está CERTA (0, 1, 2 ou 3), ou `x` se nenhuma serve.
+     Se mais de uma serve, escolha a mais limpa (só a peça, fundo claro).
+   - item `[auditoria]`: `0` se a foto está certa, `x` se está errada.
 
-   Rejeite também: desenho técnico, foto só do carro, caixa sem a peça, kit com peças que o
-   produto não inclui, marca d'água grande por cima, banner de propaganda, imagem de
-   "indisponível".
+   Se a miniatura não der para decidir, abra o arquivo da imagem indicado no `.txt`.
+   Continuou em dúvida? `x`.
 
-   Item `FOTO GENÉRICA DO TIPO DE PEÇA`: vale qualquer foto limpa daquele tipo de peça, sem
-   carro e sem marca aparente.
-
-3. Responda assim:
-   - item de **revisão**: o número da imagem certa (`R123:2`) ou `x` se nenhuma serve (`R123:x`);
-   - item de **auditoria** (só uma imagem): `0` se está certa, `x` se está errada.
-
-   Aplique com o script (sem o "R"; vários itens separados por vírgula):
+3. Aplique as decisões de uma folha por vez (número do item sem o "R", separados por vírgula):
 
    ```bash
    catalogo/.venv-fotos/bin/python -m catalogo.fotos.revisar --decidir 123:2,124:x,125:0
    ```
 
-   O script faz backup do banco antes. Se algum número estiver errado, ele recusa TUDO e
-   não muda nada. Corrija e rode de novo.
+   O script faz backup do banco antes de aplicar. Se algum número estiver errado, ele
+   recusa TUDO, avisa qual foi o problema e não muda nada: corrija e rode de novo.
 
-4. Gere as folhas de novo e repita até a fila acabar ou passar uns 30 minutos.
+4. Volte ao passo 1 (as folhas são geradas de novo, só com o que ainda falta) e repita até
+   o comando dizer `0 folhas`, ou até completar cerca de 30 minutos de trabalho.
+   Se a fila estiver vazia mas a busca ainda estiver rodando, espere 1 minuto e gere de novo.
 
-## Não faça
+## Limites
 
-- Não edite nenhum arquivo `.py`, nem o banco direto: use só os comandos acima.
-- Não use git.
-- Não pare nem mexa no processo de busca que pode estar rodando (`loop.sh`, `executar`).
+- Não edite nenhum arquivo `.py` nem o banco de dados diretamente: use só os dois comandos acima.
+- Não use git (nada de commit, push, checkout).
+- Não pare, reinicie nem altere o processo de busca.
+- Não apague nada em `catalogo/data/`.
 
-## No final, me diga
+## Relatório final
 
-- quantos itens você aprovou, rejeitou, confirmou e desfez na auditoria;
-- padrões de erro que se repetem (ex.: "foto de disco caindo em pastilha", "anúncio de kit
-  em produto unitário", "mesma imagem errada em vários carros").
+Ao terminar, responda com:
+
+1. Quantos itens você aprovou, rejeitou (`x` em revisão), confirmou e derrubou (`x` em auditoria).
+2. Dos itens de **auditoria** derrubados: o número `R`, o nome do produto e o que a foto
+   mostrava de errado. Isso é o mais importante do relatório.
+3. Padrões de erro que se repetiram (ex.: "disco de freio aparecendo em pastilha",
+   "anúncio de kit em produto unitário", "mesma imagem errada em vários carros").
+4. Qualquer sigla ou nome de produto que você não conseguiu entender.
 ````
 
 - [ ] **Step 5: Rodar e ver passar**
@@ -2976,7 +3099,7 @@ Expected: 7 passed
 - [ ] **Step 6: Commit**
 
 ```bash
-git add catalogo/fotos/revisar.py catalogo/revisao/INSTRUCOES_AGY.md catalogo/tests/test_fotos_revisar.py
+git add catalogo/fotos/revisar.py catalogo/revisao/CONTEXTO_AGY.md catalogo/revisao/PROMPT_AGY.md catalogo/tests/test_fotos_revisar.py
 git commit -m "feat(fotos): fila de revisao do Agy com folhas de contato e decisoes validadas
 
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
@@ -3155,7 +3278,8 @@ catalogo/.venv-fotos/bin/python -m pytest catalogo/tests -q             # testes
 - **Aprovação automática:** título do anúncio com peça e carro (e marca e medida quando houver),
   CLIP com o tipo da peça no top 3 e nada de lixo, OCR sem outra marca no rótulo. Constantes
   em `catalogo/fotos/verificar.py`.
-- **Revisão do Agy:** instruções em `catalogo/revisao/INSTRUCOES_AGY.md`.
+- **Revisão do Agy:** diga a ele "Leia `catalogo/revisao/PROMPT_AGY.md` e execute". O contexto
+  (o que é foto correta, glossário de siglas) está em `catalogo/revisao/CONTEXTO_AGY.md`.
 - **Auditoria:** 3% das aprovações automáticas (100% no piloto) entram na fila como `auditoria`.
   Se o erro medido passar de 1% (com pelo menos 100 auditadas), pare o loop, aperte a regra
   (com teste) e refaça as aprovações automáticas do tipo de peça afetado.
