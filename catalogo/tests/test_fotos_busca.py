@@ -194,13 +194,14 @@ def test_url_malformada_nao_derruba_e_nunca_alcanca_endereco_interno(url):
     hosts = []
 
     def responder(req):
-        hosts.append(req.url.host)
+        hosts.append((req.url.host, req.headers.get("host", "")))
         return httpx.Response(200, content=b"\xff" * 5000, headers={"content-type": "image/jpeg"})
 
     with httpx.Client(transport=httpx.MockTransport(responder)) as cliente:
         resultado = busca.baixar(url, cliente=cliente)   # não pode levantar exceção
     assert resultado is None or isinstance(resultado, bytes)
-    assert all(h.endswith(".example") for h in hosts), hosts
+    # só o IP público de teste é alcançado, e sempre em nome de um host .example
+    assert all(ip == "93.184.216.34" and nome.split(":")[0].endswith(".example") for ip, nome in hosts), hosts
 
 
 def test_o_host_validado_e_o_mesmo_que_o_cliente_http_requisita():
@@ -215,3 +216,30 @@ def test_erro_inesperado_do_cliente_vira_none():
             raise httpx.InvalidURL("url esquisita")
 
     assert busca.baixar("https://x.example/a.jpg", cliente=ClienteQuebrado()) is None
+
+
+def test_conecta_no_ip_que_foi_validado_mesmo_se_o_dns_mudar_depois(monkeypatch):
+    """DNS rebinding: 1ª resposta pública (passa na conferência), 2ª interna. A conexão usa a 1ª."""
+    respostas = iter([["93.184.216.34"], ["127.0.0.1"], ["127.0.0.1"]])
+    monkeypatch.setattr(busca, "_enderecos", lambda host: next(respostas))
+    vistos = []
+
+    def responder(req):
+        vistos.append((req.url.host, req.headers.get("host"), req.extensions.get("sni_hostname")))
+        return httpx.Response(200, content=b"\xff" * 5000, headers={"content-type": "image/jpeg"})
+
+    with httpx.Client(transport=httpx.MockTransport(responder)) as cliente:
+        assert busca.baixar("https://rebind.example/a.jpg", cliente=cliente) == b"\xff" * 5000
+    assert vistos == [("93.184.216.34", "rebind.example", "rebind.example")]
+
+
+def test_resultado_da_busca_tem_quantidade_e_tamanhos_limitados_por_nos():
+    """O limite não pode depender de o buscador respeitar max_results nem de o anúncio ser bem-comportado."""
+    exagero = [{"title": "T" * 5000, "image": f"https://cdn.example/{i}.jpg", "url": "https://loja.example/" + "p" * 9000}
+               for i in range(50)]
+    exagero.insert(0, {"title": "url gigante", "image": "https://cdn.example/" + "a" * 5000, "url": "https://x.example"})
+    r = busca.buscar_imagens("x", cliente=Cliente(exagero))
+    assert len(r) <= 12
+    assert all(len(x.titulo) <= busca.MAX_TITULO and len(x.url_pagina) <= busca.MAX_URL
+               and len(x.url_imagem) <= busca.MAX_URL for x in r)
+    assert all("aaaa" not in x.url_imagem for x in r)

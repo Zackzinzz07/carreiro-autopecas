@@ -29,6 +29,8 @@ MIN_BYTES = 3_000
 MAX_BYTES = 12_000_000
 MAX_REDIRECIONAMENTOS = 3
 PRAZO_TOTAL = 30.0  # segundos por download, somando redirecionamentos
+MAX_TITULO = 300    # caracteres guardados do título do anúncio
+MAX_URL = 2000
 _CABECALHOS = {"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) "
                              "Chrome/126.0 Safari/537.36"}
 
@@ -59,7 +61,14 @@ def buscar_imagens(consulta: str, *, max_resultados: int = 12, cliente=None) -> 
         if "no results" in str(erro).lower():
             return []
         raise BuscaBloqueada(str(erro)) from erro
-    return [Resultado(b.get("image", ""), b.get("url", ""), b.get("title", "")) for b in brutos if b.get("image")]
+    # Os limites são aplicados aqui, não confiados ao buscador nem ao anúncio.
+    resultados = []
+    for b in list(brutos)[:max_resultados]:
+        url_imagem = str(b.get("image") or "")
+        if not url_imagem or len(url_imagem) > MAX_URL:
+            continue
+        resultados.append(Resultado(url_imagem, str(b.get("url") or "")[:MAX_URL], str(b.get("title") or "")[:MAX_TITULO]))
+    return resultados
 
 
 def dominio(url: str) -> str:
@@ -110,28 +119,34 @@ def _analisar(url):
         return None
 
 
-def url_publica(url) -> bool:
-    """Só http(s) para host cujos endereços RESOLVIDOS são todos públicos.
+def _ip_publico(url) -> str | None:
+    """IP público para onde a URL aponta, ou None se ela não pode ser buscada.
 
-    As URLs vêm de resultado de busca: nada de file://, localhost ou rede interna, nem por nome
-    que resolva para dentro. Resta a janela entre esta conferência e a conexão (DNS que muda de
-    resposta no meio); para uma ferramenta local de lote, o risco residual é aceito.
+    Só http(s), e TODOS os endereços resolvidos precisam ser públicos (nada de file://, localhost
+    ou rede interna, nem por nome que resolva para dentro). Quem chama conecta NESTE IP: assim
+    não existe intervalo em que o DNS possa responder outra coisa entre conferir e conectar, e
+    o nome resolvido é o mesmo (forma ASCII/IDNA do httpx) que seria usado na conexão.
     """
     analisada = _analisar(url)
-    if analisada is None:
-        return False
-    host = (analisada.host or "").lower()
-    if analisada.scheme not in ("http", "https") or not host:
-        return False
-    if host == "localhost" or host.endswith((".localhost", ".local", ".internal")):
-        return False
-    enderecos = _enderecos(host)
-    if not enderecos:
-        return False
+    if analisada is None or analisada.scheme not in ("http", "https"):
+        return None
     try:
-        return all(ipaddress.ip_address(e.split("%")[0]).is_global for e in enderecos)
+        host = analisada.raw_host.decode("ascii").lower()
+    except UnicodeDecodeError:
+        return None
+    if not host or host == "localhost" or host.endswith((".localhost", ".local", ".internal")):
+        return None
+    try:
+        ips = [ipaddress.ip_address(e.split("%")[0]) for e in _enderecos(host)]
     except ValueError:
-        return False
+        return None
+    if not ips or not all(ip.is_global for ip in ips):
+        return None
+    return str(next((ip for ip in ips if ip.version == 4), ips[0]))
+
+
+def url_publica(url) -> bool:
+    return _ip_publico(url) is not None
 
 
 def baixar(url: str, *, timeout: float = 12.0, cliente=None) -> bytes | None:
@@ -141,7 +156,7 @@ def baixar(url: str, *, timeout: float = 12.0, cliente=None) -> bytes | None:
     - Lê os bytes como chegam e desiste ao passar de MAX_BYTES. Pede sem compressão e recusa
       resposta comprimida: descomprimir é o que deixaria poucos KB virarem centenas de MB.
     - PRAZO_TOTAL vale para o download inteiro (o timeout do cliente é só por leitura).
-    - Redirecionamentos são seguidos à mão, conferindo `url_publica` a cada salto.
+    - Redirecionamentos são seguidos à mão; cada salto é conferido e conectado pelo IP validado.
     """
     import httpx
 
@@ -152,9 +167,14 @@ def baixar(url: str, *, timeout: float = 12.0, cliente=None) -> bytes | None:
             cliente = httpx.Client(headers=_CABECALHOS, follow_redirects=False, timeout=timeout)
         atual = _analisar(url)
         for _ in range(MAX_REDIRECIONAMENTOS + 1):
-            if atual is None or not url_publica(atual):
+            ip = _ip_publico(atual) if atual is not None else None
+            if ip is None:
                 return None
-            with cliente.stream("GET", atual, headers={"Accept-Encoding": "identity"}) as resposta:
+            # Conecta no IP conferido; o nome do site vai no cabeçalho Host e no SNI (certificado).
+            nome = atual.raw_host.decode("ascii")
+            cabecalhos = {"Host": atual.netloc.decode("ascii"), "Accept-Encoding": "identity"}
+            extensoes = {"sni_hostname": nome} if nome != ip else {}
+            with cliente.stream("GET", atual.copy_with(host=ip), headers=cabecalhos, extensions=extensoes) as resposta:
                 if resposta.status_code in (301, 302, 303, 307, 308):
                     atual = _analisar(atual.join(resposta.headers.get("location", "")))
                     continue
