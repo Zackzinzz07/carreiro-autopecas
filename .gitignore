@@ -22,3 +22,11 @@ catalogo/data/*.db
 catalogo/.env
 __pycache__/
 .pytest_cache/
+
+# Pipeline de fotos: venv pesado, fotos baixadas, backups e folhas de revisão geradas
+catalogo/.venv-fotos/
+catalogo/data/fotos/
+catalogo/data/fotos_candidatas/
+catalogo/data/backups/
+catalogo/data/hashes_bloqueados.txt
+catalogo/revisao/folhas/

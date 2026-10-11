@@ -1,0 +1,9 @@
+# Pipeline de fotos (catalogo/fotos/). Venv separado (.venv-fotos, Python 3.12): o site não carrega torch.
+# Versões iguais às do Agrocarreiro, já testadas nesta máquina (CPU só com AVX).
+-r requirements.txt
+ddgs==9.16.0
+pillow==12.3.0
+numpy==2.5.2
+torch==2.14.0+cpu
+open_clip_torch==3.3.0
+easyocr==1.7.2
