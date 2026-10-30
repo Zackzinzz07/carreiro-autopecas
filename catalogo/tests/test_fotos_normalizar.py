@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from catalogo.fotos.normalizar import Chave, normalizar
+from catalogo.fotos.normalizar import Chave, completar_final, normalizar
 
 CASOS = [
     # descrição real da planilha, peca, veiculo, veiculo_alt, lado, marca, tipo_en
@@ -23,8 +23,8 @@ CASOS = [
     ("REGULADOR VOLT GOL/PARATI", "regulador voltagem", "gol", "parati", "", "", "voltage regulator"),
     ("CORREIA ALT/ACD/DH/BA SCANIA R114", "correia alternador ar condicionado direcao hidraulica bomba dagua", "scania", "", "", "", "drive belt"),
     ("ABRACADEIRA 3/4X102X320 CARGO 1313 A 2218 DT", "abracadeira", "cargo", "", "", "", "hose clamp"),
-    # Review Focus 1: descrição cortada no fim ("CELT") não atrapalha
-    ("BOMBA DAGUA (POLIA C/19 DENTES) AGILE 09/CELT", "bomba dagua polia", "agile", "", "", "", "water pump"),
+    # descrição cortada no fim: "CELT" é completado para Celta (completar_final)
+    ("BOMBA DAGUA (POLIA C/19 DENTES) AGILE 09/CELT", "bomba dagua polia", "agile", "celta", "", "", "water pump"),
     # sem carro: a descrição inteira é a peça (medida e marca identificam o item)
     ("OLEO MOTOR 15W40 PETRONAS SYNTIUM 800 SE", "oleo motor 15w40 petronas syntium 800 se", "", "", "", "PETRONAS", "motor oil bottle"),
     ("LAMPADA FAROL H4 HALOGENA 12V 60/55W", "lampada farol h4 halogena 12v 60 55w", "", "", "", "", "headlight bulb"),
@@ -87,7 +87,7 @@ def test_cobertura_no_catalogo_real():
     print(f"\n{n} produtos | peça {com_peca:.1%} | rótulo CLIP {com_tipo:.1%} | {grupos} grupos")
     assert com_peca >= 0.99
     assert com_tipo >= 0.83
-    assert grupos <= 11_500   # ano na chave (2026-10-11): 10.607; + motor/geração (2026-10-30): 11.085
+    assert grupos <= 11_500   # ano na chave (2026-10-11): 10.607; + motor/geração e finais cortados (2026-10-30): 11.124
 
 
 @pytest.mark.parametrize("descricao,anos", [
@@ -156,3 +156,63 @@ def test_siglas_novas(descricao, peca):
 
 def test_dm_e_a_marca_driveway():
     assert normalizar("PIVO GOL/PARATI 95/97 DM LE/LD RETO").marca == "DRIVEWAY"
+
+
+@pytest.mark.parametrize("descricao,veiculo,alt", [   # carros e erros de digitação da planilha (2026-10-30)
+    ("CABO VELA ESCORT/VERONA/APOLLO 1.8 AP 92/", "escort", "verona"),
+    ("COIFA LADO CAMBIO APOLLO 89/", "apollo", ""),
+    ("ROLAMENTO CORR ALT PALIO/BRAVA 00/ 1.6", "palio", "brava"),
+    ("TERMINAL DIR GOL/VOYALE 09/", "gol", "voyage"),
+    ("CAIXA DIR MEC GOL/SAVEIR/PARATI", "gol", "saveiro"),
+    ("BUCHA BAND CORSA/MARIVA 03/", "corsa", "meriva"),
+    ("CABO EMBR ESCORTE 1.6 93/", "escort", ""),
+    ("FILTRO AR CONSTELATION 24.250", "constellation", ""),
+])
+def test_carros_novos_e_grafias_erradas(descricao, veiculo, alt):
+    c = normalizar(descricao)
+    assert (c.veiculo, c.veiculo_alt) == (veiculo, alt)
+
+
+def test_pneu_nao_tem_carro_nem_quando_o_modelo_do_pneu_e_nome_de_carro():
+    c = normalizar("PNEU 185/60R15 84H BLAZER COMPASAL")
+    assert (c.veiculo, c.marca) == ("", "COMPASAL")
+    assert normalizar("FILTRO OLEO PRIMAPARTIS GOL").marca == "PRIMAPARTS"
+
+
+@pytest.mark.parametrize("descricao,completa", [   # a planilha corta a descrição no 45º caractere
+    ("CORREIA GIR/ALT PALIO 1.0/1.3 8/16V 2000/ FIR", "CORREIA GIR/ALT PALIO 1.0/1.3 8/16V 2000/ FIRE"),
+    ("AMORT DT UNO VIVACE 10/ C/BARRA ESTAB L/D NAK", "AMORT DT UNO VIVACE 10/ C/BARRA ESTAB L/D NAKATA"),
+    ("ARTICULADOR INF ALAV CAMBIO CORSA/CELTA/PRISM", "ARTICULADOR INF ALAV CAMBIO CORSA/CELTA/PRISMA"),
+    ("BOMBA DAGUA HILUX 2.8 SRV 3.0 ASP/TURBO DIESE", "BOMBA DAGUA HILUX 2.8 SRV 3.0 ASP/TURBO DIESEL"),
+    ("ROLAMENTO CORREIA ALTERNADOR GOL/PARATI/SAVEI", "ROLAMENTO CORREIA ALTERNADOR GOL/PARATI/SAVEIRO"),
+])
+def test_completa_final_cortado(descricao, completa):
+    assert len(descricao) == 45 and completar_final(descricao) == completa
+
+
+@pytest.mark.parametrize("descricao", [
+    "FILTRO CABINE ACD PALI/SIENA/WEEK/STRADA FIRE",   # já inteiro: não vira FIRESTONE
+    "CABO VELA ESCORT/VERONA/APOLLO 1.8 AP 92/ CAR",   # CARAVAN ou CARGO
+    "CILINDRO RODA TRAS FIESTA/KA 1.0/1.3 97/ ESCO",   # Escort ou escova
+    # falsos positivos medidos pelo Argon: o prefixo também é de palavra comum
+    "BOMBA DAGUA S10/BLAZER/MONZA/KADETT 89/95 POL",   # polia, não POLO
+    "BOMBA COMB INJ KIT FIT/FORD/VW/GM/GASOL 3 BAR",   # pressão, não BARDAHL
+    "CANO COBRE PC C 15.5 MT 4.76X0.790MM UNIV PRE",   # preto, não PREMIO
+    "ALAVANCA FREIO MAO GOL/PARATI/SAVEIRO G3 COMP",   # completa, não COMPASS
+    "CORREIA ALT/DH/BA FOCUS 1.8 2.0 16V 01/04 VIR",   # virabrequim, não VIRTUS
+    "CILINDRO RODA TRAS CELTA 03/ PRISMA 07/12 ATE",   # marca ATE, não ATEGO
+    "TENSOR CORREIA DENT L200/L300/PAJERO/L200 SPO",   # L200 Sport, não SPORTAGE
+    "BUZINA GRAVE D20 85/96 12V S/RELE 2 TERM (UNI",   # universal, não UNIGRAX
+    "CHAVE LIMP PARAB D20 OPALA 81/ P-UP 85/ C/TEM",   # temporizador, não TEMPRA
+    "JUNTA CABEC PALIO 1.0 FIR",                       # curta: não foi cortada
+    "JUNTA TAMPA VALV GOL/PARATI 1.0 97/ 8V AT SPA",   # Spazio ou Spacefox
+    "LAMPADA FAROL H9 12V 65W OMEGA CD 3.6 V6/ SEN",   # sensor? nome de peça também concorre
+    "CORPO BORBOLETA CORSA 1.4/1.8 06/ MPFI 8V PAL",   # Palio ou palheta
+])
+def test_nao_completa_quando_nao_ha_certeza(descricao):
+    assert completar_final(descricao) == descricao
+
+
+def test_final_completado_vale_para_motor_e_marca():
+    assert normalizar("CORREIA GIR/ALT PALIO 1.0/1.3 8/16V 2000/ FIR").atributos.familias == {"FIRE"}
+    assert normalizar("AMORT DT UNO VIVACE 10/ C/BARRA ESTAB L/D NAK").marca == "NAKATA"

@@ -53,11 +53,14 @@ Rejeite sempre, mesmo que o título pareça certo:
 - kit com peças que o produto não inclui (ex.: produto "cabos de vela", foto de cabos + velas);
 - imagem de "indisponível", banner de propaganda, logotipo;
 - marca d'água grande cobrindo a peça;
-- foto borrada ou tão pequena que não dá para reconhecer a peça.
+- foto borrada ou tão pequena que não dá para reconhecer a peça;
+- duas ou mais unidades quando o produto é UMA peça (amortecedor, disco, tambor, pivô, bieleta,
+  bandeja, farol, lanterna, retrovisor, coxim, rolamento, mangueira, palheta): o cliente acha que
+  leva o par. O motivo `quantidade_a_mais` na folha aponta esse caso.
 
 Aceite sem problema: fundo branco ou não; peça com um carrinho pequeno desenhado ao lado
-(é comum no Mercado Livre); par de peças quando o produto é unitário (duas pastilhas, dois
-amortecedores), desde que seja a mesma peça.
+(é comum no Mercado Livre); jogo ou par nas peças que só se vendem assim (pastilha, sapata,
+lona, vela, cabo de vela, anéis, bronzina) ou quando o próprio produto diz `JG`, `KIT` ou `CJ`.
 
 **Regra de ouro: foto errada é pior que nenhuma foto. Na dúvida, rejeite.**
 
@@ -146,7 +149,8 @@ Na auditoria do piloto de 30/10/2026, também:
 - bomba de combustível completa (com boia) e marca d'água de loja num produto que é a bomba com filtro.
 
 Regra para kit: se o produto é UMA peça e a foto mostra essa peça junto com OUTRAS peças
-diferentes, rejeite. Duas ou mais unidades da mesma peça (par de pastilhas, jogo de velas) pode.
+diferentes, rejeite. Duas ou mais unidades da mesma peça só pode nas peças vendidas em jogo
+(pastilha, sapata, lona, vela, cabo de vela, anéis, bronzina); nas outras, rejeite.
 
 ## Erros que já vimos o robô encontrar
 

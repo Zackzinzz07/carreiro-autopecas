@@ -11,8 +11,8 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
-from catalogo.fotos.atributos import Atributos, do_produto
-from catalogo.fotos.dados.marcas import MARCAS, MARCAS_COMPOSTAS
+from catalogo.fotos.atributos import FAMILIAS, Atributos, do_produto
+from catalogo.fotos.dados.marcas import MARCAS, MARCAS_COMPOSTAS, MARCAS_PNEU
 from catalogo.fotos.dados.siglas import SIGLAS, SIGLAS_COMPOSTAS
 from catalogo.fotos.dados.tipos_en import TIPOS_EN
 from catalogo.fotos.dados.veiculos import MODELOS_NUMERICOS, MONTADORAS, VEICULOS, VEICULOS_ABREV
@@ -24,7 +24,7 @@ CONSUMIVEIS = frozenset({
     "camara", "lampada", "fita", "lixa", "massa", "spray", "removex", "agua", "catalisador", "anti",
     "difusor", "estopa", "grafite", "verniz", "primer", "polidor",
 })
-# Nesses tipos número de 3 dígitos é medida ("PNEU 205/65 R15"), não Peugeot 205.
+# Nesses tipos não há carro: "205" é medida ("PNEU 205/65 R15") e "BLAZER" é modelo do pneu.
 TIPOS_SEM_VEICULO = frozenset({"PNEU", "CAMARA"})
 _DESCARTAR = frozenset({"C", "S", "P", "E", "DE", "DO", "DA", "PARA", "LD", "LE"})
 
@@ -149,11 +149,13 @@ def _expandir(t: str) -> str:
 
 
 def _modelo(t: str, sem_veiculo: bool) -> str:
+    if sem_veiculo:
+        return ""   # pneu "BLAZER COMPASAL": Blazer é o modelo do pneu, não o carro
     if t in VEICULOS_ABREV:
         return VEICULOS_ABREV[t]
     if t in VEICULOS:
         return t.lower()
-    if not sem_veiculo and t in MODELOS_NUMERICOS:
+    if t in MODELOS_NUMERICOS:
         return t.lower()
     return ""
 
@@ -174,7 +176,48 @@ def _tipo(peca: str) -> tuple[str, str]:
     return "", ""
 
 
+LIMITE_PLANILHA = 45   # o ERP corta a descrição no 45º caractere
+_COMBUSTIVEIS = frozenset({"DIESEL", "GASOLINA", "FLEX", "ALCOOL", "TURBO"})
+# Palavras comuns que também começam como carro ou marca: "POL" é polia (não POLO), "3 BAR" é pressão.
+_PALAVRAS_COMUNS = frozenset({"POLIA", "SPORT", "BAR", "ATE", "PRETA", "OVAL", "SPAAL"})
+# Siglas por extenso e nomes de peça também concorrem: "SEN" pode ser sensor, "PAL" pode ser palheta.
+_SIGLAS_POR_EXTENSO = (frozenset(w.upper() for v in SIGLAS.values() for w in v.split())
+                       | frozenset(w.upper() for tipo in TIPOS_EN for w in tipo.split()))
+_CONHECIDAS = (frozenset(SIGLAS) | frozenset(VEICULOS_ABREV) | frozenset(MONTADORAS) | MARCAS | VEICULOS
+               | frozenset(FAMILIAS) | _COMBUSTIVEIS | _SIGLAS_POR_EXTENSO | _PALAVRAS_COMUNS)
+
+
+def _alvos(pneu: bool) -> frozenset[str]:
+    """O que um final cortado pode virar. Em pneu só marca de pneu; no resto, marca de pneu nem concorre."""
+    if pneu:
+        return MARCAS_PNEU
+    return (MARCAS - MARCAS_PNEU) | VEICULOS | frozenset(FAMILIAS) | _COMBUSTIVEIS
+
+
+_ALVOS = {True: _alvos(True), False: _alvos(False)}
+# Abreviações de VEICULOS_ABREV (SAVEIR, ESCORTE) ficam fora dos concorrentes: senão "SAVEI" empata
+# entre SAVEIR e SAVEIRO e o completamento certo nunca acontece.
+_CONCORRENTES = {pneu: alvos | _SIGLAS_POR_EXTENSO | _PALAVRAS_COMUNS for pneu, alvos in _ALVOS.items()}
+
+
+def completar_final(descricao: str) -> str:
+    """Completa a última palavra cortada pelo ERP ("...16V FIR" → "...16V FIRE") só quando não há dúvida:
+    a palavra não é conhecida e exatamente uma palavra do vocabulário começa com ela, e essa palavra é carro,
+    marca, família de motor ou combustível. Na dúvida, devolve a descrição como veio."""
+    if len(descricao) < LIMITE_PLANILHA:
+        return descricao
+    m = re.search(r"(?<![A-Z0-9])([A-Z]{3,})$", descricao.upper())
+    if not m or m.group(1) in _CONHECIDAS:
+        return descricao
+    pneu = descricao.upper().split()[0] in TIPOS_SEM_VEICULO
+    candidatos = [w for w in _CONCORRENTES[pneu] if w.startswith(m.group(1))]
+    if len(candidatos) != 1 or candidatos[0] not in _ALVOS[pneu]:
+        return descricao
+    return descricao[:m.start(1)] + candidatos[0].replace("_", " ")
+
+
 def normalizar(descricao: str) -> Chave:
+    descricao = completar_final(descricao)
     toks = tokens(descricao)
     if not toks:
         return Chave(peca="")

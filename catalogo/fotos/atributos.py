@@ -20,7 +20,7 @@ _MIL = re.compile(r"(?<![\w.])1000(?![\d.])")                      # "GOL 1000" 
 # "8V", "16V", "8/16V". 12V/24V ficam de fora: na elétrica são voltagem.
 _VALVULAS = re.compile(r"(?<![\d.])(8|16)(?:/(8|16))?\s?V(?:ALVULAS)?(?![A-Z0-9])")
 # Família → padrões. MI (multi-injeção) não entra: é tipo de injeção, convive com AT/EA111.
-_FAMILIAS: dict[str, str] = {
+FAMILIAS: dict[str, str] = {
     "AP": r"\bAP\b", "CHT": r"\b(?:CHT|AE)\b", "FIRE": r"\b(?:FIRE|EVO)\b", "ZETEC": r"\bZETEC\b",
     "ROCAM": r"\bROCAM\b", "SIGMA": r"\bSIGMA\b", "ETORQ": r"\bE[-.\s]?TORQ\b", "MWM": r"\bMWM\b",
     "PERKINS": r"\bPERKINS\b", "MAXION": r"\bMAXION\b", "CUMMINS": r"\bCUMMINS\b",
@@ -78,7 +78,7 @@ def _ler(texto: str) -> dict:
     if _NOVO.search(texto):
         geracoes.add("NOVO")
     return {"cilindradas": frozenset(cilindradas), "valvulas": frozenset(valvulas), "geracoes": frozenset(geracoes),
-            "familias": frozenset(f for f, p in _FAMILIAS.items() if re.search(p, texto))}
+            "familias": frozenset(f for f, p in FAMILIAS.items() if re.search(p, texto))}
 
 
 def do_produto(descricao: str) -> Atributos:

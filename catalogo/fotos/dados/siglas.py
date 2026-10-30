@@ -24,7 +24,8 @@ SIGLAS_COMPOSTAS: tuple[tuple[str, str], ...] = (
     (r"\bCOL\s+DIR\b", "COLUNA DIRECAO"),
     (r"\bCOL\s+ADM\b", "COLETOR ADMISSAO"),
     (r"(?<=/)BA\b", "BOMBA DAGUA"),             # CORREIA ALT/DH/BA
-    (r"\bDM\b", "DRIVEWAY"),                   # marca de pivôs e suspensão (confirmado com a loja)
+    (r"\bDM\b", "DRIVEWAY"),
+    (r"\bPRIMAPARTIS\b", "PRIMAPARTS"),                   # marca de pivôs e suspensão (confirmado com a loja)
     (r"\b(\d+)\s?AMP\b", r"\1 AMPERES"),
     (r"\b(\d)\s?CIL\b", r"\1 CILINDROS"),
     (r"\b(\d)\s?TERM\b", r"\1 TERMINAIS"),
