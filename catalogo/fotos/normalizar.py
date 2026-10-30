@@ -11,6 +11,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
+from catalogo.fotos.atributos import Atributos, do_produto
 from catalogo.fotos.dados.marcas import MARCAS, MARCAS_COMPOSTAS
 from catalogo.fotos.dados.siglas import SIGLAS, SIGLAS_COMPOSTAS
 from catalogo.fotos.dados.tipos_en import TIPOS_EN
@@ -40,6 +41,7 @@ class Chave:
     marca_incerta: bool = False
     e_tipo: bool = False    # grupo de foto genérica por tipo de peça
     anos: str = ""          # faixa do 1º carro: "2012-2014", "2008-" (em diante), "-2013" (até); "" = sem ano
+    atributos: Atributos = Atributos()   # motor, geração, exclusões (só com carro: sem carro "1.5" não é motor)
 
     @classmethod
     def para_tipo(cls, tipo_pt: str, tipo_en: str) -> "Chave":
@@ -49,7 +51,8 @@ class Chave:
     def texto(self) -> str:
         if self.e_tipo:
             return f"TIPO:{self.peca}"
-        return f"{self.peca}|{self.veiculo}|{self.lado}|{self.marca}|{self.anos}"
+        base = f"{self.peca}|{self.veiculo}|{self.lado}|{self.marca}|{self.anos}"
+        return f"{base}|{self.atributos.chave}" if self.atributos.chave else base
 
     @property
     def faixa(self) -> tuple[int | None, int | None]:
@@ -210,4 +213,6 @@ def normalizar(descricao: str) -> Chave:
     primeira = peca.split()[0] if peca else ""
     marca_incerta = not veiculo and not marca and primeira in CONSUMIVEIS
     anos = _faixa_de_anos(_preparar(descricao), cru_modelo or cru_montadora) if veiculo else ""
-    return Chave(peca, veiculo, veiculo_alt, lado, marca, tipo_pt, tipo_en, marca_incerta, anos=anos)
+    atributos = do_produto(descricao) if veiculo else Atributos()
+    return Chave(peca, veiculo, veiculo_alt, lado, marca, tipo_pt, tipo_en, marca_incerta, anos=anos,
+                 atributos=atributos)

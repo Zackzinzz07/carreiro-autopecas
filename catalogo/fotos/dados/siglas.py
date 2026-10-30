@@ -19,6 +19,16 @@ SIGLAS_COMPOSTAS: tuple[tuple[str, str], ...] = (
     (r"\bGRAND?\s+SIENA\b", "GRANSIENA"),
     (r"\bE-TORQ\b", "ETORQ"),
     (r"\bPICK\s?-?\s?UP\b", "PICKUP"),
+    # 2026-10-30: contexto decide o sentido (INJ de bomba é injeção; COL é coluna ou coletor)
+    (r"\bBOMBA\s+COMB\s+INJ\b", "BOMBA COMBUSTIVEL INJECAO"),
+    (r"\bCOL\s+DIR\b", "COLUNA DIRECAO"),
+    (r"\bCOL\s+ADM\b", "COLETOR ADMISSAO"),
+    (r"(?<=/)BA\b", "BOMBA DAGUA"),             # CORREIA ALT/DH/BA
+    (r"\bDM\b", "DRIVEWAY"),                   # marca de pivôs e suspensão (confirmado com a loja)
+    (r"\b(\d+)\s?AMP\b", r"\1 AMPERES"),
+    (r"\b(\d)\s?CIL\b", r"\1 CILINDROS"),
+    (r"\b(\d)\s?TERM\b", r"\1 TERMINAIS"),
+    (r"\b(\d+)\s?POL\b", r"\1 POLEGADAS"),
 )
 
 SIGLAS: dict[str, str] = {
@@ -55,4 +65,9 @@ SIGLAS: dict[str, str] = {
     "UNIV": "universal", "INDL": "industrial", "PTA": "ponta", "PEQ": "pequeno",
     "COMPL": "completo", "ALUM": "aluminio", "PLAST": "plastico", "CROM": "cromado",
     "BORR": "borracha", "ENGR": "engrenagem", "REP": "reparo",
+    # 2026-10-30: GIR (girabrequim, o virabrequim) e PR (preto) confirmados com a loja
+    "GIR": "virabrequim", "PR": "preto", "TDS": "todos", "DENT": "dentada", "MEC": "mecanico",
+    "AUT": "automatico", "ALC": "alcool", "TRAMB": "trambulador", "ASP": "aspirado", "LEV": "levantador",
+    "CONDIC": "condicionado", "CAMINH": "caminhao", "MASC": "mascara", "TERM": "terminal", "CIL": "cilindro",
+    "RET": "retentor",
 }

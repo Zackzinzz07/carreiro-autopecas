@@ -10,6 +10,7 @@ import unicodedata
 from dataclasses import dataclass
 from difflib import SequenceMatcher
 
+from catalogo.fotos.atributos import conflitos, do_anuncio
 from catalogo.fotos.dados.marcas import MARCAS
 from catalogo.fotos.normalizar import Chave
 
@@ -74,7 +75,9 @@ def sinais_de_texto(chave: Chave, titulo: str) -> dict[str, bool]:
     titulo_kit = bool(_KIT.search(titulo)) and not (_PRODUTO_E_KIT & set(chave.peca.split()))
     return {"titulo_peca": titulo_peca, "titulo_veiculo": titulo_veiculo, "titulo_spec": titulo_spec,
             "titulo_conflito": titulo_conflito, "titulo_marca": titulo_marca,
-            "titulo_ano": _ano_compativel(chave, titulo), "titulo_kit": titulo_kit}
+            "titulo_ano": _ano_compativel(chave, titulo), "titulo_kit": titulo_kit,
+            "titulo_ano_incerto": _ano_incerto(chave, titulo),
+            "conflitos": tuple(conflitos(chave.atributos, do_anuncio(titulo)))}
 
 
 # Kit/combo/"peça + outra peça" no anúncio de um produto que não é kit: a foto traz peças a mais.
@@ -105,6 +108,12 @@ def _ano_compativel(chave: Chave, titulo: str) -> bool:
     if not anos:
         return True
     return any((ini is None or a >= ini) and (fim is None or a <= fim) for a in anos)
+
+
+def _ano_incerto(chave: Chave, titulo: str) -> bool:
+    """O anúncio cita ano e o produto não: não dá para confirmar a geração (pastilha Corolla GLi com
+    foto de Corolla 2019, piloto 2). Decisão de 2026-10-30: zero erro vale mais que aprovação automática."""
+    return bool(chave.veiculo) and not chave.anos and bool(anos_do_titulo(titulo))
 
 
 _TELEFONE = re.compile(r"(?<!\d)\d{4,5}[-.\s]\d{4}(?!\d)")
@@ -166,6 +175,8 @@ class Sinais:
     titulo_marca: bool = False
     titulo_ano: bool = False       # anúncio é de ano compatível (ou não cita ano)
     titulo_kit: bool = False       # anúncio de kit/combo para produto que não é kit
+    titulo_ano_incerto: bool = False   # anúncio cita ano, produto com carro não cita
+    conflitos: tuple[str, ...] = ()    # motor, geração, quantidade ou versão excluída (atributos.py)
     imagem_anuncio: bool = False   # telefone/site/propaganda de vendedor escrito na imagem
     ocr_marca: bool = False
     ocr_outra_marca: bool = False
@@ -207,6 +218,9 @@ def decidir(chave: Chave, s: Sinais) -> Decisao:
         motivos.append("titulo_ano_fora")
     if s.titulo_kit:
         motivos.append("titulo_kit")
+    if s.titulo_ano_incerto:
+        motivos.append("titulo_ano_produto_sem_ano")
+    motivos.extend(s.conflitos)
     if s.imagem_anuncio:
         motivos.append("imagem_com_texto_de_vendedor")
     if chave.marca and not s.titulo_marca:

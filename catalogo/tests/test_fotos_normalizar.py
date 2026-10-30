@@ -21,7 +21,7 @@ CASOS = [
     ("AMORT DT UNO 10/ S/BARRA ESTAB L/D", "amortecedor dianteiro", "uno", "", "direito", "", "shock absorber"),
     ("MT VENT GOL/VOYAGE 09/", "motor ventoinha", "gol", "voyage", "", "", "radiator cooling fan motor"),
     ("REGULADOR VOLT GOL/PARATI", "regulador voltagem", "gol", "parati", "", "", "voltage regulator"),
-    ("CORREIA ALT/ACD/DH/BA SCANIA R114", "correia alternador ar condicionado direcao hidraulica ba", "scania", "", "", "", "drive belt"),
+    ("CORREIA ALT/ACD/DH/BA SCANIA R114", "correia alternador ar condicionado direcao hidraulica bomba dagua", "scania", "", "", "", "drive belt"),
     ("ABRACADEIRA 3/4X102X320 CARGO 1313 A 2218 DT", "abracadeira", "cargo", "", "", "", "hose clamp"),
     # Review Focus 1: descrição cortada no fim ("CELT") não atrapalha
     ("BOMBA DAGUA (POLIA C/19 DENTES) AGILE 09/CELT", "bomba dagua polia", "agile", "", "", "", "water pump"),
@@ -87,7 +87,7 @@ def test_cobertura_no_catalogo_real():
     print(f"\n{n} produtos | peça {com_peca:.1%} | rótulo CLIP {com_tipo:.1%} | {grupos} grupos")
     assert com_peca >= 0.99
     assert com_tipo >= 0.83
-    assert grupos <= 11_500   # com o ano na chave (decisão de 2026-10-11): 10.607 medidos
+    assert grupos <= 11_500   # ano na chave (2026-10-11): 10.607; + motor/geração (2026-10-30): 11.085
 
 
 @pytest.mark.parametrize("descricao,anos", [
@@ -123,3 +123,36 @@ def test_ano_separa_geracoes_e_entra_na_busca():
 def test_carro_colado_no_motor_e_reconhecido():
     c = normalizar("CABOS VELAS CORSA1.0/1.4/1.6 8V MPFI/PALIO/PU")
     assert (c.peca, c.veiculo, c.veiculo_alt) == ("cabos velas", "corsa", "palio")
+
+
+def test_motor_e_geracao_separam_grupos():   # correia 306 2.0 dividia foto com a 1.6 (piloto 2)
+    a, b = normalizar("CORREIA ALT 306/405 2.0 16V 93/98"), normalizar("CORREIA ALT 306/405 1.6 93/98")
+    assert a.texto == "correia alternador|306|||1993-1998|2.0 16V"
+    assert a.texto != b.texto and a.atributos.cilindradas == {"2.0"}
+    assert normalizar("CUBO RODA TRAS GOL GV 08/").texto != normalizar("CUBO RODA TRAS GOL GIV 08/").texto
+    # sem motor nem geração: chave de antes, grupos já processados continuam valendo
+    assert normalizar("PASTILHA FREIO DT AGILE/CELTA/CORSA/PRISMA").texto == "pastilha freio dianteiro|agile|||"
+    # sem carro não há geração a separar: "1.5" num óleo ou lâmpada não é motor
+    assert normalizar("LAMPADA FAROL H4 HALOGENA 12V 60/55W").atributos == normalizar("OLEO 1.5").atributos
+
+
+@pytest.mark.parametrize("descricao,peca", [   # siglas confirmadas com a loja e nos dados (2026-10-30)
+    ("CORREIA GIR/ALT/DH/ACD CORSA 94/ 1.0/1.6 8V", "correia virabrequim alternador direcao hidraulica ar condicionado"),
+    ("BOMBA COMB INJ FIAT/ GM/ FORD/ VW C/FILT", "bomba combustivel injecao"),
+    ("TENSOR CORREIA DENT CORSA 94/ 1.0/1.6 CELTA 0", "tensor correia dentada"),
+    ("MACANETA LEV VIDRO PORTA CORSA 94/00", "macaneta levantador vidro porta"),
+    ("ROLAMENTO COL DIR SUP D20/10 C10 60/84", "rolamento coluna direcao superior"),
+    ("CONEXAO COL ADM DOBLO/PALIO/IDEA 1.8 04/", "conexao coletor admissao"),
+    ("SUPORTE TRAMB CAMBIO CX DIR UNO/TEMPRA", "suporte trambulador cambio caixa direcao"),
+    ("JG JUNTA MOTOR C/RET FIESTA/KA 1.6 8V 99/12", "jogo junta motor com retentor"),
+    ("CAIXA DIR MEC GOL/SAVEIR/PARATI/VOYAGE 85", "caixa direcao mecanico"),
+    ("FUSIVEL 20AMP PORCEL", "fusivel 20 amperes porcel"),
+    ("PALHETA 14 POL CONV", "palheta 14 polegadas conv"),
+    ("GRADE PR UNIVERSAL", "grade preto universal"),
+])
+def test_siglas_novas(descricao, peca):
+    assert normalizar(descricao).peca == peca
+
+
+def test_dm_e_a_marca_driveway():
+    assert normalizar("PIVO GOL/PARATI 95/97 DM LE/LD RETO").marca == "DRIVEWAY"

@@ -13,7 +13,8 @@ PNEU = normalizar("PNEU 175/75 R13 GOLDEN CROWN 85T PRETO NA")
 def test_titulo_bom_de_mercado_livre():
     s = sinais_de_texto(PASTILHA, "Pastilha De Freio Dianteira Agile 2009 2010 Cobreq")
     assert s == {"titulo_peca": True, "titulo_veiculo": True, "titulo_spec": True,
-                 "titulo_conflito": False, "titulo_marca": True, "titulo_ano": True, "titulo_kit": False}
+                 "titulo_conflito": False, "titulo_marca": True, "titulo_ano": True, "titulo_kit": False,
+                 "titulo_ano_incerto": True, "conflitos": ()}   # PASTILHA não diz o ano; o anúncio diz
 
 
 def test_carro_alternativo_tambem_vale_e_bomba_dagua_com_apostrofo():
@@ -72,6 +73,8 @@ def test_aprova_quando_todos_os_sinais_concordam():
     ({"titulo_ano": False}, "titulo_ano_fora"),
     ({"titulo_kit": True}, "titulo_kit"),
     ({"imagem_anuncio": True}, "imagem_com_texto_de_vendedor"),
+    ({"titulo_ano_incerto": True}, "titulo_ano_produto_sem_ano"),
+    ({"conflitos": ("cilindrada_diferente",)}, "cilindrada_diferente"),
 ])
 def test_qualquer_sinal_ruim_manda_para_revisao(mudanca, motivo):
     s = Sinais(**{**TUDO_OK.__dict__, **mudanca})
@@ -152,3 +155,20 @@ def test_telefone_ou_propaganda_de_vendedor_na_imagem():  # erro R14 do piloto
     assert not anuncio_na_imagem("BOSCH 0 986 B01 000 OB 1000")
     assert not anuncio_na_imagem("TOYOTA 17801-21050 DENSO PECA ORIGINAL")
     assert not anuncio_na_imagem("")
+
+
+def test_produto_sem_ano_e_anuncio_com_ano_vai_para_revisao():   # pastilha Corolla GLi x "2019 a 2023" (piloto 2)
+    corolla = normalizar("PASTILHA FREIO TRAS COROLLA 1.8 16V GLI/XLI")
+    assert sinais_de_texto(corolla, "Pastilha Freio Cerâmica Traseira Corolla 2019 a 2023")["titulo_ano_incerto"]
+    assert not sinais_de_texto(corolla, "Pastilha Freio Traseira Corolla 1.8")["titulo_ano_incerto"]
+    assert not sinais_de_texto(GRADE, "Grade Parachoque Dianteiro Corolla 2012 2013 2014")["titulo_ano_incerto"]
+    # sem carro, ano no anúncio não diz geração nenhuma
+    assert not sinais_de_texto(OLEO, "Oleo Petronas Syntium 800 15w40 2024")["titulo_ano_incerto"]
+
+
+def test_atributos_do_produto_contra_o_anuncio():   # erros dos pilotos 1 e 2
+    correia = normalizar("CORREIA ALT 306/405 2.0 16V 93/98")
+    titulo = "Correia Alternador GM Blazer S10 2.2 Hyundai HB20 1.0 Peugeot 306 1.6"
+    assert sinais_de_texto(correia, titulo)["conflitos"] == ("cilindrada_diferente",)
+    idea = normalizar("AMORT DT IDEA 05/ EXC ADV")
+    assert sinais_de_texto(idea, "2 Amortecedor Dianteiro Idea 2005 2006 Par")["conflitos"] == ("quantidade_a_mais",)

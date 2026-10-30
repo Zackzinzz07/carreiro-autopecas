@@ -31,10 +31,18 @@ nesta ordem e pare no primeiro "não":
    anúncio precisa ser de um ano dessa faixa. Corolla 2020 não serve para Corolla 12/14: é outra
    geração, e peças de lataria (grade, para-choque, farol, lanterna, retrovisor) mudam de formato.
    Se o anúncio não diz o ano e você não consegue reconhecer a geração pela foto, rejeite.
+   O contrário também: se o produto NÃO diz o ano e o anúncio diz (motivo
+   `titulo_ano_produto_sem_ano`), só aprove se tiver certeza de que a peça é a mesma nas
+   gerações do carro que o produto cobre. Pastilha de Corolla 1.8 GLi com anúncio "Corolla 2019
+   a 2023" é ERRADO: são gerações diferentes.
 5. **Lado.** Quando diz `lado direito` ou `lado esquerdo`, o anúncio não pode ser do outro lado.
 6. **Marca.** Quando diz `marca X`, a embalagem ou o título precisam ser dessa marca.
    Óleo Petronas com foto de óleo Mobil é ERRADO, mesmo sendo "óleo 15W40".
-7. **Medida.** Em pneu, óleo, lâmpada e correia a medida faz parte do produto:
+7. **Motor e geração.** Se o produto diz o motor (`2.0 16V`, `AP`, `CHT`, `FIRE`, `MWM`) ou a
+   geração (`G4`, `GV`, `UNO NOVO`) e o anúncio diz OUTRO, a foto é ERRADA: correia de 306 1.6
+   não serve para 306 2.0 16V; mangote do Novo Uno não serve para Uno 1.5 de 1985. `EXC` na
+   planilha quer dizer "exceto": `IDEA 05/ EXC ADV` não serve no Idea Adventure.
+8. **Medida.** Em pneu, óleo, lâmpada e correia a medida faz parte do produto:
    175/75 R13 não é 175/75 R14; 5W30 não é 15W40; H4 não é H7.
 
 Rejeite sempre, mesmo que o título pareça certo:
@@ -71,7 +79,7 @@ O nome segue o formato `PEÇA + detalhes + CARRO(S) + ano + lado`. As siglas mai
 | RADIAD, RAD | radiador | DAGUA | d'água |
 | VALV | válvula | TERMOST | termostática |
 | CABEC | cabeçote | ADM / ESC | admissão / escape |
-| COMB | combustível | INJ | injetor |
+| COMB | combustível | INJ | injetor (BOMBA COMB INJ: injeção) |
 | IGN | ignição | VOLT | voltagem |
 | ACD, AR COND | ar-condicionado | LIMP PARAB | limpador de para-brisa |
 | LANT | lanterna | PARACH | para-choque |
@@ -80,9 +88,14 @@ O nome segue o formato `PEÇA + detalhes + CARRO(S) + ano + lado`. As siglas mai
 | C/ | com | S/ | sem |
 | SAV, VOY, PAR | Saveiro, Voyage, Parati | D.REY, WEEK | Del Rey, Weekend |
 | MBB, MB | Mercedes-Benz | GM | Chevrolet |
+| GIR | girabrequim (virabrequim) | PR | preto |
+| DM | marca Driveway | EXC | exceto |
+| DENT | dentada | TRAMB | trambulador |
+| COL DIR / COL ADM | coluna de direção / coletor de admissão | BA (em correia) | bomba d'água |
 
-Números como `99/`, `08/14`, `1.0/1.6`, `8V` são ano e motor: ajudam a entender, mas não
-dá para conferir por foto. Não rejeite por causa deles.
+Números como `99/`, `08/14`, `1.0/1.6`, `8V` são ano e motor. A foto quase nunca mostra o
+motor, mas o TÍTULO do anúncio mostra: se o título cita outro motor ou outro ano, rejeite
+(itens 4 e 7 acima). Se o título não cita, não rejeite só por isso.
 
 A lista completa de siglas está em `catalogo/fotos/dados/siglas.py`, a de carros em
 `catalogo/fotos/dados/veiculos.py` e a de marcas em `catalogo/fotos/dados/marcas.py`.
@@ -122,6 +135,15 @@ Estes passaram pela aprovação automática e só a auditoria pegou. Fique atent
 - kit de correia com polias e tensor num produto que é só a correia;
 - mangotes superior e inferior juntos num produto "mangote superior";
 - foto com telefone, texto ou logotipo de outra loja por cima da peça.
+
+Na auditoria do piloto de 30/10/2026, também:
+
+- correia do Peugeot 306 1.6 num produto 306/405 2.0 16V (motor errado);
+- kit de correia do Tucson 2.7 V6 num produto Tucson/i30 2.0 16V (motor errado);
+- sapata da Frontier 2.8 2002–2008 num produto Frontier 2.5 02/ (outra geração);
+- mangote do Novo Uno/Mobi num produto Uno/Prêmio/Elba 1.5 de 1985 (outra geração);
+- pastilha de Corolla 2019–2023 num produto Corolla 1.8 GLi/XLi (outra geração);
+- bomba de combustível completa (com boia) e marca d'água de loja num produto que é a bomba com filtro.
 
 Regra para kit: se o produto é UMA peça e a foto mostra essa peça junto com OUTRAS peças
 diferentes, rejeite. Duas ou mais unidades da mesma peça (par de pastilhas, jogo de velas) pode.
