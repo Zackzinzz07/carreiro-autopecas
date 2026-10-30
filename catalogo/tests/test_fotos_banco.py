@@ -178,3 +178,21 @@ def test_grupo_que_ficou_sem_produto_some_e_a_foto_antiga_nao_fica_no_produto(co
     assert conn.execute("SELECT count(*) FROM foto_grupos WHERE chave = ?", (chave_velha,)).fetchone()[0] == 0
     assert conn.execute("SELECT status FROM foto_revisao WHERE id = ?", (pendente,)).fetchone()[0] == "obsoleta"
     assert conn.execute("SELECT count(*) FROM foto_candidatas WHERE chave = ?", (chave_velha,)).fetchone()[0] == 0
+
+
+def test_referencia_que_nao_gera_mais_a_chave_volta_para_pendente(conn, tmp_path):
+    """A regra da chave mudou: o produto conferido foi para outro grupo, mas o grupo antigo sobreviveu com outros
+    produtos. A foto foi conferida contra a referência antiga (mangote Uno 85 com foto de Novo Uno, piloto 3)."""
+    chave = _grupo(conn, "1")
+    cid = _candidata(conn, tmp_path / "cand", chave, b"foto")
+    banco.aprovar(conn, chave, cid, origem="auto", quando=Q, dir_candidatas=tmp_path / "cand", dir_fotos=tmp_path / "f")
+    auditoria = banco.registrar_revisao(conn, chave, "auditoria", Q)
+    # referência gravada pela regra antiga; pela regra atual o motor separa: ela não gera mais esta chave
+    conn.execute("UPDATE foto_grupos SET descricao_ref = ? WHERE chave = ?", ("PASTILHA FREIO DT AGILE/CELTA 1.4 16V", chave))
+    conn.commit()
+    banco.sincronizar_grupos(conn, Q, dir_candidatas=tmp_path / "cand")
+    g = conn.execute("SELECT * FROM foto_grupos WHERE chave = ?", (chave,)).fetchone()
+    assert normalizar(g["descricao_ref"]).texto == chave
+    assert (g["status"], g["arquivo"]) == ("pendente", "") and _imagem(conn, "1") == ""
+    assert conn.execute("SELECT status FROM foto_revisao WHERE id = ?", (auditoria,)).fetchone()[0] == "obsoleta"
+    assert conn.execute("SELECT count(*) FROM foto_candidatas WHERE chave = ?", (chave,)).fetchone()[0] == 0

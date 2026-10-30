@@ -112,15 +112,15 @@ def sincronizar_grupos(conn: sqlite3.Connection, quando: str, dir_candidatas: Pa
     ninguém. Havendo qualquer mudança, as fotos dos produtos são recalculadas.
     """
     novos = 0
-    vistos: set[str] = set()
+    exemplo: dict[str, str] = {}   # chave → descrição de um produto atual do grupo
     atualizacoes = []
     for r in conn.execute("SELECT id, descricao FROM produtos WHERE ativo = 1").fetchall():
         ch = normalizar(r["descricao"])
         if not ch.peca:
             continue
         atualizacoes.append((ch.texto, foto_tipo_de(ch), r["id"]))
-        if ch.texto not in vistos:
-            vistos.add(ch.texto)
+        if ch.texto not in exemplo:
+            exemplo[ch.texto] = r["descricao"]
             novos += _inserir_grupo(conn, ch, r["descricao"], quando)
     mudaram = conn.executemany(
         "UPDATE produtos SET foto_grupo = ?, foto_tipo = ? WHERE id = ? AND (foto_grupo != ? OR foto_tipo != ?)",
@@ -137,10 +137,27 @@ def sincronizar_grupos(conn: sqlite3.Connection, quando: str, dir_candidatas: Pa
         conn.execute("DELETE FROM foto_candidatas WHERE chave = ?", (chave,))
         conn.execute("UPDATE foto_revisao SET status = 'obsoleta' WHERE chave = ? AND status = 'pendente'", (chave,))
         conn.execute("DELETE FROM foto_grupos WHERE chave = ?", (chave,))
-    if novos or mudaram or orfaos:
+    defasados = _renovar_referencias(conn, exemplo, dir_candidatas)
+    if novos or mudaram or orfaos or defasados:
         propagar(conn)
     conn.commit()
     return novos
+
+
+def _renovar_referencias(conn: sqlite3.Connection, exemplo: dict[str, str], dir_candidatas: Path | None) -> int:
+    """Grupo cuja referência, pela regra atual, não gera mais a própria chave: a foto foi conferida contra um
+    produto que hoje está em outro grupo (mangote Uno 85 com foto de Novo Uno sobreviveu à mudança da chave no
+    piloto 3). Troca a referência por um produto atual e volta o grupo para pendente."""
+    defasados = [r["chave"] for r in conn.execute(
+        "SELECT chave, descricao_ref FROM foto_grupos WHERE e_tipo = 0 AND n_produtos > 0")
+        if normalizar(r["descricao_ref"]).texto != r["chave"]]
+    for chave in defasados:
+        ch = normalizar(exemplo[chave])
+        conn.execute("UPDATE foto_grupos SET descricao_ref = ?, tipo_pt = ?, consulta = ?, consulta_alt = ?,"
+                     " tipo_en = ?, marca = ?, lado = ? WHERE chave = ?",
+                     (exemplo[chave], ch.tipo_pt, ch.consulta, ch.consulta_alt, ch.tipo_en, ch.marca, ch.lado, chave))
+    resetar_grupos(conn, defasados, dir_candidatas)
+    return len(defasados)
 
 
 def chave_de(row) -> Chave:
@@ -268,11 +285,13 @@ def decidir_revisao(conn: sqlite3.Connection, revisao_id: int, status: str, *, c
     conn.commit()
 
 
-def resetar_grupos(conn: sqlite3.Connection, chaves: list[str], dir_candidatas: Path) -> int:
+def resetar_grupos(conn: sqlite3.Connection, chaves: list[str], dir_candidatas: Path | None) -> int:
     if not chaves:
         return 0
     for chave in chaves:
-        limpar_candidatas(conn, chave, dir_candidatas)
+        if dir_candidatas is not None:
+            limpar_candidatas(conn, chave, dir_candidatas)
+        conn.execute("DELETE FROM foto_candidatas WHERE chave = ?", (chave,))
     marcadores = ",".join("?" * len(chaves))
     cur = conn.execute(f"UPDATE foto_grupos SET status = 'pendente', origem = '', arquivo = '', url_origem = '',"
                        f" titulo_origem = '', tentativas = 0 WHERE chave IN ({marcadores})", chaves)
