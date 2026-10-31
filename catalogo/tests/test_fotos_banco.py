@@ -70,7 +70,7 @@ def test_sincronizar_agrupa_mesma_peca_e_carro(conn):
 def test_aprovar_propaga_para_o_grupo_inteiro(conn, tmp_path):
     chave = _grupo(conn, "1")
     cid = _candidata(conn, tmp_path / "cand", chave, b"foto-agile")
-    nome = banco.aprovar(conn, chave, cid, origem="auto", quando=Q,
+    nome = banco.aprovar(conn, chave, cid, origem="agy", quando=Q,
                          dir_candidatas=tmp_path / "cand", dir_fotos=tmp_path / "fotos")
     assert (tmp_path / "fotos" / nome).read_bytes() == b"foto-agile"
     assert _imagem(conn, "1") == _imagem(conn, "2") == f"/fotos/{nome}"
@@ -88,7 +88,7 @@ def test_foto_de_tipo_cobre_quem_nao_tem_foto_propria_e_nunca_produto_com_marca(
     assert _imagem(conn, "4") == ""
     chave = _grupo(conn, "1")
     cid = _candidata(conn, tmp_path / "cand", chave, b"foto-agile")
-    propria = banco.aprovar(conn, chave, cid, origem="auto", quando=Q,
+    propria = banco.aprovar(conn, chave, cid, origem="agy", quando=Q,
                             dir_candidatas=tmp_path / "cand", dir_fotos=tmp_path / "fotos")
     assert _imagem(conn, "1") == f"/fotos/{propria}" and _imagem(conn, "3") == f"/fotos/{generica}"
 
@@ -96,7 +96,7 @@ def test_foto_de_tipo_cobre_quem_nao_tem_foto_propria_e_nunca_produto_com_marca(
 def test_rejeitar_remove_a_foto(conn, tmp_path):
     chave = _grupo(conn, "1")
     cid = _candidata(conn, tmp_path / "cand", chave, b"x")
-    banco.aprovar(conn, chave, cid, origem="auto", quando=Q, dir_candidatas=tmp_path / "cand", dir_fotos=tmp_path / "f")
+    banco.aprovar(conn, chave, cid, origem="agy", quando=Q, dir_candidatas=tmp_path / "cand", dir_fotos=tmp_path / "f")
     banco.rejeitar_grupo(conn, chave, origem="auditoria:agy", quando=Q)
     assert _imagem(conn, "1") == ""
     assert conn.execute("SELECT status FROM foto_grupos WHERE chave = ?", (chave,)).fetchone()[0] == "rejeitada"
@@ -105,7 +105,7 @@ def test_rejeitar_remove_a_foto(conn, tmp_path):
 def test_reimportar_planilha_preserva_foto_aprovada(conn, tmp_path):  # Review Focus 5
     chave = _grupo(conn, "1")
     cid = _candidata(conn, tmp_path / "cand", chave, b"x")
-    banco.aprovar(conn, chave, cid, origem="auto", quando=Q, dir_candidatas=tmp_path / "cand", dir_fotos=tmp_path / "f")
+    banco.aprovar(conn, chave, cid, origem="agy", quando=Q, dir_candidatas=tmp_path / "cand", dir_fotos=tmp_path / "f")
     antes = _imagem(conn, "1")
     _carregar(conn)  # reimportação: upsert com imagem_url vazio
     banco.sincronizar_grupos(conn, Q)
@@ -133,7 +133,7 @@ def test_revisao_nova_torna_a_antiga_obsoleta_e_decisao_registra(conn):
 def test_resetar_volta_para_pendente_e_limpa(conn, tmp_path):
     chave = _grupo(conn, "1")
     cid = _candidata(conn, tmp_path / "cand", chave, b"x")
-    banco.aprovar(conn, chave, cid, origem="auto", quando=Q, dir_candidatas=tmp_path / "cand", dir_fotos=tmp_path / "f")
+    banco.aprovar(conn, chave, cid, origem="agy", quando=Q, dir_candidatas=tmp_path / "cand", dir_fotos=tmp_path / "f")
     banco.registrar_revisao(conn, chave, "auditoria", Q)
     assert banco.resetar_grupos(conn, [chave], tmp_path / "cand") == 1
     g = conn.execute("SELECT * FROM foto_grupos WHERE chave = ?", (chave,)).fetchone()
@@ -168,7 +168,7 @@ def test_grupo_que_ficou_sem_produto_some_e_a_foto_antiga_nao_fica_no_produto(co
     """Descrição mudou (ou a chave mudou de formato): o produto vai para outro grupo e não leva a foto do antigo."""
     chave_velha = _grupo(conn, "3")                       # só o produto 3 está neste grupo
     cid = _candidata(conn, tmp_path / "cand", chave_velha, b"foto-uno")
-    banco.aprovar(conn, chave_velha, cid, origem="auto", quando=Q, dir_candidatas=tmp_path / "cand", dir_fotos=tmp_path / "f")
+    banco.aprovar(conn, chave_velha, cid, origem="agy", quando=Q, dir_candidatas=tmp_path / "cand", dir_fotos=tmp_path / "f")
     pendente = banco.registrar_revisao(conn, chave_velha, "auditoria", Q)
     assert _imagem(conn, "3") != ""
     upsert_produto(conn, Produto(id=0, codigo="3", descricao="PASTILHA FREIO DT UNO 15/", categoria="Freios"))
@@ -185,7 +185,7 @@ def test_referencia_que_nao_gera_mais_a_chave_volta_para_pendente(conn, tmp_path
     produtos. A foto foi conferida contra a referência antiga (mangote Uno 85 com foto de Novo Uno, piloto 3)."""
     chave = _grupo(conn, "1")
     cid = _candidata(conn, tmp_path / "cand", chave, b"foto")
-    banco.aprovar(conn, chave, cid, origem="auto", quando=Q, dir_candidatas=tmp_path / "cand", dir_fotos=tmp_path / "f")
+    banco.aprovar(conn, chave, cid, origem="agy", quando=Q, dir_candidatas=tmp_path / "cand", dir_fotos=tmp_path / "f")
     auditoria = banco.registrar_revisao(conn, chave, "auditoria", Q)
     # referência gravada pela regra antiga; pela regra atual o motor separa: ela não gera mais esta chave
     conn.execute("UPDATE foto_grupos SET descricao_ref = ? WHERE chave = ?", ("PASTILHA FREIO DT AGILE/CELTA 1.4 16V", chave))
@@ -196,3 +196,22 @@ def test_referencia_que_nao_gera_mais_a_chave_volta_para_pendente(conn, tmp_path
     assert (g["status"], g["arquivo"]) == ("pendente", "") and _imagem(conn, "1") == ""
     assert conn.execute("SELECT status FROM foto_revisao WHERE id = ?", (auditoria,)).fetchone()[0] == "obsoleta"
     assert conn.execute("SELECT count(*) FROM foto_candidatas WHERE chave = ?", (chave,)).fetchone()[0] == 0
+
+
+def test_aprovacao_automatica_so_vai_ao_catalogo_depois_da_auditoria(conn, tmp_path):   # decisão de 2026-10-30
+    chave = _grupo(conn, "1")
+    cid = _candidata(conn, tmp_path / "cand", chave, b"foto-agile")
+    nome = banco.aprovar(conn, chave, cid, origem="auto", quando=Q,
+                         dir_candidatas=tmp_path / "cand", dir_fotos=tmp_path / "fotos")
+    assert _imagem(conn, "1") == _imagem(conn, "2") == ""
+    banco.confirmar_auditoria(conn, chave, por="agy", quando=Q)
+    assert _imagem(conn, "1") == _imagem(conn, "2") == f"/fotos/{nome}"
+    assert conn.execute("SELECT origem FROM foto_grupos WHERE chave = ?", (chave,)).fetchone()[0] == "auditoria:agy"
+
+
+def test_sincronizar_aplica_a_regra_de_publicacao_mesmo_sem_mudanca_nos_grupos(conn):
+    """Foto publicada por código antigo (ou à mão) sai do catálogo no próximo lote, sem esperar outra mudança."""
+    conn.execute("UPDATE produtos SET imagem_url = '/fotos/velha.webp' WHERE codigo = '1'")
+    conn.commit()
+    banco.sincronizar_grupos(conn, Q)
+    assert _imagem(conn, "1") == ""

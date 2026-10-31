@@ -50,8 +50,6 @@ class Contexto:
     dir_candidatas: Path
     dir_fotos: Path
     agora: Callable[[], str]
-    fracao_auditoria: float
-    rng: random.Random
     espera: float = 0.0
     hashes_bloqueados: frozenset[str] = frozenset()
 
@@ -180,8 +178,7 @@ def processar_grupo(ctx: Contexto, row: sqlite3.Row) -> str:
         banco.aprovar(ctx.conn, chave, candidata_id, origem="auto", quando=quando,
                       dir_candidatas=ctx.dir_candidatas, dir_fotos=ctx.dir_fotos)
         banco.limpar_candidatas(ctx.conn, chave, ctx.dir_candidatas)
-        if ctx.rng.random() < ctx.fracao_auditoria:
-            banco.registrar_revisao(ctx.conn, chave, "auditoria", quando)
+        banco.registrar_revisao(ctx.conn, chave, "auditoria", quando)   # só publica depois da confirmação
         return "aprovada"
 
     plausiveis = _por_pontuacao([a for a in avaliadas if a.decisao.plausivel])[:MAX_REVISAO]
@@ -232,7 +229,8 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--piloto", action="store_true", help="só a amostra fixa (~100 produtos); audita 100%%")
     ap.add_argument("--refazer-piloto", action="store_true", help="volta os grupos do piloto para pendente")
     ap.add_argument("--espera", type=float, default=ESPERA_PADRAO, help="segundos entre buscas")
-    ap.add_argument("--auditar", type=float, default=0.03, help="fração das aprovações automáticas auditada")
+    ap.add_argument("--auditar", type=float, default=1.0,
+                    help="obsoleto e ignorado: toda aprovação automática é auditada antes de ir ao catálogo")
     ap.add_argument("--relatorio", action="store_true")
     args = ap.parse_args(argv)
 
@@ -260,7 +258,6 @@ def main(argv: list[str] | None = None) -> int:
             conn=conn, buscador=busca.buscar_imagens, baixador=busca.baixar,
             visao=modelos.Visao(sorted(set(TIPOS_EN.values()))), ocr=modelos.Ocr(),
             dir_candidatas=Path(s.candidatas_dir), dir_fotos=Path(s.fotos_dir), agora=banco.agora,
-            fracao_auditoria=1.0 if args.piloto else args.auditar, rng=random.Random(),
             espera=args.espera, hashes_bloqueados=_hashes_bloqueados(Path(args.db).parent),
         )
         contagem: Counter[str] = Counter()

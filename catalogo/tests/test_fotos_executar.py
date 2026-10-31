@@ -1,5 +1,4 @@
 import io
-import random
 
 import pytest
 
@@ -49,15 +48,14 @@ class Ocr:
         return self.texto
 
 
-def _ctx(conn, tmp_path, resultados, ocr="", fracao=0.0):
+def _ctx(conn, tmp_path, resultados, ocr=""):
     def buscador(consulta):
         if isinstance(resultados, Exception):
             raise resultados
         return [busca.Resultado(url, "https://produto.mercadolivre.com.br/x", titulo) for url, titulo in resultados]
 
     return executar.Contexto(conn=conn, buscador=buscador, baixador=IMAGENS.get, visao=Visao(), ocr=Ocr(ocr),
-                             dir_candidatas=tmp_path / "cand", dir_fotos=tmp_path / "fotos", agora=lambda: Q,
-                             fracao_auditoria=fracao, rng=random.Random(0))
+                             dir_candidatas=tmp_path / "cand", dir_fotos=tmp_path / "fotos", agora=lambda: Q)
 
 
 @pytest.fixture
@@ -89,11 +87,11 @@ def _pendentes(conn, tipo):
                         (tipo,)).fetchone()[0]
 
 
-def test_tudo_concorda_aprova_publica_e_audita(conn, tmp_path):
-    ctx = _ctx(conn, tmp_path, [("https://img/vermelha.png", "Pastilha Freio Dianteira Agile Cobreq")], fracao=1.0)
+def test_tudo_concorda_aprova_e_espera_a_auditoria_para_publicar(conn, tmp_path):   # decisão de 2026-10-30
+    ctx = _ctx(conn, tmp_path, [("https://img/vermelha.png", "Pastilha Freio Dianteira Agile Cobreq")])
     assert executar.processar_grupo(ctx, _grupo(conn, "1")) == "aprovada"
-    assert _imagem(conn, "1").startswith("/fotos/")
-    assert _pendentes(conn, "auditoria") == 1
+    assert _imagem(conn, "1") == ""                 # só vai ao catálogo quando o Agy confirmar
+    assert _pendentes(conn, "auditoria") == 1       # toda aprovação automática é auditada
     assert list((tmp_path / "cand").glob("*.webp")) == []  # candidata copiada e apagada
 
 

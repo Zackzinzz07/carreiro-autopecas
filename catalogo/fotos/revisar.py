@@ -6,7 +6,7 @@
 
 Decisão por item da fila (o número "R812" impresso na folha):
   revisão   → número da candidata (0..3) que está CERTA, ou x se nenhuma serve
-  auditoria → 0 confirma a foto aprovada automaticamente, x rejeita (a foto sai do site)
+  auditoria → 0 confirma a foto aprovada automaticamente (só então ela vai ao site), x rejeita
 Tudo é validado antes de mudar qualquer coisa, e o banco ganha backup antes.
 """
 from __future__ import annotations
@@ -84,6 +84,7 @@ def aplicar(conn: sqlite3.Connection, decisoes: list[tuple[int, str]], *, por: s
         chave = r["chave"]
         if r["tipo"] == "auditoria":
             if valor == "0":
+                banco.confirmar_auditoria(conn, chave, por=por, quando=quando)
                 status = "aprovada"
                 contagem["confirmadas"] += 1
             else:

@@ -124,7 +124,7 @@ motivo de o robô não ter aprovado sozinho.
 Dois tipos de item:
 
 - **revisao:** o robô ficou em dúvida. Escolha a imagem certa ou diga que nenhuma serve.
-- **auditoria:** o robô aprovou sozinho e a foto JÁ ESTÁ no site. Só há uma imagem.
+- **auditoria:** o robô aprovou sozinho, mas a foto só vai ao site se você confirmar. Só há uma imagem.
   Confirme ou derrube. Seja tão rigoroso quanto na revisão: é assim que medimos se o robô
   está acertando.
 

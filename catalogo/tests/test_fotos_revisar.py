@@ -82,6 +82,18 @@ def test_erro_no_comando_nao_aplica_nada(estado):  # Review Focus 3
     assert status == ["pendente", "pendente"] and _imagem(estado["conn"], "1") == ""
 
 
+def test_confirmar_auditoria_publica_a_foto_automatica(estado):
+    _aplicar(estado, f"{estado['rids']['1']}:0")
+    conn = estado["conn"]
+    chave = conn.execute("SELECT foto_grupo FROM produtos WHERE codigo = '1'").fetchone()[0]
+    conn.execute("UPDATE foto_grupos SET origem = 'auto' WHERE chave = ?", (chave,))   # como se o robô tivesse aprovado
+    banco.propagar(conn)
+    assert _imagem(conn, "1") == ""
+    aud = banco.registrar_revisao(conn, chave, "auditoria", Q)
+    assert _aplicar(estado, f"{aud}:0")["confirmadas"] == 1
+    assert _imagem(conn, "1").startswith("/fotos/")
+
+
 def test_auditoria_confirma_ou_desfaz(estado):
     _aplicar(estado, f"{estado['rids']['1']}:0")
     chave = estado["conn"].execute("SELECT foto_grupo FROM produtos WHERE codigo = '1'").fetchone()[0]

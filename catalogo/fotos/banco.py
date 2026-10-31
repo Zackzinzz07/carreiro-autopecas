@@ -64,13 +64,15 @@ CREATE TABLE IF NOT EXISTS foto_revisao (
 CREATE INDEX IF NOT EXISTS idx_foto_revisao_status ON foto_revisao(status, tipo);
 """
 
+# Aprovação do robô (origem 'auto') não vai ao catálogo: espera o Agy confirmar a auditoria (decisão de
+# 2026-10-30, depois de 3 pilotos com 14-18% de erro entre as aprovações automáticas).
 _PROPAGAR = """
 UPDATE produtos SET imagem_url = COALESCE(
     (SELECT '/fotos/' || g.arquivo FROM foto_grupos g
-      WHERE g.chave = produtos.foto_grupo AND g.status = 'aprovada' AND g.arquivo != ''),
+      WHERE g.chave = produtos.foto_grupo AND g.status = 'aprovada' AND g.arquivo != '' AND g.origem != 'auto'),
     (SELECT '/fotos/' || t.arquivo FROM foto_grupos t
       WHERE produtos.foto_tipo != '' AND t.chave = 'TIPO:' || produtos.foto_tipo
-        AND t.status = 'aprovada' AND t.arquivo != ''),
+        AND t.status = 'aprovada' AND t.arquivo != '' AND t.origem != 'auto'),
     '')
 WHERE foto_grupo != '' {filtro}
 """
@@ -109,7 +111,7 @@ def sincronizar_grupos(conn: sqlite3.Connection, quando: str, dir_candidatas: Pa
 
     Idempotente. Grupo sem nenhum produto (descrição mudou, produto saiu da planilha, ou a regra da
     chave mudou) é apagado junto com candidatas e revisões pendentes: a foto dele não vale mais para
-    ninguém. Havendo qualquer mudança, as fotos dos produtos são recalculadas.
+    ninguém. No fim, as fotos dos produtos são sempre recalculadas.
     """
     novos = 0
     exemplo: dict[str, str] = {}   # chave → descrição de um produto atual do grupo
@@ -137,9 +139,8 @@ def sincronizar_grupos(conn: sqlite3.Connection, quando: str, dir_candidatas: Pa
         conn.execute("DELETE FROM foto_candidatas WHERE chave = ?", (chave,))
         conn.execute("UPDATE foto_revisao SET status = 'obsoleta' WHERE chave = ? AND status = 'pendente'", (chave,))
         conn.execute("DELETE FROM foto_grupos WHERE chave = ?", (chave,))
-    defasados = _renovar_referencias(conn, exemplo, dir_candidatas)
-    if novos or mudaram or orfaos or defasados:
-        propagar(conn)
+    _renovar_referencias(conn, exemplo, dir_candidatas)
+    propagar(conn)   # sempre: uma regra de publicação nova (ex.: 'auto' espera auditoria) vale já no próximo lote
     conn.commit()
     return novos
 
@@ -262,6 +263,13 @@ def aprovar(conn: sqlite3.Connection, chave: str, candidata_id: int, *, origem: 
                  (origem, nome, c["url"], c["titulo"], quando, chave))
     propagar(conn, chave)
     return nome
+
+
+def confirmar_auditoria(conn: sqlite3.Connection, chave: str, *, por: str, quando: str) -> None:
+    """O Agy viu a foto aprovada pelo robô e confirmou: só agora ela vai ao catálogo."""
+    conn.execute("UPDATE foto_grupos SET origem = ?, atualizado_em = ? WHERE chave = ? AND status = 'aprovada'",
+                 (f"auditoria:{por}", quando, chave))
+    propagar(conn, chave)
 
 
 def rejeitar_grupo(conn: sqlite3.Connection, chave: str, *, origem: str, quando: str) -> None:
