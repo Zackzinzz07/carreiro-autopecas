@@ -6,8 +6,10 @@
 # Pode parar a qualquer momento: grupo interrompido continua pendente e é refeito.
 set -u
 cd "$(dirname "$0")/../.."
+export TORCH_CPP_LOG_LEVEL=ERROR
+export PYTHONUNBUFFERED=1
 while true; do
-  catalogo/.venv-fotos/bin/python -m catalogo.fotos.executar --limite 100
+  catalogo/.venv-fotos/bin/python -m catalogo.fotos.executar --limite 500
   rc=$?
   case $rc in
     0) sleep 5 ;;                                                    # lote ok, próximo

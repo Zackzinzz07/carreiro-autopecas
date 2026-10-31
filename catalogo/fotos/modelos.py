@@ -5,7 +5,11 @@ peça errada) e pôs o tipo certo no top 3 em 79% das fotos boas. Pesado: import
 """
 from __future__ import annotations
 
+import os
 from pathlib import Path
+
+# Silencia o aviso repetido "Could not initialize NNPACK! Reason: Unsupported hardware" do PyTorch em CPUs sem AVX2.
+os.environ.setdefault("TORCH_CPP_LOG_LEVEL", "ERROR")
 
 # O disco principal tem pouco espaço; os pesos já estão aqui (compartilhados com o Agrocarreiro).
 CACHE_MODELOS = Path("/mnt/dados/cache")
@@ -47,6 +51,9 @@ class Visao:
         return rank, ordem[0].startswith("LIXO:"), ordem[0]
 
 
+LADO_OCR = 1200  # OCR roda 0 ou 1 vez por grupo (preguiçoso): resolução cheia para telefone e marca concorrente em letra pequena
+
+
 class Ocr:
     def __init__(self, cache_dir: Path = CACHE_MODELOS):
         import easyocr
@@ -61,5 +68,5 @@ class Ocr:
         from catalogo.fotos.imagem import abrir
 
         imagem = abrir(dados).convert("RGB")  # mesmos limites de formato e tamanho do pipeline
-        imagem.thumbnail((1200, 1200))
+        imagem.thumbnail((LADO_OCR, LADO_OCR))
         return " ".join(self.leitor.readtext(np.array(imagem), detail=0)).upper()

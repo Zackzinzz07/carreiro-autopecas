@@ -20,8 +20,8 @@ _QUALIFICADORES = frozenset({
     "dianteiro", "traseiro", "superior", "inferior", "externo", "interno", "lado", "direito", "esquerdo",
     "com", "sem", "central", "jogo", "kit", "par", "intermediario", "auxiliar", "lateral",
 })
-# Tipos em que a marca não aparece legível na foto (fica na lateral do pneu): o OCR não é exigido,
-# e a marca é garantida por título + medida + modelo. Em todo o resto, marca citada tem de ser LIDA.
+# Tipos em que a marca não aparece legível na foto (fica na lateral do pneu): a marca é garantida por
+# título + medida + modelo.
 _SEM_ROTULO_LEGIVEL = frozenset({"pneu", "camara"})
 # (presente na peça, oposto no título): o oposto no título é conflito MESMO com o próprio junto.
 # Anúncio "dianteiro e traseiro" ou "superior inferior" é kit das duas peças (erros R33 e R17 do piloto).
@@ -77,7 +77,8 @@ def sinais_de_texto(chave: Chave, titulo: str) -> dict[str, bool]:
             "titulo_conflito": titulo_conflito, "titulo_marca": titulo_marca,
             "titulo_ano": _ano_compativel(chave, titulo), "titulo_kit": titulo_kit,
             "titulo_ano_incerto": _ano_incerto(chave, titulo),
-            "conflitos": tuple(conflitos(chave.atributos, do_anuncio(titulo)))}
+            "conflitos": tuple(conflitos(chave.atributos, do_anuncio(titulo))),
+            "titulo_outra_marca": bool(chave.marca) and outra_marca_no_ocr(chave.marca, titulo.upper())}
 
 
 # Kit/combo/"peça + outra peça" no anúncio de um produto que não é kit: a foto traz peças a mais.
@@ -177,6 +178,7 @@ class Sinais:
     titulo_kit: bool = False       # anúncio de kit/combo para produto que não é kit
     titulo_ano_incerto: bool = False   # anúncio cita ano, produto com carro não cita
     conflitos: tuple[str, ...] = ()    # motor, geração, quantidade ou versão excluída (atributos.py)
+    titulo_outra_marca: bool = False   # consumível: o anúncio cita outra marca conhecida
     imagem_anuncio: bool = False   # telefone/site/propaganda de vendedor escrito na imagem
     ocr_marca: bool = False
     ocr_outra_marca: bool = False
@@ -223,12 +225,14 @@ def decidir(chave: Chave, s: Sinais) -> Decisao:
     motivos.extend(s.conflitos)
     if s.imagem_anuncio:
         motivos.append("imagem_com_texto_de_vendedor")
-    if chave.marca and not s.titulo_marca:
+    # Consumível (stakeholders, 2026-10-30): foto da marca certa ou sem marca aparente serve; outra marca não.
+    # Pneu é exceção: a marca fica na lateral, o OCR não confere a foto, então o título precisa citá-la.
+    if chave.marca and not s.titulo_marca and chave.peca.split()[0] in _SEM_ROTULO_LEGIVEL:
         motivos.append("titulo_sem_marca")
     if chave.marca and s.ocr_outra_marca:
         motivos.append("ocr_outra_marca")
-    if chave.marca and not s.ocr_marca and chave.peca.split()[0] not in _SEM_ROTULO_LEGIVEL:
-        motivos.append("ocr_sem_marca")
+    if s.titulo_outra_marca:
+        motivos.append("titulo_outra_marca")
 
     pontuacao = (20 * s.titulo_peca + 15 * s.titulo_veiculo + 10 * s.titulo_spec
                  + 15 * (bool(chave.marca) and s.titulo_marca) + 10 * s.ocr_marca

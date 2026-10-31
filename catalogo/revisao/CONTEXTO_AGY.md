@@ -36,8 +36,11 @@ nesta ordem e pare no primeiro "não":
    gerações do carro que o produto cobre. Pastilha de Corolla 1.8 GLi com anúncio "Corolla 2019
    a 2023" é ERRADO: são gerações diferentes.
 5. **Lado.** Quando diz `lado direito` ou `lado esquerdo`, o anúncio não pode ser do outro lado.
-6. **Marca.** Quando diz `marca X`, a embalagem ou o título precisam ser dessa marca.
-   Óleo Petronas com foto de óleo Mobil é ERRADO, mesmo sendo "óleo 15W40".
+6. **Marca.** Em peça (pivô, rolamento, filtro, amortecedor...) a marca não importa: a foto da
+   peça certa serve, de qualquer marca. A folha nem mostra `marca` nesses casos.
+   Quando a folha diz `marca X` (pneu, óleo, aditivo, bateria, lâmpada e outros consumíveis), a
+   foto pode ser da marca X ou sem nenhuma marca aparecendo. Outra marca escrita na embalagem, no
+   pneu ou no título é ERRADO: óleo Petronas com foto de óleo Mobil não serve, mesmo sendo "óleo 15W40".
 7. **Motor e geração.** Se o produto diz o motor (`2.0 16V`, `AP`, `CHT`, `FIRE`, `MWM`) ou a
    geração (`G4`, `GV`, `UNO NOVO`) e o anúncio diz OUTRO, a foto é ERRADA: correia de 306 1.6
    não serve para 306 2.0 16V; mangote do Novo Uno não serve para Uno 1.5 de 1985. `EXC` na

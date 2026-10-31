@@ -14,7 +14,7 @@ def test_titulo_bom_de_mercado_livre():
     s = sinais_de_texto(PASTILHA, "Pastilha De Freio Dianteira Agile 2009 2010 Cobreq")
     assert s == {"titulo_peca": True, "titulo_veiculo": True, "titulo_spec": True,
                  "titulo_conflito": False, "titulo_marca": True, "titulo_ano": True, "titulo_kit": False,
-                 "titulo_ano_incerto": True, "conflitos": ()}   # PASTILHA não diz o ano; o anúncio diz
+                 "titulo_ano_incerto": True, "conflitos": (), "titulo_outra_marca": False}   # PASTILHA não diz o ano; o anúncio diz
 
 
 def test_carro_alternativo_tambem_vale_e_bomba_dagua_com_apostrofo():
@@ -82,12 +82,25 @@ def test_qualquer_sinal_ruim_manda_para_revisao(mudanca, motivo):
     assert not d.aprovada and d.plausivel and motivo in d.motivos
 
 
-def test_marca_exige_titulo_e_ocr_sem_outra_marca():
+def test_consumivel_aceita_foto_sem_marca_mas_nao_de_outra_marca():   # stakeholders (2026-10-30)
     assert decidir(OLEO, TUDO_OK).aprovada
-    sem_marca = decidir(OLEO, Sinais(**{**TUDO_OK.__dict__, "titulo_marca": False}))
-    assert not sem_marca.aprovada and "titulo_sem_marca" in sem_marca.motivos
+    assert decidir(OLEO, Sinais(**{**TUDO_OK.__dict__, "titulo_marca": False, "ocr_marca": False})).aprovada
     outra = decidir(OLEO, Sinais(**{**TUDO_OK.__dict__, "ocr_outra_marca": True}))
     assert not outra.aprovada and "ocr_outra_marca" in outra.motivos
+    no_titulo = decidir(OLEO, Sinais(**{**TUDO_OK.__dict__, "titulo_outra_marca": True}))
+    assert not no_titulo.aprovada and "titulo_outra_marca" in no_titulo.motivos
+
+
+def test_outra_marca_no_titulo():
+    assert sinais_de_texto(OLEO, "Oleo Mobil Super 15w40 Motor 1 Litro")["titulo_outra_marca"]
+    assert not sinais_de_texto(OLEO, "Óleo Petronas Syntium 800 15w40 Motor")["titulo_outra_marca"]
+    assert not sinais_de_texto(OLEO, "Oleo Motor 15w40 Syntium 800 1 Litro")["titulo_outra_marca"]
+    assert not sinais_de_texto(PASTILHA, "Pastilha Freio Dianteira Agile Cobreq")["titulo_outra_marca"]
+
+
+def test_pneu_continua_exigindo_a_marca_no_titulo():   # a marca fica na lateral: o OCR não confere a foto
+    d = decidir(PNEU, Sinais(**{**TUDO_OK.__dict__, "titulo_marca": False}))
+    assert not d.aprovada and "titulo_sem_marca" in d.motivos
 
 
 def test_tipo_e_marca_incerta_nunca_aprovam_sozinhos():
@@ -105,12 +118,6 @@ def test_lixo_e_invalida_nao_sao_nem_plausiveis():
 def test_pontuacao_prefere_clip_em_primeiro():
     segundo = decidir(PASTILHA, Sinais(**{**TUDO_OK.__dict__, "clip_rank": 2}))
     assert decidir(PASTILHA, TUDO_OK).pontuacao > segundo.pontuacao
-
-
-def test_marca_em_embalagem_precisa_ser_lida_no_rotulo():
-    """Título com a marca não basta: o anúncio pode citar Petronas e a foto ser de outro frasco."""
-    sem_leitura = decidir(OLEO, Sinais(**{**TUDO_OK.__dict__, "ocr_marca": False}))
-    assert not sem_leitura.aprovada and sem_leitura.plausivel and "ocr_sem_marca" in sem_leitura.motivos
 
 
 def test_pneu_dispensa_ocr_porque_a_marca_fica_na_lateral():

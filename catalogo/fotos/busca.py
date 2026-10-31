@@ -28,7 +28,7 @@ DOMINIOS_LOJA = (
 MIN_BYTES = 3_000
 MAX_BYTES = 12_000_000
 MAX_REDIRECIONAMENTOS = 3
-PRAZO_TOTAL = 30.0  # segundos por download, somando redirecionamentos
+PRAZO_TOTAL = 10.0  # segundos por download, somando redirecionamentos (miniatura que demora >10s travou)
 MAX_TITULO = 300    # caracteres guardados do título do anúncio
 MAX_URL = 2000
 _CABECALHOS = {"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) "
@@ -149,7 +149,7 @@ def url_publica(url) -> bool:
     return _ip_publico(url) is not None
 
 
-def baixar(url: str, *, timeout: float = 12.0, cliente=None) -> bytes | None:
+def baixar(url: str, *, timeout: float = 6.0, cliente=None) -> bytes | None:
     """Baixa uma imagem com teto de bytes, de tempo e de redirecionamentos. Nunca levanta exceção:
     URL ou resposta estranha vira None (uma candidata a menos), para não derrubar o lote.
 

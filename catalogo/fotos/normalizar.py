@@ -17,7 +17,8 @@ from catalogo.fotos.dados.siglas import SIGLAS, SIGLAS_COMPOSTAS
 from catalogo.fotos.dados.tipos_en import TIPOS_EN
 from catalogo.fotos.dados.veiculos import MODELOS_NUMERICOS, MONTADORAS, VEICULOS, VEICULOS_ABREV
 
-# Vendidos pela marca, não pelo carro: sem marca reconhecida, nunca há aprovação automática.
+# Vendidos pela marca, não pelo carro: só neles a marca entra na chave; sem marca reconhecida, nunca há
+# aprovação automática. Nas outras peças a marca é ignorada.
 CONSUMIVEIS = frozenset({
     "oleo", "aditivo", "graxa", "tinta", "aromatizante", "silicone", "cola", "adesivo", "limpa",
     "descarbonizante", "desengripante", "thinner", "cera", "lubrificante", "fluido", "bateria", "pneu",
@@ -254,6 +255,8 @@ def normalizar(descricao: str) -> Chave:
         peca = _juntar(_expandir(t) for t in toks if t not in _DESCARTAR)
     tipo_pt, tipo_en = _tipo(peca)
     primeira = peca.split()[0] if peca else ""
+    if primeira not in CONSUMIVEIS:
+        marca = ""   # peça: foto da peça certa serve, de qualquer marca (stakeholders, 2026-10-30)
     marca_incerta = not veiculo and not marca and primeira in CONSUMIVEIS
     anos = _faixa_de_anos(_preparar(descricao), cru_modelo or cru_montadora) if veiculo else ""
     atributos = do_produto(descricao) if veiculo else Atributos()

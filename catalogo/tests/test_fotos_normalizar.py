@@ -154,8 +154,12 @@ def test_siglas_novas(descricao, peca):
     assert normalizar(descricao).peca == peca
 
 
-def test_dm_e_a_marca_driveway():
-    assert normalizar("PIVO GOL/PARATI 95/97 DM LE/LD RETO").marca == "DRIVEWAY"
+def test_marca_de_peca_nao_separa_grupo():   # stakeholders (2026-10-30): foto da peça certa basta, de qualquer marca
+    dm, viemar, sem = (normalizar(d) for d in ("PIVO GOL/PARATI 95/97 DM LE/LD RETO",
+                                                 "PIVO GOL/PARATI 95/97 VIEMAR LE/LD RETO", "PIVO GOL/PARATI 95/97 LE/LD RETO"))
+    assert dm.texto == viemar.texto == sem.texto and dm.marca == "" and "driveway" not in dm.peca
+    # consumível é vendido pela marca: ela continua na chave
+    assert normalizar("OLEO MOTOR 15W40 PETRONAS SYNTIUM 800 SE").marca == "PETRONAS"
 
 
 @pytest.mark.parametrize("descricao,veiculo,alt", [   # carros e erros de digitação da planilha (2026-10-30)
@@ -176,7 +180,7 @@ def test_carros_novos_e_grafias_erradas(descricao, veiculo, alt):
 def test_pneu_nao_tem_carro_nem_quando_o_modelo_do_pneu_e_nome_de_carro():
     c = normalizar("PNEU 185/60R15 84H BLAZER COMPASAL")
     assert (c.veiculo, c.marca) == ("", "COMPASAL")
-    assert normalizar("FILTRO OLEO PRIMAPARTIS GOL").marca == "PRIMAPARTS"
+    assert "primaparts" in normalizar("FILTRO OLEO PSL55 PRIMAPARTIS").peca
 
 
 @pytest.mark.parametrize("descricao,completa", [   # a planilha corta a descrição no 45º caractere
@@ -215,4 +219,4 @@ def test_nao_completa_quando_nao_ha_certeza(descricao):
 
 def test_final_completado_vale_para_motor_e_marca():
     assert normalizar("CORREIA GIR/ALT PALIO 1.0/1.3 8/16V 2000/ FIR").atributos.familias == {"FIRE"}
-    assert normalizar("AMORT DT UNO VIVACE 10/ C/BARRA ESTAB L/D NAK").marca == "NAKATA"
+    assert normalizar("PALHETA LIMP PARAB UNIVERSAL 16 POLEGADAS WUR").peca.endswith("wurth")

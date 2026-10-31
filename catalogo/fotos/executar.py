@@ -11,6 +11,7 @@ O status do grupo só é gravado no fim do processamento: interrompido no meio, 
 from __future__ import annotations
 
 import argparse
+from concurrent.futures import ThreadPoolExecutor
 import hashlib
 import json
 import math
@@ -31,6 +32,7 @@ from catalogo.fotos.verificar import (Decisao, Sinais, anuncio_na_imagem, decidi
                                       outra_marca_no_ocr, sinais_de_texto)
 
 MAX_DOWNLOADS = 8        # candidatas baixadas por consulta
+DOWNLOAD_WORKERS = 4     # downloads simultâneos por consulta
 MAX_REVISAO = 4          # candidatas mostradas ao Agy
 ESPERA_PADRAO = 1.5      # segundos entre buscas
 # Segundos antes de cada tentativa quando o buscador falha. No piloto, as 25 falhas foram "malformed
@@ -64,49 +66,75 @@ class Avaliada:
     ocr: str
 
 
+@dataclass
+class _Preliminar:
+    avaliada: Avaliada
+    dados: bytes
+    sinais: Sinais
+
+
 def _avaliar(ctx: Contexto, ch: Chave, resultados: list[busca.Resultado]) -> list[Avaliada]:
-    avaliadas: list[Avaliada] = []
-    baixadas = 0
-    for r in resultados:
-        if baixadas >= MAX_DOWNLOADS:
-            break
-        if busca.bloqueado(r) or imagem.termo_placeholder(f"{r.titulo} {r.url_imagem}"):
-            continue
-        baixadas += 1
+    elegiveis = [r for r in resultados
+                 if not busca.bloqueado(r) and not imagem.termo_placeholder(f"{r.titulo} {r.url_imagem}")][:MAX_DOWNLOADS]
+    if not elegiveis:
+        return []
+
+    def baixar_uma(r: busca.Resultado) -> bytes | None:
         try:
-            avaliada = _avaliar_uma(ctx, ch, r)
+            return ctx.baixador(r.url_imagem)
+        except Exception as erro:  # noqa: BLE001: conteúdo de terceiros; uma candidata ruim não para o lote
+            print(f"  candidata ignorada ({type(erro).__name__}: {erro}): {r.url_imagem[:80]}", flush=True)
+            return None
+
+    with ThreadPoolExecutor(max_workers=min(DOWNLOAD_WORKERS, len(elegiveis))) as pool:
+        baixados = list(pool.map(baixar_uma, elegiveis))
+
+    preliminares: list[_Preliminar] = []
+    for r, dados in zip(elegiveis, baixados):
+        if not dados or imagem.sha1(dados) in ctx.hashes_bloqueados:
+            continue
+        try:
+            preliminar = _avaliar_sem_ocr(ctx, ch, r, dados)
         except Exception as erro:  # noqa: BLE001: conteúdo de terceiros; uma candidata ruim não para o lote
             print(f"  candidata ignorada ({type(erro).__name__}: {erro}): {r.url_imagem[:80]}", flush=True)
             continue
-        if avaliada is not None:
-            avaliadas.append(avaliada)
-    return avaliadas
+        if preliminar is not None:
+            preliminares.append(preliminar)
+
+    # OCR é o passo mais lento na CPU: só roda em quem já passou em texto+CLIP para aprovação automática,
+    # na ordem da maior pontuação, e para assim que a 1ª candidata for aprovada (só 1 foto é publicada).
+    preliminares.sort(key=lambda p: -p.avaliada.decisao.pontuacao)
+    for p in preliminares:
+        if not decidir(ch, replace(p.sinais, ocr_marca=bool(ch.marca))).aprovada:
+            continue
+        try:
+            texto_ocr = ctx.ocr.ler(p.dados)
+        except Exception as erro:  # noqa: BLE001
+            print(f"  candidata ignorada ({type(erro).__name__}: {erro}): {p.avaliada.resultado.url_imagem[:80]}", flush=True)
+            continue
+        sinais_ocr = replace(
+            p.sinais,
+            ocr_marca=bool(ch.marca) and marca_no_ocr(ch.marca, texto_ocr),
+            ocr_outra_marca=bool(ch.marca) and outra_marca_no_ocr(ch.marca, texto_ocr),
+            imagem_anuncio=anuncio_na_imagem(texto_ocr),
+        )
+        decisao = decidir(ch, sinais_ocr)
+        p.avaliada = replace(p.avaliada, decisao=decisao, ocr=texto_ocr)
+        if decisao.aprovada:
+            break
+    return [p.avaliada for p in preliminares]
 
 
-def _avaliar_uma(ctx: Contexto, ch: Chave, r: busca.Resultado) -> Avaliada | None:
-    dados = ctx.baixador(r.url_imagem)
-    if not dados or imagem.sha1(dados) in ctx.hashes_bloqueados:
-        return None
+def _avaliar_sem_ocr(ctx: Contexto, ch: Chave, r: busca.Resultado, dados: bytes) -> _Preliminar | None:
     processada, _motivo = imagem.processar(dados)
     if processada is None:
         return None
     rank, lixo, topo = ctx.visao.ranking(processada.webp, ch.tipo_en)
-    texto_ocr = ctx.ocr.ler(dados) if ch.marca else ""
     sinais = Sinais(
         valida=True, clip_rank=rank, clip_top_lixo=lixo, **sinais_de_texto(ch, r.titulo),
-        ocr_marca=bool(ch.marca) and marca_no_ocr(ch.marca, texto_ocr),
-        ocr_outra_marca=bool(ch.marca) and outra_marca_no_ocr(ch.marca, texto_ocr),
-        imagem_anuncio=anuncio_na_imagem(texto_ocr),
         dominio_loja=busca.eh_loja(r), fundo_branco=processada.fundo_branco,
     )
-    decisao = decidir(ch, sinais)
-    if decisao.aprovada and not ch.marca:
-        # Produto sem marca não passou pelo OCR. Antes de aprovar sozinho, lê a imagem para ver se
-        # ela traz telefone/propaganda do vendedor. Só nas que iam ser aprovadas: OCR é o passo lento.
-        texto_ocr = ctx.ocr.ler(dados)
-        if anuncio_na_imagem(texto_ocr):
-            decisao = decidir(ch, replace(sinais, imagem_anuncio=True))
-    return Avaliada(decisao, r, processada.webp, rank, topo, texto_ocr)
+    return _Preliminar(Avaliada(decidir(ch, sinais), r, processada.webp, rank, topo, ""), dados, sinais)
 
 
 def _nome_candidata(chave: str, i: int) -> str:
@@ -136,9 +164,11 @@ def processar_grupo(ctx: Contexto, row: sqlite3.Row) -> str:
     chave = row["chave"]
     avaliadas: list[Avaliada] = []
     for consulta in (c for c in (row["consulta"], row["consulta_alt"]) if c):
+        inicio = time.monotonic()
         avaliadas = _avaliar(ctx, ch, ctx.buscador(consulta))
-        if ctx.espera:
-            time.sleep(ctx.espera)
+        restante = ctx.espera - (time.monotonic() - inicio)
+        if restante > 0:
+            time.sleep(restante)
         if any(a.decisao.plausivel for a in avaliadas):
             break
 

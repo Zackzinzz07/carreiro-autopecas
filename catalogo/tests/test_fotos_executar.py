@@ -107,10 +107,13 @@ def test_titulo_sem_carro_vai_para_revisao_com_as_candidatas(conn, tmp_path):
     assert _pendentes(conn, "revisao") == 1
 
 
-def test_marca_fora_do_titulo_ou_outra_marca_no_rotulo_nao_aprovam(conn, tmp_path):
+def test_consumivel_sem_marca_aparente_aprova_e_outra_marca_nao(conn, tmp_path):   # stakeholders (2026-10-30)
     chave = _grupo(conn, "2")["chave"]
     ctx = _ctx(conn, tmp_path, [("https://img/vermelha.png", "Oleo Motor 15w40 Syntium 800 1 Litro")])
-    assert executar.processar_grupo(ctx, _grupo(conn, "2")) == "revisao"
+    assert executar.processar_grupo(ctx, _grupo(conn, "2")) == "aprovada"     # nenhuma marca à vista
+    banco.resetar_grupos(conn, [chave], tmp_path / "cand")
+    ctx = _ctx(conn, tmp_path, [("https://img/vermelha.png", "Oleo Mobil Super 15w40 Syntium 800")])
+    assert executar.processar_grupo(ctx, _grupo(conn, "2")) == "revisao"      # outra marca no título
     banco.resetar_grupos(conn, [chave], tmp_path / "cand")
     titulo = "Oleo Petronas Syntium 800 15w40 Motor"
     ctx = _ctx(conn, tmp_path, [("https://img/vermelha.png", titulo)], ocr="LUBRAX ESSENCIAL")
@@ -179,6 +182,24 @@ def test_ocr_de_propaganda_so_roda_em_quem_ia_ser_aprovada(conn, tmp_path):
                                 ("https://img/vermelha.png", "Pastilha Freio Dianteira Cobreq")])  # sem carro
     assert executar.processar_grupo(ctx, _grupo(conn, "1")) == "revisao"
     assert ctx.ocr.chamadas == 0
+
+
+def test_ocr_com_marca_so_roda_em_quem_passa_texto_e_clip_e_para_na_primeira_aprovada(conn, tmp_path):
+    chave = _grupo(conn, "2")["chave"]
+    # Título de outra marca ou CLIP ruim: OCR não deve rodar
+    ctx = _ctx(conn, tmp_path, [("https://img/vermelha.png", "Oleo Mobil Super 15w40 Syntium 800 1 Litro"),
+                                ("https://img/azul.png", "Oleo Petronas Syntium 800 15w40 Motor")],
+               ocr="PETRONAS SYNTIUM")
+    assert executar.processar_grupo(ctx, _grupo(conn, "2")) == "revisao"
+    assert ctx.ocr.chamadas == 0
+    banco.resetar_grupos(conn, [chave], tmp_path / "cand")
+    # Duas candidatas passam no texto e no CLIP: OCR deve parar assim que a 1ª for aprovada
+    titulo = "Oleo Petronas Syntium 800 15w40 Motor"
+    ctx = _ctx(conn, tmp_path, [("https://img/vermelha.png", titulo),
+                                ("https://img/vermelha.png", titulo + " Original")],
+               ocr="PETRONAS SYNTIUM")
+    assert executar.processar_grupo(ctx, _grupo(conn, "2")) == "aprovada"
+    assert ctx.ocr.chamadas == 1
 
 
 def test_espera_padrao_e_pausas_de_nova_tentativa():
