@@ -1,0 +1,11 @@
+[build]
+  publish = "catalogo/static"
+  command = ""
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[context.production]
+  environment = { }
