@@ -215,3 +215,38 @@ def test_sincronizar_aplica_a_regra_de_publicacao_mesmo_sem_mudanca_nos_grupos(c
     conn.commit()
     banco.sincronizar_grupos(conn, Q)
     assert _imagem(conn, "1") == ""
+
+
+def test_backup_recente_so_devolve_backup_novo(tmp_path):
+    import os
+    import time
+    pasta = tmp_path / "bk"
+    assert banco.backup_recente(pasta, 600) is None                    # pasta nem existe
+    pasta.mkdir()
+    velho, novo = pasta / "catalogo_a.db", pasta / "catalogo_b.db"
+    velho.write_bytes(b"x")
+    novo.write_bytes(b"x")
+    agora = time.time()
+    os.utime(velho, (agora - 5000, agora - 5000))
+    os.utime(novo, (agora - 30, agora - 30))
+    assert banco.backup_recente(pasta, 600) == novo
+    assert banco.backup_recente(pasta, 10) is None                     # o mais novo já passou do limite
+    assert banco.backup_recente(pasta, 0) is None                      # 0 desliga o reaproveitamento
+    (pasta / "outro.txt").write_text("não é backup")
+    assert banco.backup_recente(pasta, 600) == novo
+
+
+def test_backup_so_ganha_o_nome_final_depois_de_pronto(tmp_path, monkeypatch):
+    origem = tmp_path / "o.db"
+    c = sqlite3.connect(origem)
+    c.execute("CREATE TABLE t (x)")
+    c.commit()
+    c.close()
+    abertos = []
+    real = sqlite3.connect
+    monkeypatch.setattr(banco.sqlite3, "connect", lambda caminho, *a, **k: abertos.append(str(caminho)) or real(caminho, *a, **k))
+    destino = banco.backup(origem, tmp_path / "bk")
+    # a cópia é escrita num nome que backup_recente não enxerga ("catalogo_*.db") e só depois renomeada
+    assert not abertos[-1].endswith(".db") and abertos[-1].startswith(str(destino))
+    assert [p.name for p in (tmp_path / "bk").iterdir()] == [destino.name]
+    assert real(destino).execute("SELECT count(*) FROM t").fetchone() == (0,)

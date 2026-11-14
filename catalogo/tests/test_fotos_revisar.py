@@ -1,3 +1,5 @@
+import re
+
 import pytest
 
 pytest.importorskip("PIL")
@@ -115,6 +117,7 @@ def test_gerar_folhas_png_txt_e_html(estado, tmp_path):
 
 def test_main_faz_backup_antes_de_decidir(estado, tmp_path, monkeypatch):
     monkeypatch.setenv("BACKUPS_DIR", str(tmp_path / "bk"))
+    monkeypatch.setenv("BACKUP_INTERVALO_S", "0")                                   # sem reaproveitar backup recente
     monkeypatch.setenv("CANDIDATAS_DIR", str(estado["cand"]))
     monkeypatch.setenv("FOTOS_DIR", str(estado["fotos"]))
     assert revisar.main(["--db", str(estado["db"]), "--decidir", "abc"]) == 2      # nem chega ao backup
@@ -154,3 +157,68 @@ def test_folha_mostra_o_ano_exigido(tmp_path):
     revisar.gerar(conn, tmp_path / "folhas", tmp_path / "cand", tmp_path / "fotos")
     assert "carro corolla + ano 2012 a 2014" in (tmp_path / "folhas" / "folha_001.txt").read_text()
     conn.close()
+
+
+def test_parse_parte():
+    assert revisar.parse_parte("2/3") == (2, 3)
+    assert revisar.parse_parte("1/1") == (1, 1)
+    for ruim in ("0/3", "4/3", "x", "2", "2/", "1/0", "-1/3"):
+        with pytest.raises(ValueError):
+            revisar.parse_parte(ruim)
+
+
+def test_partes_dividem_a_fila_sem_sobreposicao_nem_perda(estado):
+    todos = {r["id"] for r in revisar.pendentes(estado["conn"])}
+    partes = [{r["id"] for r in revisar.pendentes(estado["conn"], parte=(n, 3))} for n in (1, 2, 3)]
+    assert set().union(*partes) == todos
+    assert sum(len(p) for p in partes) == len(todos)       # nenhum item em duas partes
+
+
+def test_parte_nao_muda_quando_outro_item_e_decidido(estado):
+    # Agentes geram em horas diferentes: o item de cada um não pode trocar de parte quando a fila encolhe.
+    antes = [{r["id"] for r in revisar.pendentes(estado["conn"], parte=(n, 2))} for n in (1, 2)]
+    _aplicar(estado, f"{estado['rids']['1']}:x")
+    depois = [{r["id"] for r in revisar.pendentes(estado["conn"], parte=(n, 2))} for n in (1, 2)]
+    assert depois == [a - {estado["rids"]["1"]} for a in antes]
+
+
+def test_gerar_parte_nao_apaga_as_folhas_de_outros_agentes(estado, tmp_path, monkeypatch):
+    base = tmp_path / "folhas"
+    for pasta in ("folhas", "folhas_2"):
+        (tmp_path / pasta).mkdir()
+        (tmp_path / pasta / "folha_001.txt").write_text("de outro agente")
+    monkeypatch.setenv("REVISAO_DIR", str(base))
+    monkeypatch.setenv("CANDIDATAS_DIR", str(estado["cand"]))
+    monkeypatch.setenv("FOTOS_DIR", str(estado["fotos"]))
+    assert revisar.main(["--db", str(estado["db"]), "--gerar", "--parte", "1/2"]) == 0
+    assert (tmp_path / "folhas_1" / "index.html").exists()                 # parte 1 vai para folhas_1
+    assert (tmp_path / "folhas_2" / "folha_001.txt").read_text() == "de outro agente"
+    assert (tmp_path / "folhas" / "folha_001.txt").read_text() == "de outro agente"
+    ids_na_folha = {int(i) for p in (tmp_path / "folhas_1").glob("folha_*.txt")
+                    for i in re.findall(r"^R(\d+) ", p.read_text(), flags=re.M)}
+    assert ids_na_folha == {r["id"] for r in revisar.pendentes(estado["conn"], parte=(1, 2))}
+
+
+def test_parte_invalida_ou_sem_gerar_nao_faz_nada(estado, tmp_path, monkeypatch):
+    monkeypatch.setenv("REVISAO_DIR", str(tmp_path / "folhas"))
+    assert revisar.main(["--db", str(estado["db"]), "--gerar", "--parte", "3/2"]) == 2
+    assert revisar.main(["--db", str(estado["db"]), "--status", "--parte", "1/2"]) == 2
+    assert not (tmp_path / "folhas_3").exists() and not (tmp_path / "folhas_1").exists()
+
+
+def test_gerar_aguenta_imagem_corrompida_e_avisa_na_folha(estado, tmp_path):
+    (estado["cand"] / "1_0.webp").write_bytes(b"")                    # download cortado: arquivo vazio
+    arquivos = revisar.gerar(estado["conn"], tmp_path / "folhas", estado["cand"], estado["fotos"])
+    assert sorted(p.name for p in arquivos) == ["folha_001.png", "folha_001.txt", "index.html"]
+    texto = (tmp_path / "folhas" / "folha_001.txt").read_text()
+    assert "imagem ilegível" in texto and "Titulo 1 1" in texto       # a outra candidata do item continua na folha
+
+
+def test_varios_revisores_nao_enchem_o_disco_de_backups(estado, tmp_path, monkeypatch):
+    monkeypatch.setenv("BACKUPS_DIR", str(tmp_path / "bk"))
+    monkeypatch.setenv("BACKUP_INTERVALO_S", "600")
+    monkeypatch.setenv("CANDIDATAS_DIR", str(estado["cand"]))
+    monkeypatch.setenv("FOTOS_DIR", str(estado["fotos"]))
+    assert revisar.main(["--db", str(estado["db"]), "--decidir", f"{estado['rids']['1']}:0"]) == 0
+    assert revisar.main(["--db", str(estado["db"]), "--decidir", f"{estado['rids']['2']}:x"]) == 0
+    assert len(list((tmp_path / "bk").glob("*.db"))) == 1                          # o 2º reaproveitou o backup recente

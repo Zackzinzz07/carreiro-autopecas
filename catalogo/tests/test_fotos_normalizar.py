@@ -220,3 +220,17 @@ def test_nao_completa_quando_nao_ha_certeza(descricao):
 def test_final_completado_vale_para_motor_e_marca():
     assert normalizar("CORREIA GIR/ALT PALIO 1.0/1.3 8/16V 2000/ FIR").atributos.familias == {"FIRE"}
     assert normalizar("PALHETA LIMP PARAB UNIVERSAL 16 POLEGADAS WUR").peca.endswith("wurth")
+
+
+def test_modelo_de_picape_antiga_nao_vira_ano():
+    # C14 e D10 são carros (Chevrolet), não os anos 2014 e 2010
+    assert normalizar("COXIM TS MT C10/C14/D60 64/84").anos == "1964-1984"
+    assert normalizar("ESPACADOR PINHAO DIFER A10/C10/D10/D20").anos == ""
+    assert normalizar("DISCO EMBR A20/A40/C20/C40/D10/D20 85/96").anos == "1985-1996"
+
+
+def test_anos_de_verdade_continuam_sendo_lidos():
+    assert normalizar("PIVO INF F250/F350 99/").anos == "1999-"
+    assert normalizar("CORREIA ALT 306/405 2.0 16V 93/98").anos == "1993-1998"
+    assert normalizar("BOMBA DAGUA GOL GV/VOYAGE 08/ FOX 1.0/1.6 8V").anos == "2008-"
+    assert normalizar("FILTRO AR COROLLA 12/14").anos == "2012-2014"
