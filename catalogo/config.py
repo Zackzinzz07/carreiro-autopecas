@@ -24,6 +24,7 @@ class Settings:
     candidatas_dir: str = str(BASE_DIR / "data" / "fotos_candidatas")
     backups_dir: str = str(BASE_DIR / "data" / "backups")
     revisao_dir: str = str(BASE_DIR / "revisao" / "folhas")
+    backup_intervalo_s: int = 600   # --decidir reaproveita um backup mais novo que isso (vários revisores)
 
 
 def get_settings() -> Settings:
@@ -39,4 +40,5 @@ def get_settings() -> Settings:
         candidatas_dir=os.getenv("CANDIDATAS_DIR", str(BASE_DIR / "data" / "fotos_candidatas")),
         backups_dir=os.getenv("BACKUPS_DIR", str(BASE_DIR / "data" / "backups")),
         revisao_dir=os.getenv("REVISAO_DIR", str(BASE_DIR / "revisao" / "folhas")),
+        backup_intervalo_s=int(os.getenv("BACKUP_INTERVALO_S", "600")),
     )

@@ -77,7 +77,7 @@ def index(
             )
         por_categoria = contar_por_categoria(conn, busca or None)
         tipos = contar_por_tipo(conn, nome_categoria, busca or None) if nome_categoria else []
-        total_geral = conn.execute("SELECT count(*) FROM produtos WHERE ativo = 1").fetchone()[0]
+        total_geral = conn.execute("SELECT count(DISTINCT descricao) FROM produtos WHERE ativo = 1").fetchone()[0]
     finally:
         conn.close()
 

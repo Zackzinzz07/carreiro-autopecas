@@ -8,7 +8,7 @@ from catalogo.models import Produto
 
 def texto_pedido(produto: Produto) -> str:
     """Mensagem pré-preenchida. Sem preço: a planilha atual não tem essa coluna."""
-    partes = [f"Olá! Quero consultar a peça: {produto.descricao} (cód. {produto.codigo})"]
+    partes = [f"Olá! Quero consultar a peça: {produto.descricao} (cód. {", ".join(produto.todos_codigos)})"]
     if produto.preco is not None:
         partes.append(f"— R$ {produto.preco:.2f}".replace(".", ","))
     return " ".join(partes)
