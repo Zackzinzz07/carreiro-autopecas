@@ -57,13 +57,15 @@ Rejeite sempre, mesmo que o título pareça certo:
 - imagem de "indisponível", banner de propaganda, logotipo;
 - marca d'água grande cobrindo a peça;
 - foto borrada ou tão pequena que não dá para reconhecer a peça;
-- duas ou mais unidades quando o produto é UMA peça (amortecedor, disco, tambor, pivô, bieleta,
+- **duas ou mais unidades quando o produto é UMA peça** (amortecedor, disco, tambor, pivô, bieleta,
   bandeja, farol, lanterna, retrovisor, coxim, rolamento, mangueira, palheta): o cliente acha que
-  leva o par. O motivo `quantidade_a_mais` na folha aponta esse caso.
+  leva o par. O motivo `quantidade_a_mais` na folha aponta esse caso. Par ou jogo SÓ vale se o
+  próprio produto diz que é jogo/kit (linhas abaixo).
 
 Aceite sem problema: fundo branco ou não; peça com um carrinho pequeno desenhado ao lado
-(é comum no Mercado Livre); jogo ou par nas peças que só se vendem assim (pastilha, sapata,
-lona, vela, cabo de vela, anéis, bronzina) ou quando o próprio produto diz `JG`, `KIT` ou `CJ`.
+(é comum no Mercado Livre); **jogo ou par APENAS nas peças vendidas em jogo** (pastilha, sapata,
+lona, vela, cabo de vela, anéis, bronzina) **OU quando o próprio produto diz** `JG`, `KIT` ou `CJ`.
+Em peça unitária, par ou jogo é rejeição (motivo: `quantidade_a_mais`).
 
 **Regra de ouro: foto errada é pior que nenhuma foto. Na dúvida, rejeite.**
 
@@ -151,9 +153,11 @@ Na auditoria do piloto de 30/10/2026, também:
 - pastilha de Corolla 2019–2023 num produto Corolla 1.8 GLi/XLi (outra geração);
 - bomba de combustível completa (com boia) e marca d'água de loja num produto que é a bomba com filtro.
 
-Regra para kit: se o produto é UMA peça e a foto mostra essa peça junto com OUTRAS peças
-diferentes, rejeite. Duas ou mais unidades da mesma peça só pode nas peças vendidas em jogo
-(pastilha, sapata, lona, vela, cabo de vela, anéis, bronzina); nas outras, rejeite.
+**Regra para kit:** se o produto é UMA peça e a foto mostra essa peça junto com OUTRAS peças
+**diferentes** (ex: cabos + velas, correia + polias, amortecedor + batente), rejeite. 
+**Duas ou mais unidades da mesma peça** são permitidas APENAS nas peças vendidas em jogo 
+(pastilha, sapata, lona, vela, cabo de vela, anéis, bronzina); em todas as outras, par ou 
+jogo é rejeição (motivo: `quantidade_a_mais`).
 
 ## Erros que já vimos o robô encontrar
 
