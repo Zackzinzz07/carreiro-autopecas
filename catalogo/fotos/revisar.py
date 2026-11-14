@@ -1,13 +1,19 @@
 """Fila de revisão (Agy) e auditoria: gera folhas de contato e aplica as decisões.
 
     catalogo/.venv-fotos/bin/python -m catalogo.fotos.revisar --gerar            # folhas em catalogo/revisao/folhas/
+    catalogo/.venv-fotos/bin/python -m catalogo.fotos.revisar --gerar --parte 2/3   # só a 2ª de 3 partes, em folhas_2/
     catalogo/.venv-fotos/bin/python -m catalogo.fotos.revisar --decidir 812:2,813:x
     catalogo/.venv-fotos/bin/python -m catalogo.fotos.revisar --status
 
 Decisão por item da fila (o número "R812" impresso na folha):
   revisão   → número da candidata (0..3) que está CERTA, ou x se nenhuma serve
   auditoria → 0 confirma a foto aprovada automaticamente (só então ela vai ao site), x rejeita
-Tudo é validado antes de mudar qualquer coisa, e o banco ganha backup antes.
+Tudo é validado antes de mudar qualquer coisa, e o banco ganha backup antes (se o último tem menos de
+BACKUP_INTERVALO_S segundos, 600 por padrão, ele é reaproveitado: vários revisores não enchem o disco).
+
+Vários revisores ao mesmo tempo: cada um usa uma parte (--parte N/M). A divisão é por número do item (R % M),
+então não muda quando a fila encolhe, e cada parte tem a sua pasta: um revisor nunca apaga a folha do outro.
+Sem --parte o comportamento é o de sempre (a fila inteira em folhas/).
 """
 from __future__ import annotations
 
@@ -45,12 +51,23 @@ def parse_decisoes(texto: str) -> list[tuple[int, str]]:
     return decisoes
 
 
-def pendentes(conn: sqlite3.Connection) -> list[sqlite3.Row]:
-    return conn.execute(
+def parse_parte(texto: str) -> tuple[int, int]:
+    m = re.fullmatch(r"(\d+)/(\d+)", texto.strip())
+    if not m or not 1 <= int(m[1]) <= int(m[2]):
+        raise ValueError(f"--parte deve ser N/M com 1 <= N <= M (recebi {texto!r})")
+    return int(m[1]), int(m[2])
+
+
+def pendentes(conn: sqlite3.Connection, parte: tuple[int, int] | None = None) -> list[sqlite3.Row]:
+    itens = conn.execute(
         "SELECT r.id, r.tipo, r.chave, g.descricao_ref, g.consulta, g.marca, g.lado, g.arquivo, g.n_produtos,"
         " g.e_tipo, g.titulo_origem, g.url_origem FROM foto_revisao r JOIN foto_grupos g ON g.chave = r.chave"
         " WHERE r.status = 'pendente' ORDER BY r.tipo DESC, g.n_produtos DESC, r.id"
     ).fetchall()
+    if parte:
+        n, m = parte
+        itens = [i for i in itens if i["id"] % m == n - 1]   # pelo id, não pela posição: estável enquanto a fila encolhe
+    return itens
 
 
 def aplicar(conn: sqlite3.Connection, decisoes: list[tuple[int, str]], *, por: str, quando: str,
@@ -157,14 +174,15 @@ def _fontes():
         return padrao, padrao
 
 
-def gerar(conn: sqlite3.Connection, dir_saida: Path, dir_candidatas: Path, dir_fotos: Path) -> list[Path]:
+def gerar(conn: sqlite3.Connection, dir_saida: Path, dir_candidatas: Path, dir_fotos: Path,
+          parte: tuple[int, int] | None = None) -> list[Path]:
     from PIL import Image, ImageDraw
 
     dir_saida = Path(dir_saida)
     dir_saida.mkdir(parents=True, exist_ok=True)
     for antigo in list(dir_saida.glob("folha_*")) + list(dir_saida.glob("index.html")):
         antigo.unlink()
-    itens = pendentes(conn)
+    itens = pendentes(conn, parte)
     fonte, fonte_p = _fontes()
     arquivos: list[Path] = []
     for n, inicio in enumerate(range(0, len(itens), POR_FOLHA), start=1):
@@ -184,17 +202,27 @@ def gerar(conn: sqlite3.Connection, dir_saida: Path, dir_candidatas: Path, dir_f
             linhas.append(f"  exige: {_exigencias(item)}  |  responda: {regra}")
             for j, (rotulo, caminho, titulo, url, motivo) in enumerate(_imagens(conn, item, dir_candidatas, dir_fotos)):
                 x = 10 + j * (LADO_MINIATURA + 10)
+                legivel = False
                 if caminho.exists():
-                    with Image.open(caminho) as im:
-                        miniatura = im.convert("RGB")
-                    miniatura.thumbnail((LADO_MINIATURA, LADO_MINIATURA))
-                    folha.paste(miniatura, (x, y + 46))
+                    try:
+                        with Image.open(caminho) as im:
+                            miniatura = im.convert("RGB")
+                    except OSError:   # download cortado/arquivo vazio: não pode travar a geração das folhas
+                        miniatura = None
+                    if miniatura is not None:
+                        miniatura.thumbnail((LADO_MINIATURA, LADO_MINIATURA))
+                        folha.paste(miniatura, (x, y + 46))
+                        legivel = True
+                if not legivel:
+                    d.text((x + 30, y + 120), "IMAGEM ILEGIVEL", fill="red", font=fonte)
                 d.rectangle((x, y + 46, x + 22, y + 66), fill="red")
                 d.text((x + 6, y + 47), rotulo, fill="white", font=fonte)
                 d.text((x, y + 48 + LADO_MINIATURA), _limpo(titulo, 34), fill=(90, 90, 90), font=fonte_p)
                 linhas.append(f"  [{rotulo}] título do anúncio (texto de terceiros): «{_limpo(titulo)}»")
                 linhas.append(f"       link: «{_limpo(url, 300)}»")
                 linhas.append(f"       arquivo: {caminho}")
+                if not legivel:
+                    linhas.append("       imagem ilegível: não dá para avaliar esta candidata, não a escolha")
                 if motivo:
                     linhas.append(f"       por que não foi automática: {motivo}")
             linhas.append("")
@@ -218,8 +246,19 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--gerar", action="store_true", help="gera as folhas de contato da fila pendente")
     ap.add_argument("--decidir", default="", help='ex.: "812:2,813:x"')
     ap.add_argument("--por", default="agy", help="quem decidiu (fica registrado)")
+    ap.add_argument("--parte", default="", help='com --gerar: só a parte N de M da fila, ex.: "2/3" (pasta folhas_2)')
     ap.add_argument("--status", action="store_true")
     args = ap.parse_args(argv)
+
+    parte = None
+    if args.parte:
+        try:
+            if not args.gerar:
+                raise ValueError("--parte só vale junto com --gerar")
+            parte = parse_parte(args.parte)
+        except ValueError as erro:
+            print(f"ERRO: {erro}. Nada foi alterado.", file=sys.stderr)
+            return 2
 
     conn = conectar(args.db)
     try:
@@ -228,7 +267,8 @@ def main(argv: list[str] | None = None) -> int:
         if args.decidir:
             try:
                 decisoes = parse_decisoes(args.decidir)   # texto inválido: sai antes do backup
-                copia = banco.backup(args.db, s.backups_dir)
+                copia = (banco.backup_recente(s.backups_dir, s.backup_intervalo_s)
+                         or banco.backup(args.db, s.backups_dir))
                 contagem = aplicar(conn, decisoes, por=args.por, quando=banco.agora(),
                                    dir_candidatas=Path(s.candidatas_dir), dir_fotos=Path(s.fotos_dir))
             except ValueError as erro:
@@ -236,8 +276,11 @@ def main(argv: list[str] | None = None) -> int:
                 return 2
             print(f"Backup: {copia}\nAplicado: {contagem}")
         if args.gerar:
-            arquivos = gerar(conn, Path(s.revisao_dir), Path(s.candidatas_dir), Path(s.fotos_dir))
-            print(f"{len([a for a in arquivos if a.suffix == '.png'])} folhas em {s.revisao_dir}")
+            saida = Path(s.revisao_dir)
+            if parte:
+                saida = saida.with_name(f"{saida.name}_{parte[0]}")
+            arquivos = gerar(conn, saida, Path(s.candidatas_dir), Path(s.fotos_dir), parte)
+            print(f"{len([a for a in arquivos if a.suffix == '.png'])} folhas em {saida}")
         if args.status or not (args.gerar or args.decidir):
             print(json.dumps(banco.relatorio(conn), ensure_ascii=False, indent=2))
         return 0

@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import hashlib
 import sqlite3
+import time
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
@@ -313,14 +314,28 @@ def resetar_grupos(conn: sqlite3.Connection, chaves: list[str], dir_candidatas: 
 def backup(db_path: Path | str, dir_backups: Path | str) -> Path:
     Path(dir_backups).mkdir(parents=True, exist_ok=True)
     destino = Path(dir_backups) / f"catalogo_{datetime.now():%Y%m%d_%H%M%S_%f}.db"
-    origem = sqlite3.connect(str(db_path))
-    copia = sqlite3.connect(str(destino))
+    parcial = destino.with_name(destino.name + ".parcial")   # backup_recente não enxerga cópia ainda em andamento
+    origem = sqlite3.connect(str(db_path), timeout=30)   # vários revisores gravando ao mesmo tempo
+    copia = sqlite3.connect(str(parcial))
     try:
         origem.backup(copia)
     finally:
         copia.close()
         origem.close()
+    parcial.rename(destino)
     return destino
+
+
+def backup_recente(dir_backups: Path | str, max_idade_s: float) -> Path | None:
+    """Backup mais novo que `max_idade_s` segundos, ou None. Vários revisores decidindo ao mesmo tempo
+    não precisam de uma cópia do banco a cada folha (23 MB cada): o ponto de restauração é o mesmo."""
+    pasta = Path(dir_backups)
+    if max_idade_s <= 0 or not pasta.is_dir():
+        return None
+    copias = sorted(pasta.glob("catalogo_*.db"), key=lambda p: p.stat().st_mtime)
+    if copias and time.time() - copias[-1].stat().st_mtime < max_idade_s:
+        return copias[-1]
+    return None
 
 
 def relatorio(conn: sqlite3.Connection) -> dict:

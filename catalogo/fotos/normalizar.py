@@ -101,11 +101,11 @@ def _preparar(descricao: str) -> str:
     return d
 
 
-# "12/14", "08/" (em diante), "/13" (até), "2017/". O que vem colado em dígito, ponto, X ou barra não é ano:
-# "1.6/1.8" e "8/16V" são motor, "206/207" e "C10/14/15" são carros, "07.89/" é mês.ano, "60/55W" é potência.
+# "12/14", "08/" (em diante), "/13" (até), "2017/". O que vem colado em dígito, letra, ponto ou barra não é ano:
+# "1.6/1.8" e "8/16V" são motor, "206/207", "C10/14/15" e "C14/D60" são carros, "07.89/" é mês.ano, "60/55W" é potência.
 _ANO = re.compile(
-    r"(?<![\d.,X/])((?:19|20)\d{2})/((?:19|20)?\d{2})?(?![\d.])"
-    r"|(?<![\d.,X/])(\d{2})/(\d{2})?(?![\d.VW])"
+    r"(?<![\d.,A-Z/])((?:19|20)\d{2})/((?:19|20)?\d{2})?(?![\d.])"
+    r"|(?<![\d.,A-Z/])(\d{2})/(\d{2})?(?![\d.VW])"
     r"|(?<![\d.\w])/(\d{2})(?![\d.])"
 )
 

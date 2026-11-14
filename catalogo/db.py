@@ -24,6 +24,7 @@ CREATE TABLE IF NOT EXISTS produtos (
     ativo INTEGER NOT NULL DEFAULT 1
 );
 CREATE INDEX IF NOT EXISTS idx_produtos_categoria ON produtos(categoria, ativo);
+CREATE INDEX IF NOT EXISTS idx_produtos_descricao ON produtos(descricao, ativo);
 
 CREATE VIRTUAL TABLE IF NOT EXISTS produtos_fts USING fts5(
     descricao, codigo, referencia, ean,
@@ -81,6 +82,7 @@ def _row_para_produto(row: sqlite3.Row) -> Produto:
         id=row["id"], codigo=row["codigo"], descricao=row["descricao"], categoria=row["categoria"],
         tipo=row["tipo"], marca=row["marca"], referencia=row["referencia"], ean=row["ean"],
         aplicacao=row["aplicacao"], preco=row["preco"], imagem_url=row["imagem_url"], ativo=bool(row["ativo"]),
+        codigos=tuple(sorted(row["codigos"].split("|"))) if "codigos" in row.keys() else (),
     )
 
 
@@ -118,6 +120,13 @@ def montar_match(busca: str | None) -> str | None:
     return " AND ".join(grupos) or None
 
 
+_IRMAOS = "FROM produtos x WHERE x.ativo = 1 AND x.descricao = p.descricao"
+
+
+def _UNANIME(coluna: str) -> str:
+    return f"(SELECT CASE WHEN count(DISTINCT x.{coluna}) = 1 THEN max(x.{coluna}) ELSE '' END {_IRMAOS})"
+
+
 def _filtro(categoria: str | None, tipo: str | None, busca: str | None) -> tuple[str, str, list[object]]:
     """Retorna (FROM+JOIN, WHERE, params) compartilhado por listagem e contagens."""
     clausulas = ["p.ativo = 1"]
@@ -146,10 +155,21 @@ def listar_produtos(
     por_pagina: int = 48,
 ) -> tuple[list[Produto], int]:
     origem, where, params = _filtro(categoria, tipo, busca)
-    total = conn.execute(f"SELECT count(*) FROM {origem} WHERE {where}", params).fetchone()[0]
-    ordem = "rank, p.descricao" if montar_match(busca) else "p.descricao"
+    # A planilha repete a mesma peça com códigos diferentes: um card por descrição, com todos os códigos dentro.
+    total = conn.execute(f"SELECT count(DISTINCT p.descricao) FROM {origem} WHERE {where}", params).fetchone()[0]
+    # Cards com foto primeiro (max(imagem_url) <> '' por card); depois relevância (só com busca) e descrição.
+    tem_foto = "(max(p.imagem_url) <> '') DESC"
+    ordem = f"{tem_foto}, min(rank), p.descricao" if montar_match(busca) else f"{tem_foto}, p.descricao"
     rows = conn.execute(
-        f"SELECT {', '.join('p.' + c.strip() for c in _COLUNAS.split(','))} FROM {origem} WHERE {where} "
+        "SELECT min(p.id) id, min(p.codigo) codigo, p.descricao, p.categoria, max(p.tipo) tipo,"
+        f" CASE WHEN (SELECT count(*) {_IRMAOS}) = 1 THEN max(p.referencia) ELSE '' END referencia,"
+        # Marca, EAN, aplicação e preço só aparecem quando TODOS os códigos do card concordam: o card representa
+        # vários itens, e misturar o preço de um com a marca de outro seria inventar um produto.
+        f" {_UNANIME('marca')} marca, {_UNANIME('ean')} ean, {_UNANIME('aplicacao')} aplicacao,"
+        f" (SELECT CASE WHEN count(x.preco) = count(*) AND count(DISTINCT x.preco) = 1 THEN max(x.preco) END {_IRMAOS}) preco,"
+        " max(p.imagem_url) imagem_url, 1 ativo,"
+        # Todos os códigos ativos da descrição, mesmo quando a busca casou só um deles (ex.: digitou o código).
+        f" (SELECT group_concat(x.codigo, '|') {_IRMAOS}) codigos FROM {origem} WHERE {where} GROUP BY p.descricao "
         f"ORDER BY {ordem} LIMIT ? OFFSET ?",
         [*params, por_pagina, max(pagina - 1, 0) * por_pagina],
     ).fetchall()
@@ -159,7 +179,7 @@ def listar_produtos(
 def contar_por_categoria(conn: sqlite3.Connection, busca: str | None = None) -> dict[str, int]:
     """Contagem por categoria respeitando a busca (não a categoria selecionada), na ordem de CATEGORIAS."""
     origem, where, params = _filtro(None, None, busca)
-    rows = conn.execute(f"SELECT p.categoria, count(*) n FROM {origem} WHERE {where} GROUP BY p.categoria", params)
+    rows = conn.execute(f"SELECT p.categoria, count(DISTINCT p.descricao) n FROM {origem} WHERE {where} GROUP BY p.categoria", params)
     contagem = {r["categoria"]: r["n"] for r in rows}
     return {c: contagem[c] for c in CATEGORIAS if c in contagem}
 
@@ -167,7 +187,7 @@ def contar_por_categoria(conn: sqlite3.Connection, busca: str | None = None) -> 
 def contar_por_tipo(conn: sqlite3.Connection, categoria: str, busca: str | None = None) -> list[tuple[str, int]]:
     origem, where, params = _filtro(categoria, None, busca)
     rows = conn.execute(
-        f"SELECT p.tipo, count(*) n FROM {origem} WHERE {where} AND p.tipo != '' GROUP BY p.tipo "
+        f"SELECT p.tipo, count(DISTINCT p.descricao) n FROM {origem} WHERE {where} AND p.tipo != '' GROUP BY p.tipo "
         "HAVING n >= 3 ORDER BY n DESC, p.tipo",
         params,
     )

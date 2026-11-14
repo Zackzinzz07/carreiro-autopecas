@@ -17,3 +17,8 @@ class Produto:
     preco: float | None = None
     imagem_url: str = ""
     ativo: bool = True
+    codigos: tuple[str, ...] = ()   # card que junta linhas repetidas da planilha: todos os códigos da mesma descrição
+
+    @property
+    def todos_codigos(self) -> tuple[str, ...]:
+        return self.codigos or (self.codigo,)
