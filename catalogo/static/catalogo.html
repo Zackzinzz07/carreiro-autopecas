@@ -97,12 +97,15 @@
                     const card = criar_card(p);
                     grid.appendChild(card);
                     encontrados++;
-                    if (encontrados >= 100) break; // Limita a 100 resultados
+                    if (encontrados >= 100) break;
                 }
             }
 
             if (encontrados === 0) {
-                grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center;">Nenhum produto encontrado</p>';
+                const msg = document.createElement('p');
+                msg.style.cssText = 'grid-column: 1/-1; text-align: center;';
+                msg.textContent = 'Nenhum produto encontrado';
+                grid.appendChild(msg);
             }
         }
 
@@ -110,29 +113,59 @@
             const div = document.createElement('div');
             div.className = 'produto-card';
 
-            let html = '';
-            if (p.imagem) {
-                html += `<div class="produto-imagem"><img src="${p.imagem}" alt="${p.descricao}" loading="lazy"></div>`;
+            // Imagem
+            const imgDiv = document.createElement('div');
+            imgDiv.className = 'produto-imagem';
+            if (p.imagem && (p.imagem.startsWith('/') || p.imagem.startsWith('https://'))) {
+                const img = document.createElement('img');
+                img.src = p.imagem;
+                img.alt = p.descricao;
+                img.loading = 'lazy';
+                imgDiv.appendChild(img);
             } else {
-                html += `<div class="produto-imagem" style="background: #f0f0f0; display: flex; align-items: center; justify-content: center;">Sem foto</div>`;
+                imgDiv.style.cssText = 'background: #f0f0f0; display: flex; align-items: center; justify-content: center;';
+                imgDiv.textContent = 'Sem foto';
+            }
+            div.appendChild(imgDiv);
+
+            // Info
+            const info = document.createElement('div');
+            info.className = 'produto-info';
+
+            const h3 = document.createElement('h3');
+            h3.textContent = p.descricao;
+            info.appendChild(h3);
+
+            const categoria = document.createElement('p');
+            categoria.className = 'categoria';
+            categoria.textContent = p.categoria;
+            info.appendChild(categoria);
+
+            if (p.marca) {
+                const marca = document.createElement('p');
+                marca.className = 'marca';
+                marca.textContent = p.marca;
+                info.appendChild(marca);
             }
 
-            html += `<div class="produto-info">`;
-            html += `<h3>${p.descricao}</h3>`;
-            html += `<p class="categoria">${p.categoria}</p>`;
-            if (p.marca) html += `<p class="marca">${p.marca}</p>`;
-            if (p.preco) html += `<p class="preco">R$ ${p.preco.toFixed(2)}</p>`;
-            html += `<p class="codigos">Códigos: ${p.codigos.join(', ')}</p>`;
-            html += `</div>`;
+            if (p.preco) {
+                const preco = document.createElement('p');
+                preco.className = 'preco';
+                preco.textContent = `R$ ${p.preco.toFixed(2)}`;
+                info.appendChild(preco);
+            }
 
-            div.innerHTML = html;
+            const codigos = document.createElement('p');
+            codigos.className = 'codigos';
+            codigos.textContent = `Códigos: ${p.codigos.join(', ')}`;
+            info.appendChild(codigos);
+
+            div.appendChild(info);
             return div;
         }
 
-        // Carregar ao abrir página
         window.addEventListener('load', carregar);
 
-        // Buscar ao pressionar Enter
         document.addEventListener('keypress', (e) => {
             if (e.key === 'Enter' && e.target.id === 'search') buscar();
         });
