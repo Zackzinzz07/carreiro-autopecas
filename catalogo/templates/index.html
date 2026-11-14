@@ -17,7 +17,7 @@
     <a class="marca" href="/"><img src="/static/logo.png" alt="" width="36" height="36"><span>{{ nome_loja }}<small>Catálogo de peças</small></span></a>
     <form class="busca" action="/" method="get" role="search">
       {% if categoria_atual %}<input type="hidden" name="categoria" value="{{ slug(categoria_atual) }}">{% endif %}
-      <input type="search" name="busca" value="{{ busca_atual }}" placeholder="Buscar peça, veículo ou código (ex.: amortecedor gol, 008087)" aria-label="Buscar peça" maxlength="80" autocomplete="off">
+      <input type="search" name="busca" value="{{ busca_atual }}" placeholder="Peça, veículo ou código" aria-label="Buscar peça" maxlength="80" autocomplete="off">
       <button type="submit" class="btn btn-dark">Buscar</button>
     </form>
     <a class="voltar" href="{{ site_url }}">← Voltar ao site</a>
@@ -83,7 +83,7 @@
     <ul class="lojas-lista">
       {% for l in lojas %}<li><strong>{{ l.cidade }}/{{ l.uf }}</strong>{% if l.matriz %} <em>matriz</em>{% endif %}<span>{{ l.endereco }}</span></li>{% endfor %}
     </ul>
-    <p class="mini">Catálogo em construção: as categorias são organizadas automaticamente pela descrição das peças e ainda não há fotos nem preços online.</p>
+    <p class="mini">As fotos são ilustrativas. Preço e disponibilidade são confirmados no WhatsApp da loja.</p>
   </div>
 </footer>
 
