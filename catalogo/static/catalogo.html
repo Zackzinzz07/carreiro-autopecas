@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catálogo - Carreiro Auto Peças</title>
+    <link rel="stylesheet" href="catalogo.css">
+    <style>
+        .search-box {
+            margin: 20px 0;
+            display: flex;
+            gap: 10px;
+        }
+        .search-box input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        .search-box button {
+            padding: 10px 20px;
+            background: #0066cc;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 18px;
+        }
+        .error {
+            background: #fee;
+            color: #c00;
+            padding: 20px;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Catálogo - Carreiro Auto Peças</h1>
+
+        <div class="search-box">
+            <input type="text" id="search" placeholder="Buscar por descrição, código, categoria...">
+            <button onclick="buscar()">Buscar</button>
+        </div>
+
+        <div id="loading" class="loading">Carregando catálogo...</div>
+        <div id="error" class="error" style="display:none;"></div>
+        <div id="produtos" class="produtos-grid"></div>
+    </div>
+
+    <script>
+        let catalogo = null;
+
+        async function carregar() {
+            try {
+                const resp = await fetch('catalogo.json');
+                if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+                catalogo = await resp.json();
+                document.getElementById('loading').style.display = 'none';
+                mostrarTodos();
+            } catch (e) {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('error').style.display = 'block';
+                document.getElementById('error').textContent = `Erro ao carregar: ${e.message}`;
+                console.error(e);
+            }
+        }
+
+        function mostrarTodos() {
+            const grid = document.getElementById('produtos');
+            grid.innerHTML = '';
+
+            for (const p of catalogo.produtos) {
+                const card = criar_card(p);
+                grid.appendChild(card);
+            }
+        }
+
+        function buscar() {
+            if (!catalogo) return;
+            const termo = document.getElementById('search').value.toLowerCase();
+            const grid = document.getElementById('produtos');
+            grid.innerHTML = '';
+
+            let encontrados = 0;
+            for (const p of catalogo.produtos) {
+                if (termo === '' ||
+                    p.descricao.toLowerCase().includes(termo) ||
+                    p.categoria.toLowerCase().includes(termo) ||
+                    p.codigos.some(c => c.toLowerCase().includes(termo))) {
+                    const card = criar_card(p);
+                    grid.appendChild(card);
+                    encontrados++;
+                    if (encontrados >= 100) break; // Limita a 100 resultados
+                }
+            }
+
+            if (encontrados === 0) {
+                grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center;">Nenhum produto encontrado</p>';
+            }
+        }
+
+        function criar_card(p) {
+            const div = document.createElement('div');
+            div.className = 'produto-card';
+
+            let html = '';
+            if (p.imagem) {
+                html += `<div class="produto-imagem"><img src="${p.imagem}" alt="${p.descricao}" loading="lazy"></div>`;
+            } else {
+                html += `<div class="produto-imagem" style="background: #f0f0f0; display: flex; align-items: center; justify-content: center;">Sem foto</div>`;
+            }
+
+            html += `<div class="produto-info">`;
+            html += `<h3>${p.descricao}</h3>`;
+            html += `<p class="categoria">${p.categoria}</p>`;
+            if (p.marca) html += `<p class="marca">${p.marca}</p>`;
+            if (p.preco) html += `<p class="preco">R$ ${p.preco.toFixed(2)}</p>`;
+            html += `<p class="codigos">Códigos: ${p.codigos.join(', ')}</p>`;
+            html += `</div>`;
+
+            div.innerHTML = html;
+            return div;
+        }
+
+        // Carregar ao abrir página
+        window.addEventListener('load', carregar);
+
+        // Buscar ao pressionar Enter
+        document.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && e.target.id === 'search') buscar();
+        });
+    </script>
+</body>
+</html>
