@@ -1,0 +1,1683 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Catálogo de peças · Carreiro Auto Peças</title>
+  <meta name="description" content="Catálogo de peças da Carreiro Auto Peças — 5 lojas no Ceará e Piauí. Peça pelo WhatsApp da loja mais perto de você.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="icon" href="/static/logo.png">
+  <link rel="stylesheet" href="/static/catalogo.css">
+  <link rel="preload" href="/catalogo/produtos.json" as="fetch" crossorigin>
+</head>
+<body>
+<header class="topo">
+  <div class="wrap topo-in">
+    <a class="marca" href="/catalogo/"><img src="/static/logo.png" alt="" width="36" height="36"><span>Carreiro Auto Peças<small>Catálogo de peças</small></span></a>
+    <form class="busca" id="form-busca" action="/catalogo/" method="get" role="search">
+      <input type="search" id="busca" name="busca" placeholder="Peça, veículo ou código" aria-label="Buscar peça" maxlength="80" autocomplete="off">
+      <button type="submit" class="btn btn-dark">Buscar</button>
+    </form>
+    <a class="voltar" href="/">← Voltar ao site</a>
+  </div>
+</header>
+
+<main class="wrap">
+  <p class="aviso">Preço e disponibilidade variam por loja — confirmamos tudo direto no WhatsApp da unidade que você escolher.</p>
+
+  <nav class="cats" id="cats" aria-label="Categorias">
+    <a class="chip on" href="/catalogo/" data-cat="">Todas <b>12248</b></a>
+    
+      <a class="chip" href="/catalogo/?categoria=motor" data-cat="motor">
+        <span class="chip-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="8" width="14" height="9" rx="1.5"/><path d="M8 8V5h6v3M18 11h3v3h-3M4 12H2M9 17v3M13 17v3"/></svg></span>Motor <b>2032</b>
+      </a>
+    
+      <a class="chip" href="/catalogo/?categoria=cambio-e-embreagem" data-cat="cambio-e-embreagem">
+        <span class="chip-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/></svg></span>Câmbio e Embreagem <b>755</b>
+      </a>
+    
+      <a class="chip" href="/catalogo/?categoria=suspensao-e-direcao" data-cat="suspensao-e-direcao">
+        <span class="chip-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3h6M12 3v3M9 6h6l-1 3 1 3-1 3 1 3H9l1-3-1-3 1-3z"/></svg></span>Suspensão e Direção <b>1850</b>
+      </a>
+    
+      <a class="chip" href="/catalogo/?categoria=freios" data-cat="freios">
+        <span class="chip-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="2.5"/><path d="M12 4v2M12 18v2M4 12h2M18 12h2"/></svg></span>Freios <b>781</b>
+      </a>
+    
+      <a class="chip" href="/catalogo/?categoria=eletrica-e-iluminacao" data-cat="eletrica-e-iluminacao">
+        <span class="chip-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg></span>Elétrica e Iluminação <b>2018</b>
+      </a>
+    
+      <a class="chip" href="/catalogo/?categoria=distribuicao-e-correias" data-cat="distribuicao-e-correias">
+        <span class="chip-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="7" cy="12" r="3.5"/><circle cx="17" cy="12" r="2.5"/><path d="M7 8.5h10M7 15.5h10"/></svg></span>Distribuição e Correias <b>544</b>
+      </a>
+    
+      <a class="chip" href="/catalogo/?categoria=arrefecimento" data-cat="arrefecimento">
+        <span class="chip-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3s5 6 5 10a5 5 0 0 1-10 0c0-4 5-10 5-10z"/></svg></span>Arrefecimento <b>658</b>
+      </a>
+    
+      <a class="chip" href="/catalogo/?categoria=filtros" data-cat="filtros">
+        <span class="chip-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16l-6 8v6l-4-2v-4z"/></svg></span>Filtros <b>397</b>
+      </a>
+    
+      <a class="chip" href="/catalogo/?categoria=cabine-e-carroceria" data-cat="cabine-e-carroceria">
+        <span class="chip-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 15v-3l2-5h14l2 5v3zM3 15v2h3v-2M18 15v2h3v-2"/><circle cx="7.5" cy="13" r=".8"/><circle cx="16.5" cy="13" r=".8"/></svg></span>Cabine e Carroceria <b>1176</b>
+      </a>
+    
+      <a class="chip" href="/catalogo/?categoria=pneus-e-rodas" data-cat="pneus-e-rodas">
+        <span class="chip-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/><path d="M12 3v6M12 15v6M3 12h6M15 12h6"/></svg></span>Pneus e Rodas <b>477</b>
+      </a>
+    
+      <a class="chip" href="/catalogo/?categoria=lubrificantes-e-quimicos" data-cat="lubrificantes-e-quimicos">
+        <span class="chip-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3h8M9 3v4l-3 4v9a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-9l-3-4V3M7 13h10"/></svg></span>Lubrificantes e Químicos <b>481</b>
+      </a>
+    
+      <a class="chip" href="/catalogo/?categoria=variados" data-cat="variados">
+        <span class="chip-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 4 7v10l8 4 8-4V7zM4 7l8 4 8-4M12 11v10"/></svg></span>Variados <b>1079</b>
+      </a>
+    
+  </nav>
+
+  <p class="resumo" id="resumo" aria-live="polite"><strong>12.248</strong> peças</p>
+
+  <section class="grid" id="grid" aria-label="Peças">
+    <article class="card">
+  
+  <figure class="card-foto">
+    <img src="/fotos/45d3c8575c31ce246271f786dce1b3346ab66920.webp" alt="ABRACADEIRA" loading="lazy" decoding="async" width="400" height="400">
+    <figcaption>Imagem ilustrativa</figcaption>
+  </figure>
+  
+  <div class="card-body">
+    <div class="card-top">
+      
+      <span class="card-cat">Variados</span>
+    </div>
+    <h3 class="card-nome">ABRACADEIRA</h3>
+    <dl class="card-meta">
+      <div><dt>Cód.</dt><dd>008087</dd></div>
+      
+      
+      
+    </dl>
+    
+  </div>
+  <div class="card-foot">
+    <span class="card-preco consulte">
+      Consulte o preço
+    </span>
+    
+    <a class="btn btn-wa js-pedir" href="https://wa.me/5588997270713?text=Ol%C3%A1%21%20Quero%20consultar%20a%20pe%C3%A7a%3A%20ABRACADEIRA%20%28c%C3%B3d.%20008087%29" target="_blank" rel="noopener"
+       data-codigo="008087" data-desc="ABRACADEIRA" data-preco="">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 0 1-13.5 7.8L3 21l1.3-4.4A9 9 0 1 1 21 12z"/></svg>
+      Pedir no WhatsApp
+    </a>
+  </div>
+</article><article class="card">
+  
+  <figure class="card-foto">
+    <img src="/fotos/b6ca3c680bf7c95e3ecf59fb4c648cf47006add3.webp" alt="ABRACADEIRA 1 3/4" loading="lazy" decoding="async" width="400" height="400">
+    <figcaption>Imagem ilustrativa</figcaption>
+  </figure>
+  
+  <div class="card-body">
+    <div class="card-top">
+      
+      <span class="card-cat">Variados</span>
+    </div>
+    <h3 class="card-nome">ABRACADEIRA 1 3/4</h3>
+    <dl class="card-meta">
+      <div><dt>Cód.</dt><dd>008092</dd></div>
+      
+      
+      
+    </dl>
+    
+  </div>
+  <div class="card-foot">
+    <span class="card-preco consulte">
+      Consulte o preço
+    </span>
+    
+    <a class="btn btn-wa js-pedir" href="https://wa.me/5588997270713?text=Ol%C3%A1%21%20Quero%20consultar%20a%20pe%C3%A7a%3A%20ABRACADEIRA%201%203/4%20%28c%C3%B3d.%20008092%29" target="_blank" rel="noopener"
+       data-codigo="008092" data-desc="ABRACADEIRA 1 3/4" data-preco="">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 0 1-13.5 7.8L3 21l1.3-4.4A9 9 0 1 1 21 12z"/></svg>
+      Pedir no WhatsApp
+    </a>
+  </div>
+</article><article class="card">
+  
+  <figure class="card-foto">
+    <img src="/fotos/ddd69f487c5143ee3794248ccb9d15ab98172938.webp" alt="ABRACADEIRA 1.7/8" loading="lazy" decoding="async" width="400" height="400">
+    <figcaption>Imagem ilustrativa</figcaption>
+  </figure>
+  
+  <div class="card-body">
+    <div class="card-top">
+      
+      <span class="card-cat">Variados</span>
+    </div>
+    <h3 class="card-nome">ABRACADEIRA 1.7/8</h3>
+    <dl class="card-meta">
+      <div><dt>Cód.</dt><dd>008093</dd></div>
+      
+      
+      
+    </dl>
+    
+  </div>
+  <div class="card-foot">
+    <span class="card-preco consulte">
+      Consulte o preço
+    </span>
+    
+    <a class="btn btn-wa js-pedir" href="https://wa.me/5588997270713?text=Ol%C3%A1%21%20Quero%20consultar%20a%20pe%C3%A7a%3A%20ABRACADEIRA%201.7/8%20%28c%C3%B3d.%20008093%29" target="_blank" rel="noopener"
+       data-codigo="008093" data-desc="ABRACADEIRA 1.7/8" data-preco="">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 0 1-13.5 7.8L3 21l1.3-4.4A9 9 0 1 1 21 12z"/></svg>
+      Pedir no WhatsApp
+    </a>
+  </div>
+</article><article class="card">
+  
+  <figure class="card-foto">
+    <img src="/fotos/b6ca3c680bf7c95e3ecf59fb4c648cf47006add3.webp" alt="ABRACADEIRA 1/2 X 62 X 180 - C" loading="lazy" decoding="async" width="400" height="400">
+    <figcaption>Imagem ilustrativa</figcaption>
+  </figure>
+  
+  <div class="card-body">
+    <div class="card-top">
+      
+      <span class="card-cat">Variados</span>
+    </div>
+    <h3 class="card-nome">ABRACADEIRA 1/2 X 62 X 180 - C</h3>
+    <dl class="card-meta">
+      <div><dt>Cód.</dt><dd>023052</dd></div>
+      
+      
+      
+    </dl>
+    
+  </div>
+  <div class="card-foot">
+    <span class="card-preco consulte">
+      Consulte o preço
+    </span>
+    
+    <a class="btn btn-wa js-pedir" href="https://wa.me/5588997270713?text=Ol%C3%A1%21%20Quero%20consultar%20a%20pe%C3%A7a%3A%20ABRACADEIRA%201/2%20X%2062%20X%20180%20-%20C%20%28c%C3%B3d.%20023052%29" target="_blank" rel="noopener"
+       data-codigo="023052" data-desc="ABRACADEIRA 1/2 X 62 X 180 - C" data-preco="">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 0 1-13.5 7.8L3 21l1.3-4.4A9 9 0 1 1 21 12z"/></svg>
+      Pedir no WhatsApp
+    </a>
+  </div>
+</article><article class="card">
+  
+  <figure class="card-foto">
+    <img src="/fotos/b6ca3c680bf7c95e3ecf59fb4c648cf47006add3.webp" alt="ABRACADEIRA 1/2 X 62 X 220 C" loading="lazy" decoding="async" width="400" height="400">
+    <figcaption>Imagem ilustrativa</figcaption>
+  </figure>
+  
+  <div class="card-body">
+    <div class="card-top">
+      
+      <span class="card-cat">Variados</span>
+    </div>
+    <h3 class="card-nome">ABRACADEIRA 1/2 X 62 X 220 C</h3>
+    <dl class="card-meta">
+      <div><dt>Cód.</dt><dd>026769</dd></div>
+      
+      
+      
+    </dl>
+    
+  </div>
+  <div class="card-foot">
+    <span class="card-preco consulte">
+      Consulte o preço
+    </span>
+    
+    <a class="btn btn-wa js-pedir" href="https://wa.me/5588997270713?text=Ol%C3%A1%21%20Quero%20consultar%20a%20pe%C3%A7a%3A%20ABRACADEIRA%201/2%20X%2062%20X%20220%20C%20%28c%C3%B3d.%20026769%29" target="_blank" rel="noopener"
+       data-codigo="026769" data-desc="ABRACADEIRA 1/2 X 62 X 220 C" data-preco="">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 0 1-13.5 7.8L3 21l1.3-4.4A9 9 0 1 1 21 12z"/></svg>
+      Pedir no WhatsApp
+    </a>
+  </div>
+</article><article class="card">
+  
+  <figure class="card-foto">
+    <img src="/fotos/b3d7d8e578fab83a577949c74a785a487f07690b.webp" alt="ABRACADEIRA 1/2X5/8&#34; MANGOTE" loading="lazy" decoding="async" width="400" height="400">
+    <figcaption>Imagem ilustrativa</figcaption>
+  </figure>
+  
+  <div class="card-body">
+    <div class="card-top">
+      
+      <span class="card-cat">Variados</span>
+    </div>
+    <h3 class="card-nome">ABRACADEIRA 1/2X5/8&#34; MANGOTE</h3>
+    <dl class="card-meta">
+      <div><dt>Cód.</dt><dd>009996</dd></div>
+      
+      
+      
+    </dl>
+    
+  </div>
+  <div class="card-foot">
+    <span class="card-preco consulte">
+      Consulte o preço
+    </span>
+    
+    <a class="btn btn-wa js-pedir" href="https://wa.me/5588997270713?text=Ol%C3%A1%21%20Quero%20consultar%20a%20pe%C3%A7a%3A%20ABRACADEIRA%201/2X5/8%22%20MANGOTE%20%28c%C3%B3d.%20009996%29" target="_blank" rel="noopener"
+       data-codigo="009996" data-desc="ABRACADEIRA 1/2X5/8&#34; MANGOTE" data-preco="">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 0 1-13.5 7.8L3 21l1.3-4.4A9 9 0 1 1 21 12z"/></svg>
+      Pedir no WhatsApp
+    </a>
+  </div>
+</article><article class="card">
+  
+  <figure class="card-foto">
+    <img src="/fotos/27b0c3ee06fc3357bc61644428935e881b2013db.webp" alt="ABRACADEIRA 108X127 14MM" loading="lazy" decoding="async" width="400" height="400">
+    <figcaption>Imagem ilustrativa</figcaption>
+  </figure>
+  
+  <div class="card-body">
+    <div class="card-top">
+      
+      <span class="card-cat">Variados</span>
+    </div>
+    <h3 class="card-nome">ABRACADEIRA 108X127 14MM</h3>
+    <dl class="card-meta">
+      <div><dt>Cód.</dt><dd>010003</dd></div>
+      
+      
+      
+    </dl>
+    
+  </div>
+  <div class="card-foot">
+    <span class="card-preco consulte">
+      Consulte o preço
+    </span>
+    
+    <a class="btn btn-wa js-pedir" href="https://wa.me/5588997270713?text=Ol%C3%A1%21%20Quero%20consultar%20a%20pe%C3%A7a%3A%20ABRACADEIRA%20108X127%2014MM%20%28c%C3%B3d.%20010003%29" target="_blank" rel="noopener"
+       data-codigo="010003" data-desc="ABRACADEIRA 108X127 14MM" data-preco="">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 0 1-13.5 7.8L3 21l1.3-4.4A9 9 0 1 1 21 12z"/></svg>
+      Pedir no WhatsApp
+    </a>
+  </div>
+</article><article class="card">
+  
+  <figure class="card-foto">
+    <img src="/fotos/003f2aee1c4cfc7d814c2f5788debecd5615db65.webp" alt="ABRACADEIRA 12MM" loading="lazy" decoding="async" width="400" height="400">
+    <figcaption>Imagem ilustrativa</figcaption>
+  </figure>
+  
+  <div class="card-body">
+    <div class="card-top">
+      
+      <span class="card-cat">Variados</span>
+    </div>
+    <h3 class="card-nome">ABRACADEIRA 12MM</h3>
+    <dl class="card-meta">
+      <div><dt>Cód.</dt><dd>010994</dd></div>
+      
+      
+      
+    </dl>
+    
+  </div>
+  <div class="card-foot">
+    <span class="card-preco consulte">
+      Consulte o preço
+    </span>
+    
+    <a class="btn btn-wa js-pedir" href="https://wa.me/5588997270713?text=Ol%C3%A1%21%20Quero%20consultar%20a%20pe%C3%A7a%3A%20ABRACADEIRA%2012MM%20%28c%C3%B3d.%20010994%29" target="_blank" rel="noopener"
+       data-codigo="010994" data-desc="ABRACADEIRA 12MM" data-preco="">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 0 1-13.5 7.8L3 21l1.3-4.4A9 9 0 1 1 21 12z"/></svg>
+      Pedir no WhatsApp
+    </a>
+  </div>
+</article><article class="card">
+  
+  <figure class="card-foto">
+    <img src="/fotos/d013aec1ca470c6f645fbef9ce8f846d46d70e91.webp" alt="ABRACADEIRA 13X19 12.5MM" loading="lazy" decoding="async" width="400" height="400">
+    <figcaption>Imagem ilustrativa</figcaption>
+  </figure>
+  
+  <div class="card-body">
+    <div class="card-top">
+      
+      <span class="card-cat">Variados</span>
+    </div>
+    <h3 class="card-nome">ABRACADEIRA 13X19 12.5MM</h3>
+    <dl class="card-meta">
+      <div><dt>Cód.</dt><dd>023023</dd></div>
+      
+      
+      
+    </dl>
+    
+  </div>
+  <div class="card-foot">
+    <span class="card-preco consulte">
+      Consulte o preço
+    </span>
+    
+    <a class="btn btn-wa js-pedir" href="https://wa.me/5588997270713?text=Ol%C3%A1%21%20Quero%20consultar%20a%20pe%C3%A7a%3A%20ABRACADEIRA%2013X19%2012.5MM%20%28c%C3%B3d.%20023023%29" target="_blank" rel="noopener"
+       data-codigo="023023" data-desc="ABRACADEIRA 13X19 12.5MM" data-preco="">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 0 1-13.5 7.8L3 21l1.3-4.4A9 9 0 1 1 21 12z"/></svg>
+      Pedir no WhatsApp
+    </a>
+  </div>
+</article><article class="card">
+  
+  <figure class="card-foto">
+    <img src="/fotos/b6ca3c680bf7c95e3ecf59fb4c648cf47006add3.webp" alt="ABRACADEIRA 15/8" loading="lazy" decoding="async" width="400" height="400">
+    <figcaption>Imagem ilustrativa</figcaption>
+  </figure>
+  
+  <div class="card-body">
+    <div class="card-top">
+      
+      <span class="card-cat">Variados</span>
+    </div>
+    <h3 class="card-nome">ABRACADEIRA 15/8</h3>
+    <dl class="card-meta">
+      <div><dt>Cód.</dt><dd>008091</dd></div>
+      
+      
+      
+    </dl>
+    
+  </div>
+  <div class="card-foot">
+    <span class="card-preco consulte">
+      Consulte o preço
+    </span>
+    
+    <a class="btn btn-wa js-pedir" href="https://wa.me/5588997270713?text=Ol%C3%A1%21%20Quero%20consultar%20a%20pe%C3%A7a%3A%20ABRACADEIRA%2015/8%20%28c%C3%B3d.%20008091%29" target="_blank" rel="noopener"
+       data-codigo="008091" data-desc="ABRACADEIRA 15/8" data-preco="">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 0 1-13.5 7.8L3 21l1.3-4.4A9 9 0 1 1 21 12z"/></svg>
+      Pedir no WhatsApp
+    </a>
+  </div>
+</article><article class="card">
+  
+  <figure class="card-foto">
+    <img src="/fotos/b08938deb6bf8837801e2c2768e17e5f6682ac95.webp" alt="ABRACADEIRA 2" loading="lazy" decoding="async" width="400" height="400">
+    <figcaption>Imagem ilustrativa</figcaption>
+  </figure>
+  
+  <div class="card-body">
+    <div class="card-top">
+      
+      <span class="card-cat">Variados</span>
+    </div>
+    <h3 class="card-nome">ABRACADEIRA 2</h3>
+    <dl class="card-meta">
+      <div><dt>Cód.</dt><dd>008094</dd></div>
+      
+      
+      
+    </dl>
+    
+  </div>
+  <div class="card-foot">
+    <span class="card-preco consulte">
+      Consulte o preço
+    </span>
+    
+    <a class="btn btn-wa js-pedir" href="https://wa.me/5588997270713?text=Ol%C3%A1%21%20Quero%20consultar%20a%20pe%C3%A7a%3A%20ABRACADEIRA%202%20%28c%C3%B3d.%20008094%29" target="_blank" rel="noopener"
+       data-codigo="008094" data-desc="ABRACADEIRA 2" data-preco="">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 0 1-13.5 7.8L3 21l1.3-4.4A9 9 0 1 1 21 12z"/></svg>
+      Pedir no WhatsApp
+    </a>
+  </div>
+</article><article class="card">
+  
+  <figure class="card-foto">
+    <img src="/fotos/b6ca3c680bf7c95e3ecf59fb4c648cf47006add3.webp" alt="ABRACADEIRA 2.1/2" loading="lazy" decoding="async" width="400" height="400">
+    <figcaption>Imagem ilustrativa</figcaption>
+  </figure>
+  
+  <div class="card-body">
+    <div class="card-top">
+      
+      <span class="card-cat">Variados</span>
+    </div>
+    <h3 class="card-nome">ABRACADEIRA 2.1/2</h3>
+    <dl class="card-meta">
+      <div><dt>Cód.</dt><dd>008097</dd></div>
+      
+      
+      
+    </dl>
+    
+  </div>
+  <div class="card-foot">
+    <span class="card-preco consulte">
+      Consulte o preço
+    </span>
+    
+    <a class="btn btn-wa js-pedir" href="https://wa.me/5588997270713?text=Ol%C3%A1%21%20Quero%20consultar%20a%20pe%C3%A7a%3A%20ABRACADEIRA%202.1/2%20%28c%C3%B3d.%20008097%29" target="_blank" rel="noopener"
+       data-codigo="008097" data-desc="ABRACADEIRA 2.1/2" data-preco="">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 0 1-13.5 7.8L3 21l1.3-4.4A9 9 0 1 1 21 12z"/></svg>
+      Pedir no WhatsApp
+    </a>
+  </div>
+</article><article class="card">
+  
+  <figure class="card-foto">
+    <img src="/fotos/39f46ec62f73b5a43db1325bf7921d7d379f766b.webp" alt="ABRACADEIRA 2.1/4" loading="lazy" decoding="async" width="400" height="400">
+    <figcaption>Imagem ilustrativa</figcaption>
+  </figure>
+  
+  <div class="card-body">
+    <div class="card-top">
+      
+      <span class="card-cat">Variados</span>
+    </div>
+    <h3 class="card-nome">ABRACADEIRA 2.1/4</h3>
+    <dl class="card-meta">
+      <div><dt>Códigos</dt><dd>008089 · 008096</dd></div>
+      
+      
+      
+    </dl>
+    
+  </div>
+  <div class="card-foot">
+    <span class="card-preco consulte">
+      Consulte o preço
+    </span>
+    
+    <a class="btn btn-wa js-pedir" href="https://wa.me/5588997270713?text=Ol%C3%A1%21%20Quero%20consultar%20a%20pe%C3%A7a%3A%20ABRACADEIRA%202.1/4%20%28c%C3%B3d.%20008089%2C%20008096%29" target="_blank" rel="noopener"
+       data-codigo="008089, 008096" data-desc="ABRACADEIRA 2.1/4" data-preco="">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 0 1-13.5 7.8L3 21l1.3-4.4A9 9 0 1 1 21 12z"/></svg>
+      Pedir no WhatsApp
+    </a>
+  </div>
+</article><article class="card">
+  
+  <figure class="card-foto">
+    <img src="/fotos/d5f9fc217211d27a5722354f4a105c2040d21f38.webp" alt="ABRACADEIRA 2.1/8" loading="lazy" decoding="async" width="400" height="400">
+    <figcaption>Imagem ilustrativa</figcaption>
+  </figure>
+  
+  <div class="card-body">
+    <div class="card-top">
+      
+      <span class="card-cat">Variados</span>
+    </div>
+    <h3 class="card-nome">ABRACADEIRA 2.1/8</h3>
+    <dl class="card-meta">
+      <div><dt>Cód.</dt><dd>008095</dd></div>
+      
+      
+      
+    </dl>
+    
+  </div>
+  <div class="card-foot">
+    <span class="card-preco consulte">
+      Consulte o preço
+    </span>
+    
+    <a class="btn btn-wa js-pedir" href="https://wa.me/5588997270713?text=Ol%C3%A1%21%20Quero%20consultar%20a%20pe%C3%A7a%3A%20ABRACADEIRA%202.1/8%20%28c%C3%B3d.%20008095%29" target="_blank" rel="noopener"
+       data-codigo="008095" data-desc="ABRACADEIRA 2.1/8" data-preco="">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 0 1-13.5 7.8L3 21l1.3-4.4A9 9 0 1 1 21 12z"/></svg>
+      Pedir no WhatsApp
+    </a>
+  </div>
+</article><article class="card">
+  
+  <figure class="card-foto">
+    <img src="/fotos/b6ca3c680bf7c95e3ecf59fb4c648cf47006add3.webp" alt="ABRACADEIRA 2.3/4" loading="lazy" decoding="async" width="400" height="400">
+    <figcaption>Imagem ilustrativa</figcaption>
+  </figure>
+  
+  <div class="card-body">
+    <div class="card-top">
+      
+      <span class="card-cat">Variados</span>
+    </div>
+    <h3 class="card-nome">ABRACADEIRA 2.3/4</h3>
+    <dl class="card-meta">
+      <div><dt>Cód.</dt><dd>008099</dd></div>
+      
+      
+      
+    </dl>
+    
+  </div>
+  <div class="card-foot">
+    <span class="card-preco consulte">
+      Consulte o preço
+    </span>
+    
+    <a class="btn btn-wa js-pedir" href="https://wa.me/5588997270713?text=Ol%C3%A1%21%20Quero%20consultar%20a%20pe%C3%A7a%3A%20ABRACADEIRA%202.3/4%20%28c%C3%B3d.%20008099%29" target="_blank" rel="noopener"
+       data-codigo="008099" data-desc="ABRACADEIRA 2.3/4" data-preco="">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 0 1-13.5 7.8L3 21l1.3-4.4A9 9 0 1 1 21 12z"/></svg>
+      Pedir no WhatsApp
+    </a>
+  </div>
+</article><article class="card">
+  
+  <figure class="card-foto">
+    <img src="/fotos/84414bfcdee16f9bbccf1470ec00836cd12067ac.webp" alt="ABRACADEIRA 2.5/8" loading="lazy" decoding="async" width="400" height="400">
+    <figcaption>Imagem ilustrativa</figcaption>
+  </figure>
+  
+  <div class="card-body">
+    <div class="card-top">
+      
+      <span class="card-cat">Variados</span>
+    </div>
+    <h3 class="card-nome">ABRACADEIRA 2.5/8</h3>
+    <dl class="card-meta">
+      <div><dt>Cód.</dt><dd>008098</dd></div>
+      
+      
+      
+    </dl>
+    
+  </div>
+  <div class="card-foot">
+    <span class="card-preco consulte">
+      Consulte o preço
+    </span>
+    
+    <a class="btn btn-wa js-pedir" href="https://wa.me/5588997270713?text=Ol%C3%A1%21%20Quero%20consultar%20a%20pe%C3%A7a%3A%20ABRACADEIRA%202.5/8%20%28c%C3%B3d.%20008098%29" target="_blank" rel="noopener"
+       data-codigo="008098" data-desc="ABRACADEIRA 2.5/8" data-preco="">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 0 1-13.5 7.8L3 21l1.3-4.4A9 9 0 1 1 21 12z"/></svg>
+      Pedir no WhatsApp
+    </a>
+  </div>
+</article><article class="card">
+  
+  <figure class="card-foto">
+    <img src="/fotos/742d7105b68c6cdee0bd373e9d0a0ea4cbb57977.webp" alt="ABRACADEIRA 22X32 9MM" loading="lazy" decoding="async" width="400" height="400">
+    <figcaption>Imagem ilustrativa</figcaption>
+  </figure>
+  
+  <div class="card-body">
+    <div class="card-top">
+      
+      <span class="card-cat">Variados</span>
+    </div>
+    <h3 class="card-nome">ABRACADEIRA 22X32 9MM</h3>
+    <dl class="card-meta">
+      <div><dt>Cód.</dt><dd>009997</dd></div>
+      
+      
+      
+    </dl>
+    
+  </div>
+  <div class="card-foot">
+    <span class="card-preco consulte">
+      Consulte o preço
+    </span>
+    
+    <a class="btn btn-wa js-pedir" href="https://wa.me/5588997270713?text=Ol%C3%A1%21%20Quero%20consultar%20a%20pe%C3%A7a%3A%20ABRACADEIRA%2022X32%209MM%20%28c%C3%B3d.%20009997%29" target="_blank" rel="noopener"
+       data-codigo="009997" data-desc="ABRACADEIRA 22X32 9MM" data-preco="">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 0 1-13.5 7.8L3 21l1.3-4.4A9 9 0 1 1 21 12z"/></svg>
+      Pedir no WhatsApp
+    </a>
+  </div>
+</article><article class="card">
+  
+  <figure class="card-foto">
+    <img src="/fotos/b6ca3c680bf7c95e3ecf59fb4c648cf47006add3.webp" alt="ABRACADEIRA 3" loading="lazy" decoding="async" width="400" height="400">
+    <figcaption>Imagem ilustrativa</figcaption>
+  </figure>
+  
+  <div class="card-body">
+    <div class="card-top">
+      
+      <span class="card-cat">Variados</span>
+    </div>
+    <h3 class="card-nome">ABRACADEIRA 3</h3>
+    <dl class="card-meta">
+      <div><dt>Cód.</dt><dd>008100</dd></div>
+      
+      
+      
+    </dl>
+    
+  </div>
+  <div class="card-foot">
+    <span class="card-preco consulte">
+      Consulte o preço
+    </span>
+    
+    <a class="btn btn-wa js-pedir" href="https://wa.me/5588997270713?text=Ol%C3%A1%21%20Quero%20consultar%20a%20pe%C3%A7a%3A%20ABRACADEIRA%203%20%28c%C3%B3d.%20008100%29" target="_blank" rel="noopener"
+       data-codigo="008100" data-desc="ABRACADEIRA 3" data-preco="">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 0 1-13.5 7.8L3 21l1.3-4.4A9 9 0 1 1 21 12z"/></svg>
+      Pedir no WhatsApp
+    </a>
+  </div>
+</article><article class="card">
+  
+  <figure class="card-foto">
+    <img src="/fotos/b6ca3c680bf7c95e3ecf59fb4c648cf47006add3.webp" alt="ABRACADEIRA 3/4X102X320 CARGO 1313 A 2218 DT" loading="lazy" decoding="async" width="400" height="400">
+    <figcaption>Imagem ilustrativa</figcaption>
+  </figure>
+  
+  <div class="card-body">
+    <div class="card-top">
+      
+      <span class="card-cat">Variados</span>
+    </div>
+    <h3 class="card-nome">ABRACADEIRA 3/4X102X320 CARGO 1313 A 2218 DT</h3>
+    <dl class="card-meta">
+      <div><dt>Cód.</dt><dd>022832</dd></div>
+      
+      
+      
+    </dl>
+    
+  </div>
+  <div class="card-foot">
+    <span class="card-preco consulte">
+      Consulte o preço
+    </span>
+    
+    <a class="btn btn-wa js-pedir" href="https://wa.me/5588997270713?text=Ol%C3%A1%21%20Quero%20consultar%20a%20pe%C3%A7a%3A%20ABRACADEIRA%203/4X102X320%20CARGO%201313%20A%202218%20DT%20%28c%C3%B3d.%20022832%29" target="_blank" rel="noopener"
+       data-codigo="022832" data-desc="ABRACADEIRA 3/4X102X320 CARGO 1313 A 2218 DT" data-preco="">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 0 1-13.5 7.8L3 21l1.3-4.4A9 9 0 1 1 21 12z"/></svg>
+      Pedir no WhatsApp
+    </a>
+  </div>
+</article><article class="card">
+  
+  <figure class="card-foto">
+    <img src="/fotos/6c6b00687b8bc79b2fb53e60c8d30ae41fe49cfe.webp" alt="ABRACADEIRA 32X44 14MM" loading="lazy" decoding="async" width="400" height="400">
+    <figcaption>Imagem ilustrativa</figcaption>
+  </figure>
+  
+  <div class="card-body">
+    <div class="card-top">
+      
+      <span class="card-cat">Variados</span>
+    </div>
+    <h3 class="card-nome">ABRACADEIRA 32X44 14MM</h3>
+    <dl class="card-meta">
+      <div><dt>Cód.</dt><dd>009998</dd></div>
+      
+      
+      
+    </dl>
+    
+  </div>
+  <div class="card-foot">
+    <span class="card-preco consulte">
+      Consulte o preço
+    </span>
+    
+    <a class="btn btn-wa js-pedir" href="https://wa.me/5588997270713?text=Ol%C3%A1%21%20Quero%20consultar%20a%20pe%C3%A7a%3A%20ABRACADEIRA%2032X44%2014MM%20%28c%C3%B3d.%20009998%29" target="_blank" rel="noopener"
+       data-codigo="009998" data-desc="ABRACADEIRA 32X44 14MM" data-preco="">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 0 1-13.5 7.8L3 21l1.3-4.4A9 9 0 1 1 21 12z"/></svg>
+      Pedir no WhatsApp
+    </a>
+  </div>
+</article><article class="card">
+  
+  <figure class="card-foto">
+    <img src="/fotos/e4c9c705d60a42cf1f325f5bfab8558667a8922b.webp" alt="ABRACADEIRA 44X57 14MM" loading="lazy" decoding="async" width="400" height="400">
+    <figcaption>Imagem ilustrativa</figcaption>
+  </figure>
+  
+  <div class="card-body">
+    <div class="card-top">
+      
+      <span class="card-cat">Variados</span>
+    </div>
+    <h3 class="card-nome">ABRACADEIRA 44X57 14MM</h3>
+    <dl class="card-meta">
+      <div><dt>Cód.</dt><dd>009999</dd></div>
+      
+      
+      
+    </dl>
+    
+  </div>
+  <div class="card-foot">
+    <span class="card-preco consulte">
+      Consulte o preço
+    </span>
+    
+    <a class="btn btn-wa js-pedir" href="https://wa.me/5588997270713?text=Ol%C3%A1%21%20Quero%20consultar%20a%20pe%C3%A7a%3A%20ABRACADEIRA%2044X57%2014MM%20%28c%C3%B3d.%20009999%29" target="_blank" rel="noopener"
+       data-codigo="009999" data-desc="ABRACADEIRA 44X57 14MM" data-preco="">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 0 1-13.5 7.8L3 21l1.3-4.4A9 9 0 1 1 21 12z"/></svg>
+      Pedir no WhatsApp
+    </a>
+  </div>
+</article><article class="card">
+  
+  <figure class="card-foto">
+    <img src="/fotos/b6ca3c680bf7c95e3ecf59fb4c648cf47006add3.webp" alt="ABRACADEIRA 70X89 14MM" loading="lazy" decoding="async" width="400" height="400">
+    <figcaption>Imagem ilustrativa</figcaption>
+  </figure>
+  
+  <div class="card-body">
+    <div class="card-top">
+      
+      <span class="card-cat">Variados</span>
+    </div>
+    <h3 class="card-nome">ABRACADEIRA 70X89 14MM</h3>
+    <dl class="card-meta">
+      <div><dt>Cód.</dt><dd>010000</dd></div>
+      
+      
+      
+    </dl>
+    
+  </div>
+  <div class="card-foot">
+    <span class="card-preco consulte">
+      Consulte o preço
+    </span>
+    
+    <a class="btn btn-wa js-pedir" href="https://wa.me/5588997270713?text=Ol%C3%A1%21%20Quero%20consultar%20a%20pe%C3%A7a%3A%20ABRACADEIRA%2070X89%2014MM%20%28c%C3%B3d.%20010000%29" target="_blank" rel="noopener"
+       data-codigo="010000" data-desc="ABRACADEIRA 70X89 14MM" data-preco="">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 0 1-13.5 7.8L3 21l1.3-4.4A9 9 0 1 1 21 12z"/></svg>
+      Pedir no WhatsApp
+    </a>
+  </div>
+</article><article class="card">
+  
+  <figure class="card-foto">
+    <img src="/fotos/f9f7b92d52718513552197e453f80e51831acf7a.webp" alt="ABRACADEIRA 76X95 14MM" loading="lazy" decoding="async" width="400" height="400">
+    <figcaption>Imagem ilustrativa</figcaption>
+  </figure>
+  
+  <div class="card-body">
+    <div class="card-top">
+      
+      <span class="card-cat">Variados</span>
+    </div>
+    <h3 class="card-nome">ABRACADEIRA 76X95 14MM</h3>
+    <dl class="card-meta">
+      <div><dt>Cód.</dt><dd>010001</dd></div>
+      
+      
+      
+    </dl>
+    
+  </div>
+  <div class="card-foot">
+    <span class="card-preco consulte">
+      Consulte o preço
+    </span>
+    
+    <a class="btn btn-wa js-pedir" href="https://wa.me/5588997270713?text=Ol%C3%A1%21%20Quero%20consultar%20a%20pe%C3%A7a%3A%20ABRACADEIRA%2076X95%2014MM%20%28c%C3%B3d.%20010001%29" target="_blank" rel="noopener"
+       data-codigo="010001" data-desc="ABRACADEIRA 76X95 14MM" data-preco="">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 0 1-13.5 7.8L3 21l1.3-4.4A9 9 0 1 1 21 12z"/></svg>
+      Pedir no WhatsApp
+    </a>
+  </div>
+</article><article class="card">
+  
+  <figure class="card-foto">
+    <img src="/fotos/90e23ee1d3c0091fdc8151d7ba1d594a29cde418.webp" alt="ABRACADEIRA 83X102 14MM" loading="lazy" decoding="async" width="400" height="400">
+    <figcaption>Imagem ilustrativa</figcaption>
+  </figure>
+  
+  <div class="card-body">
+    <div class="card-top">
+      
+      <span class="card-cat">Variados</span>
+    </div>
+    <h3 class="card-nome">ABRACADEIRA 83X102 14MM</h3>
+    <dl class="card-meta">
+      <div><dt>Cód.</dt><dd>010002</dd></div>
+      
+      
+      
+    </dl>
+    
+  </div>
+  <div class="card-foot">
+    <span class="card-preco consulte">
+      Consulte o preço
+    </span>
+    
+    <a class="btn btn-wa js-pedir" href="https://wa.me/5588997270713?text=Ol%C3%A1%21%20Quero%20consultar%20a%20pe%C3%A7a%3A%20ABRACADEIRA%2083X102%2014MM%20%28c%C3%B3d.%20010002%29" target="_blank" rel="noopener"
+       data-codigo="010002" data-desc="ABRACADEIRA 83X102 14MM" data-preco="">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 0 1-13.5 7.8L3 21l1.3-4.4A9 9 0 1 1 21 12z"/></svg>
+      Pedir no WhatsApp
+    </a>
+  </div>
+</article><article class="card">
+  
+  <figure class="card-foto">
+    <img src="/fotos/bb9fa54829bab14d605a559585a7f680a90de715.webp" alt="ABRACADEIRA 9-13MM" loading="lazy" decoding="async" width="400" height="400">
+    <figcaption>Imagem ilustrativa</figcaption>
+  </figure>
+  
+  <div class="card-body">
+    <div class="card-top">
+      
+      <span class="card-cat">Variados</span>
+    </div>
+    <h3 class="card-nome">ABRACADEIRA 9-13MM</h3>
+    <dl class="card-meta">
+      <div><dt>Cód.</dt><dd>013139</dd></div>
+      
+      
+      
+    </dl>
+    
+  </div>
+  <div class="card-foot">
+    <span class="card-preco consulte">
+      Consulte o preço
+    </span>
+    
+    <a class="btn btn-wa js-pedir" href="https://wa.me/5588997270713?text=Ol%C3%A1%21%20Quero%20consultar%20a%20pe%C3%A7a%3A%20ABRACADEIRA%209-13MM%20%28c%C3%B3d.%20013139%29" target="_blank" rel="noopener"
+       data-codigo="013139" data-desc="ABRACADEIRA 9-13MM" data-preco="">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 0 1-13.5 7.8L3 21l1.3-4.4A9 9 0 1 1 21 12z"/></svg>
+      Pedir no WhatsApp
+    </a>
+  </div>
+</article><article class="card">
+  
+  <figure class="card-foto">
+    <img src="/fotos/9bd5fe3d2eaa794bd0a88c53c16d74d9fe0e544b.webp" alt="ABRACADEIRA 9MM 76X95" loading="lazy" decoding="async" width="400" height="400">
+    <figcaption>Imagem ilustrativa</figcaption>
+  </figure>
+  
+  <div class="card-body">
+    <div class="card-top">
+      
+      <span class="card-cat">Variados</span>
+    </div>
+    <h3 class="card-nome">ABRACADEIRA 9MM 76X95</h3>
+    <dl class="card-meta">
+      <div><dt>Cód.</dt><dd>015967</dd></div>
+      
+      
+      
+    </dl>
+    
+  </div>
+  <div class="card-foot">
+    <span class="card-preco consulte">
+      Consulte o preço
+    </span>
+    
+    <a class="btn btn-wa js-pedir" href="https://wa.me/5588997270713?text=Ol%C3%A1%21%20Quero%20consultar%20a%20pe%C3%A7a%3A%20ABRACADEIRA%209MM%2076X95%20%28c%C3%B3d.%20015967%29" target="_blank" rel="noopener"
+       data-codigo="015967" data-desc="ABRACADEIRA 9MM 76X95" data-preco="">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 0 1-13.5 7.8L3 21l1.3-4.4A9 9 0 1 1 21 12z"/></svg>
+      Pedir no WhatsApp
+    </a>
+  </div>
+</article><article class="card">
+  
+  <figure class="card-foto">
+    <img src="/fotos/b6ca3c680bf7c95e3ecf59fb4c648cf47006add3.webp" alt="ABRACADEIRA CANO HIDR MBB C/4" loading="lazy" decoding="async" width="400" height="400">
+    <figcaption>Imagem ilustrativa</figcaption>
+  </figure>
+  
+  <div class="card-body">
+    <div class="card-top">
+      
+      <span class="card-cat">Variados</span>
+    </div>
+    <h3 class="card-nome">ABRACADEIRA CANO HIDR MBB C/4</h3>
+    <dl class="card-meta">
+      <div><dt>Cód.</dt><dd>024161</dd></div>
+      
+      
+      
+    </dl>
+    
+  </div>
+  <div class="card-foot">
+    <span class="card-preco consulte">
+      Consulte o preço
+    </span>
+    
+    <a class="btn btn-wa js-pedir" href="https://wa.me/5588997270713?text=Ol%C3%A1%21%20Quero%20consultar%20a%20pe%C3%A7a%3A%20ABRACADEIRA%20CANO%20HIDR%20MBB%20C/4%20%28c%C3%B3d.%20024161%29" target="_blank" rel="noopener"
+       data-codigo="024161" data-desc="ABRACADEIRA CANO HIDR MBB C/4" data-preco="">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 0 1-13.5 7.8L3 21l1.3-4.4A9 9 0 1 1 21 12z"/></svg>
+      Pedir no WhatsApp
+    </a>
+  </div>
+</article><article class="card">
+  
+  <figure class="card-foto">
+    <img src="/fotos/af6282b2c0f48f907dfa81e6e7735d69b59efbc3.webp" alt="ABRACADEIRA COTOVELO TRUBINA MBB OM366A" loading="lazy" decoding="async" width="400" height="400">
+    <figcaption>Imagem ilustrativa</figcaption>
+  </figure>
+  
+  <div class="card-body">
+    <div class="card-top">
+      
+      <span class="card-cat">Variados</span>
+    </div>
+    <h3 class="card-nome">ABRACADEIRA COTOVELO TRUBINA MBB OM366A</h3>
+    <dl class="card-meta">
+      <div><dt>Cód.</dt><dd>024176</dd></div>
+      
+      
+      
+    </dl>
+    
+  </div>
+  <div class="card-foot">
+    <span class="card-preco consulte">
+      Consulte o preço
+    </span>
+    
+    <a class="btn btn-wa js-pedir" href="https://wa.me/5588997270713?text=Ol%C3%A1%21%20Quero%20consultar%20a%20pe%C3%A7a%3A%20ABRACADEIRA%20COTOVELO%20TRUBINA%20MBB%20OM366A%20%28c%C3%B3d.%20024176%29" target="_blank" rel="noopener"
+       data-codigo="024176" data-desc="ABRACADEIRA COTOVELO TRUBINA MBB OM366A" data-preco="">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 0 1-13.5 7.8L3 21l1.3-4.4A9 9 0 1 1 21 12z"/></svg>
+      Pedir no WhatsApp
+    </a>
+  </div>
+</article><article class="card">
+  
+  <figure class="card-foto">
+    <img src="/fotos/a75e1296462e4523155289cf7bd7dad16be6a609.webp" alt="ABRACADEIRA COTOVELO TURBINA MBB 366A" loading="lazy" decoding="async" width="400" height="400">
+    <figcaption>Imagem ilustrativa</figcaption>
+  </figure>
+  
+  <div class="card-body">
+    <div class="card-top">
+      
+      <span class="card-cat">Variados</span>
+    </div>
+    <h3 class="card-nome">ABRACADEIRA COTOVELO TURBINA MBB 366A</h3>
+    <dl class="card-meta">
+      <div><dt>Cód.</dt><dd>024177</dd></div>
+      
+      
+      
+    </dl>
+    
+  </div>
+  <div class="card-foot">
+    <span class="card-preco consulte">
+      Consulte o preço
+    </span>
+    
+    <a class="btn btn-wa js-pedir" href="https://wa.me/5588997270713?text=Ol%C3%A1%21%20Quero%20consultar%20a%20pe%C3%A7a%3A%20ABRACADEIRA%20COTOVELO%20TURBINA%20MBB%20366A%20%28c%C3%B3d.%20024177%29" target="_blank" rel="noopener"
+       data-codigo="024177" data-desc="ABRACADEIRA COTOVELO TURBINA MBB 366A" data-preco="">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 0 1-13.5 7.8L3 21l1.3-4.4A9 9 0 1 1 21 12z"/></svg>
+      Pedir no WhatsApp
+    </a>
+  </div>
+</article><article class="card">
+  
+  <figure class="card-foto">
+    <img src="/fotos/e21e3a52971de78a2de2b30084fdb1ae09cff55a.webp" alt="ABRACADEIRA CRUZ C/ABA CARGO 3224/354" loading="lazy" decoding="async" width="400" height="400">
+    <figcaption>Imagem ilustrativa</figcaption>
+  </figure>
+  
+  <div class="card-body">
+    <div class="card-top">
+      
+      <span class="card-cat">Variados</span>
+    </div>
+    <h3 class="card-nome">ABRACADEIRA CRUZ C/ABA CARGO 3224/354</h3>
+    <dl class="card-meta">
+      <div><dt>Cód.</dt><dd>024422</dd></div>
+      
+      
+      
+    </dl>
+    
+  </div>
+  <div class="card-foot">
+    <span class="card-preco consulte">
+      Consulte o preço
+    </span>
+    
+    <a class="btn btn-wa js-pedir" href="https://wa.me/5588997270713?text=Ol%C3%A1%21%20Quero%20consultar%20a%20pe%C3%A7a%3A%20ABRACADEIRA%20CRUZ%20C/ABA%20CARGO%203224/354%20%28c%C3%B3d.%20024422%29" target="_blank" rel="noopener"
+       data-codigo="024422" data-desc="ABRACADEIRA CRUZ C/ABA CARGO 3224/354" data-preco="">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 0 1-13.5 7.8L3 21l1.3-4.4A9 9 0 1 1 21 12z"/></svg>
+      Pedir no WhatsApp
+    </a>
+  </div>
+</article><article class="card">
+  
+  <figure class="card-foto">
+    <img src="/fotos/5efd5e0ca9859c9112d7772d473de31d92391837.webp" alt="ABRACADEIRA CRUZ C/ABA MBB 1418/1620" loading="lazy" decoding="async" width="400" height="400">
+    <figcaption>Imagem ilustrativa</figcaption>
+  </figure>
+  
+  <div class="card-body">
+    <div class="card-top">
+      
+      <span class="card-cat">Variados</span>
+    </div>
+    <h3 class="card-nome">ABRACADEIRA CRUZ C/ABA MBB 1418/1620</h3>
+    <dl class="card-meta">
+      <div><dt>Cód.</dt><dd>024423</dd></div>
+      
+      
+      
+    </dl>
+    
+  </div>
+  <div class="card-foot">
+    <span class="card-preco consulte">
+      Consulte o preço
+    </span>
+    
+    <a class="btn btn-wa js-pedir" href="https://wa.me/5588997270713?text=Ol%C3%A1%21%20Quero%20consultar%20a%20pe%C3%A7a%3A%20ABRACADEIRA%20CRUZ%20C/ABA%20MBB%201418/1620%20%28c%C3%B3d.%20024423%29" target="_blank" rel="noopener"
+       data-codigo="024423" data-desc="ABRACADEIRA CRUZ C/ABA MBB 1418/1620" data-preco="">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 0 1-13.5 7.8L3 21l1.3-4.4A9 9 0 1 1 21 12z"/></svg>
+      Pedir no WhatsApp
+    </a>
+  </div>
+</article><article class="card">
+  
+  <figure class="card-foto">
+    <img src="/fotos/5efd5e0ca9859c9112d7772d473de31d92391837.webp" alt="ABRACADEIRA CRUZ C/ABA MBB 709/914" loading="lazy" decoding="async" width="400" height="400">
+    <figcaption>Imagem ilustrativa</figcaption>
+  </figure>
+  
+  <div class="card-body">
+    <div class="card-top">
+      
+      <span class="card-cat">Variados</span>
+    </div>
+    <h3 class="card-nome">ABRACADEIRA CRUZ C/ABA MBB 709/914</h3>
+    <dl class="card-meta">
+      <div><dt>Cód.</dt><dd>024425</dd></div>
+      
+      
+      
+    </dl>
+    
+  </div>
+  <div class="card-foot">
+    <span class="card-preco consulte">
+      Consulte o preço
+    </span>
+    
+    <a class="btn btn-wa js-pedir" href="https://wa.me/5588997270713?text=Ol%C3%A1%21%20Quero%20consultar%20a%20pe%C3%A7a%3A%20ABRACADEIRA%20CRUZ%20C/ABA%20MBB%20709/914%20%28c%C3%B3d.%20024425%29" target="_blank" rel="noopener"
+       data-codigo="024425" data-desc="ABRACADEIRA CRUZ C/ABA MBB 709/914" data-preco="">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 0 1-13.5 7.8L3 21l1.3-4.4A9 9 0 1 1 21 12z"/></svg>
+      Pedir no WhatsApp
+    </a>
+  </div>
+</article><article class="card">
+  
+  <figure class="card-foto">
+    <img src="/fotos/686a542ffb2976e9a17dc8d95a8718f1295b26ff.webp" alt="ABRACADEIRA CRUZ C/ABA MBB SPRINTER" loading="lazy" decoding="async" width="400" height="400">
+    <figcaption>Imagem ilustrativa</figcaption>
+  </figure>
+  
+  <div class="card-body">
+    <div class="card-top">
+      
+      <span class="card-cat">Variados</span>
+    </div>
+    <h3 class="card-nome">ABRACADEIRA CRUZ C/ABA MBB SPRINTER</h3>
+    <dl class="card-meta">
+      <div><dt>Cód.</dt><dd>024426</dd></div>
+      
+      
+      
+    </dl>
+    
+  </div>
+  <div class="card-foot">
+    <span class="card-preco consulte">
+      Consulte o preço
+    </span>
+    
+    <a class="btn btn-wa js-pedir" href="https://wa.me/5588997270713?text=Ol%C3%A1%21%20Quero%20consultar%20a%20pe%C3%A7a%3A%20ABRACADEIRA%20CRUZ%20C/ABA%20MBB%20SPRINTER%20%28c%C3%B3d.%20024426%29" target="_blank" rel="noopener"
+       data-codigo="024426" data-desc="ABRACADEIRA CRUZ C/ABA MBB SPRINTER" data-preco="">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 0 1-13.5 7.8L3 21l1.3-4.4A9 9 0 1 1 21 12z"/></svg>
+      Pedir no WhatsApp
+    </a>
+  </div>
+</article><article class="card">
+  
+  <figure class="card-foto">
+    <img src="/fotos/aa7a1dedc313f895415292d8a1403d2071883969.webp" alt="ABRACADEIRA CRUZETA C10/D10 5273X 5121X" loading="lazy" decoding="async" width="400" height="400">
+    <figcaption>Imagem ilustrativa</figcaption>
+  </figure>
+  
+  <div class="card-body">
+    <div class="card-top">
+      
+      <span class="card-cat">Variados</span>
+    </div>
+    <h3 class="card-nome">ABRACADEIRA CRUZETA C10/D10 5273X 5121X</h3>
+    <dl class="card-meta">
+      <div><dt>Cód.</dt><dd>015964</dd></div>
+      
+      
+      
+    </dl>
+    
+  </div>
+  <div class="card-foot">
+    <span class="card-preco consulte">
+      Consulte o preço
+    </span>
+    
+    <a class="btn btn-wa js-pedir" href="https://wa.me/5588997270713?text=Ol%C3%A1%21%20Quero%20consultar%20a%20pe%C3%A7a%3A%20ABRACADEIRA%20CRUZETA%20C10/D10%205273X%205121X%20%28c%C3%B3d.%20015964%29" target="_blank" rel="noopener"
+       data-codigo="015964" data-desc="ABRACADEIRA CRUZETA C10/D10 5273X 5121X" data-preco="">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 0 1-13.5 7.8L3 21l1.3-4.4A9 9 0 1 1 21 12z"/></svg>
+      Pedir no WhatsApp
+    </a>
+  </div>
+</article><article class="card">
+  
+  <figure class="card-foto">
+    <img src="/fotos/ddbcbf3826320fcfcdb0f9ef2594fa3f52b01fe0.webp" alt="ABRACADEIRA CRUZETA D20 TDS/S10/SILVERADO/JEE" loading="lazy" decoding="async" width="400" height="400">
+    <figcaption>Imagem ilustrativa</figcaption>
+  </figure>
+  
+  <div class="card-body">
+    <div class="card-top">
+      
+      <span class="card-cat">Variados</span>
+    </div>
+    <h3 class="card-nome">ABRACADEIRA CRUZETA D20 TDS/S10/SILVERADO/JEE</h3>
+    <dl class="card-meta">
+      <div><dt>Cód.</dt><dd>003365</dd></div>
+      
+      
+      
+    </dl>
+    
+  </div>
+  <div class="card-foot">
+    <span class="card-preco consulte">
+      Consulte o preço
+    </span>
+    
+    <a class="btn btn-wa js-pedir" href="https://wa.me/5588997270713?text=Ol%C3%A1%21%20Quero%20consultar%20a%20pe%C3%A7a%3A%20ABRACADEIRA%20CRUZETA%20D20%20TDS/S10/SILVERADO/JEE%20%28c%C3%B3d.%20003365%29" target="_blank" rel="noopener"
+       data-codigo="003365" data-desc="ABRACADEIRA CRUZETA D20 TDS/S10/SILVERADO/JEE" data-preco="">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 0 1-13.5 7.8L3 21l1.3-4.4A9 9 0 1 1 21 12z"/></svg>
+      Pedir no WhatsApp
+    </a>
+  </div>
+</article><article class="card">
+  
+  <figure class="card-foto">
+    <img src="/fotos/b6ca3c680bf7c95e3ecf59fb4c648cf47006add3.webp" alt="ABRACADEIRA CRUZETA D60/80 F600" loading="lazy" decoding="async" width="400" height="400">
+    <figcaption>Imagem ilustrativa</figcaption>
+  </figure>
+  
+  <div class="card-body">
+    <div class="card-top">
+      
+      <span class="card-cat">Variados</span>
+    </div>
+    <h3 class="card-nome">ABRACADEIRA CRUZETA D60/80 F600</h3>
+    <dl class="card-meta">
+      <div><dt>Cód.</dt><dd>003994</dd></div>
+      
+      
+      
+    </dl>
+    
+  </div>
+  <div class="card-foot">
+    <span class="card-preco consulte">
+      Consulte o preço
+    </span>
+    
+    <a class="btn btn-wa js-pedir" href="https://wa.me/5588997270713?text=Ol%C3%A1%21%20Quero%20consultar%20a%20pe%C3%A7a%3A%20ABRACADEIRA%20CRUZETA%20D60/80%20F600%20%28c%C3%B3d.%20003994%29" target="_blank" rel="noopener"
+       data-codigo="003994" data-desc="ABRACADEIRA CRUZETA D60/80 F600" data-preco="">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 0 1-13.5 7.8L3 21l1.3-4.4A9 9 0 1 1 21 12z"/></svg>
+      Pedir no WhatsApp
+    </a>
+  </div>
+</article><article class="card">
+  
+  <figure class="card-foto">
+    <img src="/fotos/acfba4c787d4564c1c53157371602f8bc245b0d0.webp" alt="ABRACADEIRA DESC 70X80X8MM" loading="lazy" decoding="async" width="400" height="400">
+    <figcaption>Imagem ilustrativa</figcaption>
+  </figure>
+  
+  <div class="card-body">
+    <div class="card-top">
+      
+      <span class="card-cat">Variados</span>
+    </div>
+    <h3 class="card-nome">ABRACADEIRA DESC 70X80X8MM</h3>
+    <dl class="card-meta">
+      <div><dt>Cód.</dt><dd>024331</dd></div>
+      
+      
+      
+    </dl>
+    
+  </div>
+  <div class="card-foot">
+    <span class="card-preco consulte">
+      Consulte o preço
+    </span>
+    
+    <a class="btn btn-wa js-pedir" href="https://wa.me/5588997270713?text=Ol%C3%A1%21%20Quero%20consultar%20a%20pe%C3%A7a%3A%20ABRACADEIRA%20DESC%2070X80X8MM%20%28c%C3%B3d.%20024331%29" target="_blank" rel="noopener"
+       data-codigo="024331" data-desc="ABRACADEIRA DESC 70X80X8MM" data-preco="">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 0 1-13.5 7.8L3 21l1.3-4.4A9 9 0 1 1 21 12z"/></svg>
+      Pedir no WhatsApp
+    </a>
+  </div>
+</article><article class="card">
+  
+  <figure class="card-foto">
+    <img src="/fotos/756aeb7f550b89361b0711d3a768c13bfccbea8e.webp" alt="ABRACADEIRA ESCAPAMENTO 2.1/8 POLEG" loading="lazy" decoding="async" width="400" height="400">
+    <figcaption>Imagem ilustrativa</figcaption>
+  </figure>
+  
+  <div class="card-body">
+    <div class="card-top">
+      
+      <span class="card-cat">Variados</span>
+    </div>
+    <h3 class="card-nome">ABRACADEIRA ESCAPAMENTO 2.1/8 POLEG</h3>
+    <dl class="card-meta">
+      <div><dt>Cód.</dt><dd>006071</dd></div>
+      
+      
+      
+    </dl>
+    
+  </div>
+  <div class="card-foot">
+    <span class="card-preco consulte">
+      Consulte o preço
+    </span>
+    
+    <a class="btn btn-wa js-pedir" href="https://wa.me/5588997270713?text=Ol%C3%A1%21%20Quero%20consultar%20a%20pe%C3%A7a%3A%20ABRACADEIRA%20ESCAPAMENTO%202.1/8%20POLEG%20%28c%C3%B3d.%20006071%29" target="_blank" rel="noopener"
+       data-codigo="006071" data-desc="ABRACADEIRA ESCAPAMENTO 2.1/8 POLEG" data-preco="">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 0 1-13.5 7.8L3 21l1.3-4.4A9 9 0 1 1 21 12z"/></svg>
+      Pedir no WhatsApp
+    </a>
+  </div>
+</article><article class="card">
+  
+  <figure class="card-foto">
+    <img src="/fotos/b6ca3c680bf7c95e3ecf59fb4c648cf47006add3.webp" alt="ABRACADEIRA ESCAPAMENTO 3/4 PROGERAL" loading="lazy" decoding="async" width="400" height="400">
+    <figcaption>Imagem ilustrativa</figcaption>
+  </figure>
+  
+  <div class="card-body">
+    <div class="card-top">
+      
+      <span class="card-cat">Variados</span>
+    </div>
+    <h3 class="card-nome">ABRACADEIRA ESCAPAMENTO 3/4 PROGERAL</h3>
+    <dl class="card-meta">
+      <div><dt>Cód.</dt><dd>004177</dd></div>
+      
+      
+      
+    </dl>
+    
+  </div>
+  <div class="card-foot">
+    <span class="card-preco consulte">
+      Consulte o preço
+    </span>
+    
+    <a class="btn btn-wa js-pedir" href="https://wa.me/5588997270713?text=Ol%C3%A1%21%20Quero%20consultar%20a%20pe%C3%A7a%3A%20ABRACADEIRA%20ESCAPAMENTO%203/4%20PROGERAL%20%28c%C3%B3d.%20004177%29" target="_blank" rel="noopener"
+       data-codigo="004177" data-desc="ABRACADEIRA ESCAPAMENTO 3/4 PROGERAL" data-preco="">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 0 1-13.5 7.8L3 21l1.3-4.4A9 9 0 1 1 21 12z"/></svg>
+      Pedir no WhatsApp
+    </a>
+  </div>
+</article><article class="card">
+  
+  <figure class="card-foto">
+    <img src="/fotos/dd269a1e308323f5eeb1039a6421dd4d2eb122dd.webp" alt="ABRACADEIRA ESCAPAMENTO 44MM 1.3/4" loading="lazy" decoding="async" width="400" height="400">
+    <figcaption>Imagem ilustrativa</figcaption>
+  </figure>
+  
+  <div class="card-body">
+    <div class="card-top">
+      
+      <span class="card-cat">Variados</span>
+    </div>
+    <h3 class="card-nome">ABRACADEIRA ESCAPAMENTO 44MM 1.3/4</h3>
+    <dl class="card-meta">
+      <div><dt>Cód.</dt><dd>017193</dd></div>
+      
+      
+      
+    </dl>
+    
+  </div>
+  <div class="card-foot">
+    <span class="card-preco consulte">
+      Consulte o preço
+    </span>
+    
+    <a class="btn btn-wa js-pedir" href="https://wa.me/5588997270713?text=Ol%C3%A1%21%20Quero%20consultar%20a%20pe%C3%A7a%3A%20ABRACADEIRA%20ESCAPAMENTO%2044MM%201.3/4%20%28c%C3%B3d.%20017193%29" target="_blank" rel="noopener"
+       data-codigo="017193" data-desc="ABRACADEIRA ESCAPAMENTO 44MM 1.3/4" data-preco="">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 0 1-13.5 7.8L3 21l1.3-4.4A9 9 0 1 1 21 12z"/></svg>
+      Pedir no WhatsApp
+    </a>
+  </div>
+</article><article class="card">
+  
+  <figure class="card-foto">
+    <img src="/fotos/492ca67f00d52d99183008ebd56d3ecdbc7fe633.webp" alt="ABRACADEIRA ESCAPAMENTO 48MM" loading="lazy" decoding="async" width="400" height="400">
+    <figcaption>Imagem ilustrativa</figcaption>
+  </figure>
+  
+  <div class="card-body">
+    <div class="card-top">
+      
+      <span class="card-cat">Variados</span>
+    </div>
+    <h3 class="card-nome">ABRACADEIRA ESCAPAMENTO 48MM</h3>
+    <dl class="card-meta">
+      <div><dt>Cód.</dt><dd>003882</dd></div>
+      
+      
+      
+    </dl>
+    
+  </div>
+  <div class="card-foot">
+    <span class="card-preco consulte">
+      Consulte o preço
+    </span>
+    
+    <a class="btn btn-wa js-pedir" href="https://wa.me/5588997270713?text=Ol%C3%A1%21%20Quero%20consultar%20a%20pe%C3%A7a%3A%20ABRACADEIRA%20ESCAPAMENTO%2048MM%20%28c%C3%B3d.%20003882%29" target="_blank" rel="noopener"
+       data-codigo="003882" data-desc="ABRACADEIRA ESCAPAMENTO 48MM" data-preco="">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 0 1-13.5 7.8L3 21l1.3-4.4A9 9 0 1 1 21 12z"/></svg>
+      Pedir no WhatsApp
+    </a>
+  </div>
+</article><article class="card">
+  
+  <figure class="card-foto">
+    <img src="/fotos/ea87cbf8b0b054567ecd2252d3128f30431642ff.webp" alt="ABRACADEIRA ESCAPAMENTO 51MM" loading="lazy" decoding="async" width="400" height="400">
+    <figcaption>Imagem ilustrativa</figcaption>
+  </figure>
+  
+  <div class="card-body">
+    <div class="card-top">
+      
+      <span class="card-cat">Variados</span>
+    </div>
+    <h3 class="card-nome">ABRACADEIRA ESCAPAMENTO 51MM</h3>
+    <dl class="card-meta">
+      <div><dt>Cód.</dt><dd>002964</dd></div>
+      
+      
+      
+    </dl>
+    
+  </div>
+  <div class="card-foot">
+    <span class="card-preco consulte">
+      Consulte o preço
+    </span>
+    
+    <a class="btn btn-wa js-pedir" href="https://wa.me/5588997270713?text=Ol%C3%A1%21%20Quero%20consultar%20a%20pe%C3%A7a%3A%20ABRACADEIRA%20ESCAPAMENTO%2051MM%20%28c%C3%B3d.%20002964%29" target="_blank" rel="noopener"
+       data-codigo="002964" data-desc="ABRACADEIRA ESCAPAMENTO 51MM" data-preco="">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 0 1-13.5 7.8L3 21l1.3-4.4A9 9 0 1 1 21 12z"/></svg>
+      Pedir no WhatsApp
+    </a>
+  </div>
+</article><article class="card">
+  
+  <figure class="card-foto">
+    <img src="/fotos/b6ca3c680bf7c95e3ecf59fb4c648cf47006add3.webp" alt="ABRACADEIRA ESCAPAMENTO D20 54MM" loading="lazy" decoding="async" width="400" height="400">
+    <figcaption>Imagem ilustrativa</figcaption>
+  </figure>
+  
+  <div class="card-body">
+    <div class="card-top">
+      
+      <span class="card-cat">Variados</span>
+    </div>
+    <h3 class="card-nome">ABRACADEIRA ESCAPAMENTO D20 54MM</h3>
+    <dl class="card-meta">
+      <div><dt>Cód.</dt><dd>002965</dd></div>
+      
+      
+      
+    </dl>
+    
+  </div>
+  <div class="card-foot">
+    <span class="card-preco consulte">
+      Consulte o preço
+    </span>
+    
+    <a class="btn btn-wa js-pedir" href="https://wa.me/5588997270713?text=Ol%C3%A1%21%20Quero%20consultar%20a%20pe%C3%A7a%3A%20ABRACADEIRA%20ESCAPAMENTO%20D20%2054MM%20%28c%C3%B3d.%20002965%29" target="_blank" rel="noopener"
+       data-codigo="002965" data-desc="ABRACADEIRA ESCAPAMENTO D20 54MM" data-preco="">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 0 1-13.5 7.8L3 21l1.3-4.4A9 9 0 1 1 21 12z"/></svg>
+      Pedir no WhatsApp
+    </a>
+  </div>
+</article><article class="card">
+  
+  <figure class="card-foto">
+    <img src="/fotos/b6ca3c680bf7c95e3ecf59fb4c648cf47006add3.webp" alt="ABRACADEIRA FEIXE MOLA  DOBLO/ STRADA/FIORINO" loading="lazy" decoding="async" width="400" height="400">
+    <figcaption>Imagem ilustrativa</figcaption>
+  </figure>
+  
+  <div class="card-body">
+    <div class="card-top">
+      
+      <span class="card-cat">Variados</span>
+    </div>
+    <h3 class="card-nome">ABRACADEIRA FEIXE MOLA  DOBLO/ STRADA/FIORINO</h3>
+    <dl class="card-meta">
+      <div><dt>Cód.</dt><dd>008991</dd></div>
+      
+      
+      
+    </dl>
+    
+  </div>
+  <div class="card-foot">
+    <span class="card-preco consulte">
+      Consulte o preço
+    </span>
+    
+    <a class="btn btn-wa js-pedir" href="https://wa.me/5588997270713?text=Ol%C3%A1%21%20Quero%20consultar%20a%20pe%C3%A7a%3A%20ABRACADEIRA%20FEIXE%20MOLA%20%20DOBLO/%20STRADA/FIORINO%20%28c%C3%B3d.%20008991%29" target="_blank" rel="noopener"
+       data-codigo="008991" data-desc="ABRACADEIRA FEIXE MOLA  DOBLO/ STRADA/FIORINO" data-preco="">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 0 1-13.5 7.8L3 21l1.3-4.4A9 9 0 1 1 21 12z"/></svg>
+      Pedir no WhatsApp
+    </a>
+  </div>
+</article><article class="card">
+  
+  <figure class="card-foto">
+    <img src="/fotos/b6ca3c680bf7c95e3ecf59fb4c648cf47006add3.webp" alt="ABRACADEIRA FEIXE MOLA 18X82X420 D MB" loading="lazy" decoding="async" width="400" height="400">
+    <figcaption>Imagem ilustrativa</figcaption>
+  </figure>
+  
+  <div class="card-body">
+    <div class="card-top">
+      
+      <span class="card-cat">Variados</span>
+    </div>
+    <h3 class="card-nome">ABRACADEIRA FEIXE MOLA 18X82X420 D MB</h3>
+    <dl class="card-meta">
+      <div><dt>Cód.</dt><dd>028454</dd></div>
+      
+      
+      
+    </dl>
+    
+  </div>
+  <div class="card-foot">
+    <span class="card-preco consulte">
+      Consulte o preço
+    </span>
+    
+    <a class="btn btn-wa js-pedir" href="https://wa.me/5588997270713?text=Ol%C3%A1%21%20Quero%20consultar%20a%20pe%C3%A7a%3A%20ABRACADEIRA%20FEIXE%20MOLA%2018X82X420%20D%20MB%20%28c%C3%B3d.%20028454%29" target="_blank" rel="noopener"
+       data-codigo="028454" data-desc="ABRACADEIRA FEIXE MOLA 18X82X420 D MB" data-preco="">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 0 1-13.5 7.8L3 21l1.3-4.4A9 9 0 1 1 21 12z"/></svg>
+      Pedir no WhatsApp
+    </a>
+  </div>
+</article><article class="card">
+  
+  <figure class="card-foto">
+    <img src="/fotos/4df76f0899757d89c75ce519206d7982a8216836.webp" alt="ABRACADEIRA FEIXE MOLA D20 85/91 C10/D10 220M" loading="lazy" decoding="async" width="400" height="400">
+    <figcaption>Imagem ilustrativa</figcaption>
+  </figure>
+  
+  <div class="card-body">
+    <div class="card-top">
+      
+      <span class="card-cat">Variados</span>
+    </div>
+    <h3 class="card-nome">ABRACADEIRA FEIXE MOLA D20 85/91 C10/D10 220M</h3>
+    <dl class="card-meta">
+      <div><dt>Cód.</dt><dd>008055</dd></div>
+      
+      
+      
+    </dl>
+    
+  </div>
+  <div class="card-foot">
+    <span class="card-preco consulte">
+      Consulte o preço
+    </span>
+    
+    <a class="btn btn-wa js-pedir" href="https://wa.me/5588997270713?text=Ol%C3%A1%21%20Quero%20consultar%20a%20pe%C3%A7a%3A%20ABRACADEIRA%20FEIXE%20MOLA%20D20%2085/91%20C10/D10%20220M%20%28c%C3%B3d.%20008055%29" target="_blank" rel="noopener"
+       data-codigo="008055" data-desc="ABRACADEIRA FEIXE MOLA D20 85/91 C10/D10 220M" data-preco="">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 0 1-13.5 7.8L3 21l1.3-4.4A9 9 0 1 1 21 12z"/></svg>
+      Pedir no WhatsApp
+    </a>
+  </div>
+</article><article class="card">
+  
+  <figure class="card-foto">
+    <img src="/fotos/4df76f0899757d89c75ce519206d7982a8216836.webp" alt="ABRACADEIRA FEIXE MOLA D20 85/91 C10/D10 240M" loading="lazy" decoding="async" width="400" height="400">
+    <figcaption>Imagem ilustrativa</figcaption>
+  </figure>
+  
+  <div class="card-body">
+    <div class="card-top">
+      
+      <span class="card-cat">Variados</span>
+    </div>
+    <h3 class="card-nome">ABRACADEIRA FEIXE MOLA D20 85/91 C10/D10 240M</h3>
+    <dl class="card-meta">
+      <div><dt>Cód.</dt><dd>009405</dd></div>
+      
+      
+      
+    </dl>
+    
+  </div>
+  <div class="card-foot">
+    <span class="card-preco consulte">
+      Consulte o preço
+    </span>
+    
+    <a class="btn btn-wa js-pedir" href="https://wa.me/5588997270713?text=Ol%C3%A1%21%20Quero%20consultar%20a%20pe%C3%A7a%3A%20ABRACADEIRA%20FEIXE%20MOLA%20D20%2085/91%20C10/D10%20240M%20%28c%C3%B3d.%20009405%29" target="_blank" rel="noopener"
+       data-codigo="009405" data-desc="ABRACADEIRA FEIXE MOLA D20 85/91 C10/D10 240M" data-preco="">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 0 1-13.5 7.8L3 21l1.3-4.4A9 9 0 1 1 21 12z"/></svg>
+      Pedir no WhatsApp
+    </a>
+  </div>
+</article><article class="card">
+  
+  <figure class="card-foto">
+    <img src="/fotos/6eaa6e20d76902d10fc83c03ba724b01a59b379a.webp" alt="ABRACADEIRA FEIXE MOLA D20 85/92 CURTA" loading="lazy" decoding="async" width="400" height="400">
+    <figcaption>Imagem ilustrativa</figcaption>
+  </figure>
+  
+  <div class="card-body">
+    <div class="card-top">
+      
+      <span class="card-cat">Variados</span>
+    </div>
+    <h3 class="card-nome">ABRACADEIRA FEIXE MOLA D20 85/92 CURTA</h3>
+    <dl class="card-meta">
+      <div><dt>Cód.</dt><dd>008053</dd></div>
+      
+      
+      
+    </dl>
+    
+  </div>
+  <div class="card-foot">
+    <span class="card-preco consulte">
+      Consulte o preço
+    </span>
+    
+    <a class="btn btn-wa js-pedir" href="https://wa.me/5588997270713?text=Ol%C3%A1%21%20Quero%20consultar%20a%20pe%C3%A7a%3A%20ABRACADEIRA%20FEIXE%20MOLA%20D20%2085/92%20CURTA%20%28c%C3%B3d.%20008053%29" target="_blank" rel="noopener"
+       data-codigo="008053" data-desc="ABRACADEIRA FEIXE MOLA D20 85/92 CURTA" data-preco="">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 0 1-13.5 7.8L3 21l1.3-4.4A9 9 0 1 1 21 12z"/></svg>
+      Pedir no WhatsApp
+    </a>
+  </div>
+</article>
+  </section>
+
+  <section class="vazio" id="vazio" hidden>
+    <h2>Nenhuma peça encontrada</h2>
+    <p>Tente menos palavras (ex.: só o nome da peça) ou o código. Se não achar, chame uma loja — o estoque muda todo dia.</p>
+    <p><a class="btn btn-dark" href="/catalogo/" id="limpar">Ver todas as peças</a></p>
+  </section>
+
+  <nav class="pag" aria-label="Mais peças">
+    <button class="btn btn-line" type="button" id="mais" hidden>Mostrar mais peças</button>
+  </nav>
+</main>
+
+<footer class="rodape">
+  <div class="wrap">
+    <h2>Nossas lojas</h2>
+    <ul class="lojas-lista">
+      <li><strong>Poranga/CE</strong> <em>matriz</em><span>Tv. Dr. Epitácio de Pinho, 537 — Centro, Poranga/CE · CEP 62220-000</span></li><li><strong>Pedro II/PI</strong><span>Av. Dr. José Lourenço Mourão, 66 — Chapadinha, Pedro II/PI · CEP 64255-000</span></li><li><strong>Piripiri/PI</strong><span>Av. Aderson Alves Ferreira, 1877 — Paciência, Piripiri/PI · CEP 64260-000</span></li><li><strong>Campo Maior/PI</strong><span>Av. Heróis do Jenipapo, 1977 — Matadouro, Campo Maior/PI · CEP 64280-000</span></li><li><strong>José de Freitas/PI</strong><span>Av. Gov. Petrônio Portela, s/n — Centro, José de Freitas/PI · CEP 64110-000</span></li>
+    </ul>
+    <p class="mini">As fotos são ilustrativas. Preço e disponibilidade são confirmados no WhatsApp da loja.</p>
+  </div>
+</footer>
+
+<dialog id="dlg-loja" aria-labelledby="dlg-titulo">
+  <form method="dialog" class="dlg-topo">
+    <h2 id="dlg-titulo">Pedir em qual loja?</h2>
+    <button class="dlg-x" aria-label="Fechar">×</button>
+  </form>
+  <p class="dlg-peca" id="dlg-peca"></p>
+  <ul class="dlg-lojas">
+    
+    <li><a class="loja-op" href="#" target="_blank" rel="noopener" data-wa="5588997270713" data-slug="poranga">
+      <span><strong>Poranga/CE</strong> <em>matriz</em><small>(88) 99727-0713</small></span>
+      <span class="ir">Abrir WhatsApp →</span></a></li>
+    
+    <li><a class="loja-op" href="#" target="_blank" rel="noopener" data-wa="5586995337823" data-slug="pedro-ii">
+      <span><strong>Pedro II/PI</strong><small>(86) 99533-7823</small></span>
+      <span class="ir">Abrir WhatsApp →</span></a></li>
+    
+    <li><a class="loja-op" href="#" target="_blank" rel="noopener" data-wa="5586994432802" data-slug="piripiri">
+      <span><strong>Piripiri/PI</strong><small>(86) 99443-2802</small></span>
+      <span class="ir">Abrir WhatsApp →</span></a></li>
+    
+    <li><a class="loja-op" href="#" target="_blank" rel="noopener" data-wa="5586994784497" data-slug="campo-maior">
+      <span><strong>Campo Maior/PI</strong><small>(86) 99478-4497</small></span>
+      <span class="ir">Abrir WhatsApp →</span></a></li>
+    
+    <li><a class="loja-op" href="#" target="_blank" rel="noopener" data-wa="5586998358408" data-slug="jose-de-freitas">
+      <span><strong>José de Freitas/PI</strong><small>(86) 99835-8408</small></span>
+      <span class="ir">Abrir WhatsApp →</span></a></li>
+    
+  </ul>
+</dialog>
+
+
+<template id="ico-motor"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="8" width="14" height="9" rx="1.5"/><path d="M8 8V5h6v3M18 11h3v3h-3M4 12H2M9 17v3M13 17v3"/></svg></template><template id="ico-cambio-e-embreagem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/></svg></template><template id="ico-suspensao-e-direcao"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3h6M12 3v3M9 6h6l-1 3 1 3-1 3 1 3H9l1-3-1-3 1-3z"/></svg></template><template id="ico-freios"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="2.5"/><path d="M12 4v2M12 18v2M4 12h2M18 12h2"/></svg></template><template id="ico-eletrica-e-iluminacao"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg></template><template id="ico-distribuicao-e-correias"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="7" cy="12" r="3.5"/><circle cx="17" cy="12" r="2.5"/><path d="M7 8.5h10M7 15.5h10"/></svg></template><template id="ico-arrefecimento"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3s5 6 5 10a5 5 0 0 1-10 0c0-4 5-10 5-10z"/></svg></template><template id="ico-filtros"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16l-6 8v6l-4-2v-4z"/></svg></template><template id="ico-cabine-e-carroceria"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 15v-3l2-5h14l2 5v3zM3 15v2h3v-2M18 15v2h3v-2"/><circle cx="7.5" cy="13" r=".8"/><circle cx="16.5" cy="13" r=".8"/></svg></template><template id="ico-pneus-e-rodas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/><path d="M12 3v6M12 15v6M3 12h6M15 12h6"/></svg></template><template id="ico-lubrificantes-e-quimicos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3h8M9 3v4l-3 4v9a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-9l-3-4V3M7 13h10"/></svg></template><template id="ico-variados"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 4 7v10l8 4 8-4V7zM4 7l8 4 8-4M12 11v10"/></svg></template>
+
+<script src="/static/catalogo.js" defer></script>
+<script src="/static/catalogo-estatico.js" defer></script>
+</body>
+</html>
