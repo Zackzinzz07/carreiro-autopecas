@@ -28,3 +28,7 @@ catalogo/.venv-fotos/
 catalogo/data/
 catalogo/revisao/folhas*
 prompt.md
+
+# Site estático: publico/ vai pro git, mas a landing é copiada pelo Netlify no deploy (netlify.toml)
+publico/index.html
+publico/assets/

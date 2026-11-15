@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Catálogo de peças · {{ nome_loja }}</title>
+  <meta name="description" content="Catálogo de peças da {{ nome_loja }} — 5 lojas no Ceará e Piauí. Peça pelo WhatsApp da loja mais perto de você.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="icon" href="/static/logo.png">
+  <link rel="stylesheet" href="/static/catalogo.css">
+  <link rel="preload" href="/catalogo/produtos.json" as="fetch" crossorigin>
+</head>
+<body>
+<header class="topo">
+  <div class="wrap topo-in">
+    <a class="marca" href="/catalogo/"><img src="/static/logo.png" alt="" width="36" height="36"><span>{{ nome_loja }}<small>Catálogo de peças</small></span></a>
+    <form class="busca" id="form-busca" action="/catalogo/" method="get" role="search">
+      <input type="search" id="busca" name="busca" placeholder="Peça, veículo ou código" aria-label="Buscar peça" maxlength="80" autocomplete="off">
+      <button type="submit" class="btn btn-dark">Buscar</button>
+    </form>
+    <a class="voltar" href="/">← Voltar ao site</a>
+  </div>
+</header>
+
+<main class="wrap">
+  <p class="aviso">Preço e disponibilidade variam por loja — confirmamos tudo direto no WhatsApp da unidade que você escolher.</p>
+
+  <nav class="cats" id="cats" aria-label="Categorias">
+    <a class="chip on" href="/catalogo/" data-cat="">Todas <b>{{ total }}</b></a>
+    {% for nome, n in por_categoria.items() %}
+      <a class="chip" href="/catalogo/?categoria={{ slug(nome) }}" data-cat="{{ slug(nome) }}">
+        <span class="chip-ico">{{ icone(nome) }}</span>{{ nome }} <b>{{ n }}</b>
+      </a>
+    {% endfor %}
+  </nav>
+
+  <p class="resumo" id="resumo" aria-live="polite"><strong>{{ '{:,}'.format(total).replace(',', '.') }}</strong> peças</p>
+
+  <section class="grid" id="grid" aria-label="Peças">
+    {% for p in produtos %}{% include "_card_produto.html" %}{% endfor %}
+  </section>
+
+  <section class="vazio" id="vazio" hidden>
+    <h2>Nenhuma peça encontrada</h2>
+    <p>Tente menos palavras (ex.: só o nome da peça) ou o código. Se não achar, chame uma loja — o estoque muda todo dia.</p>
+    <p><a class="btn btn-dark" href="/catalogo/" id="limpar">Ver todas as peças</a></p>
+  </section>
+
+  <nav class="pag" aria-label="Mais peças">
+    <button class="btn btn-line" type="button" id="mais" hidden>Mostrar mais peças</button>
+  </nav>
+</main>
+
+<footer class="rodape">
+  <div class="wrap">
+    <h2>Nossas lojas</h2>
+    <ul class="lojas-lista">
+      {% for l in lojas %}<li><strong>{{ l.cidade }}/{{ l.uf }}</strong>{% if l.matriz %} <em>matriz</em>{% endif %}<span>{{ l.endereco }}</span></li>{% endfor %}
+    </ul>
+    <p class="mini">As fotos são ilustrativas. Preço e disponibilidade são confirmados no WhatsApp da loja.</p>
+  </div>
+</footer>
+
+<dialog id="dlg-loja" aria-labelledby="dlg-titulo">
+  <form method="dialog" class="dlg-topo">
+    <h2 id="dlg-titulo">Pedir em qual loja?</h2>
+    <button class="dlg-x" aria-label="Fechar">×</button>
+  </form>
+  <p class="dlg-peca" id="dlg-peca"></p>
+  <ul class="dlg-lojas">
+    {% for l in lojas %}
+    <li><a class="loja-op" href="#" target="_blank" rel="noopener" data-wa="{{ l.whatsapp }}" data-slug="{{ l.slug }}">
+      <span><strong>{{ l.cidade }}/{{ l.uf }}</strong>{% if l.matriz %} <em>matriz</em>{% endif %}<small>{{ l.fone }}</small></span>
+      <span class="ir">Abrir WhatsApp →</span></a></li>
+    {% endfor %}
+  </ul>
+</dialog>
+
+{# Ícones de categoria para os cards sem foto montados pelo JS (SVG nosso, não vem da planilha). #}
+{% for nome in por_categoria %}<template id="ico-{{ slug(nome) }}">{{ icone(nome) }}</template>{% endfor %}
+
+<script src="/static/catalogo.js" defer></script>
+<script src="/static/catalogo-estatico.js" defer></script>
+</body>
+</html>
