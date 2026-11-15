@@ -225,6 +225,42 @@
       margin: 18px auto 36px;
     }
 
+    /* Botão do catálogo (/catalogo/, gerado em publico/) */
+    .hero-catalogo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin: -14px auto 26px;
+      padding: 13px 22px;
+      border-radius: 999px;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 15.5px;
+      color: #fff;
+      background: rgba(6, 182, 212, .10);
+      border: 1px solid rgba(34, 211, 238, .55);
+      box-shadow: 0 8px 26px rgba(6, 182, 212, .16);
+      transition: transform .18s ease, background .18s ease, border-color .18s ease;
+    }
+
+    .hero-catalogo:hover {
+      transform: translateY(-2px);
+      background: rgba(6, 182, 212, .2);
+      border-color: var(--cyan-400);
+    }
+
+    .hero-catalogo svg {
+      width: 20px;
+      height: 20px;
+      flex: 0 0 auto;
+      stroke: var(--cyan-400)
+    }
+
+    .footer-info .footer-catalogo {
+      color: var(--cyan-400);
+      font-weight: 600
+    }
+
     /* Botões WhatsApp (conversão) */
     .branches {
       display: grid;
@@ -1105,6 +1141,14 @@
         na hora, com nota fiscal e garantia.
       </p>
 
+      <a class="hero-catalogo" href="/catalogo/">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="11" cy="11" r="7" />
+          <path d="m20 20-3.5-3.5" />
+        </svg>
+        Ver catálogo de peças
+      </a>
+
       <nav class="branches" aria-label="Lojas no WhatsApp">
         <a class="branch"
           href="https://wa.me/5588997270713?text=Ol%C3%A1%2C%20gostaria%20de%20comprar%20uma%20pe%C3%A7a!"
@@ -1563,6 +1607,7 @@
         </div>
         <p>Matriz: Tv. Dr. Epitácio de Pinho, 537, Centro, Poranga - CE, CEP 62220-000</p>
         <p>Lojas em Poranga, Pedro II, Piripiri, Campo Maior e José de Freitas</p>
+        <p><a class="footer-catalogo" href="/catalogo/">Ver catálogo de peças →</a></p>
         <p>CNPJ 14.634.245/0001-85</p>
         <p class="footer-legal">© 2026 Carreiro Auto Peças. Todos os direitos reservados.</p>
       </div>
