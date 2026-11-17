@@ -14,6 +14,16 @@ from catalogo.categorias import categoria_para_descricao, normalizar, tipo_da_pe
 from catalogo.models import Produto
 
 _OBRIGATORIAS = {"CODIGO", "DESCRICAO"}
+_OPCIONAIS = {"COD BARRAS", "PRECO", "MARCA", "APLICACAO"}
+_SINONIMOS_PRECO = {
+    "PRECO",
+    "PR VENDA",
+    "PRECO VENDA",
+    "PRECO DE VENDA",
+    "PRECO VENDA R$",
+    "VALOR",
+    "VALOR VENDA",
+}
 _TAMANHOS_EAN = {8, 12, 13, 14}
 
 
@@ -23,10 +33,16 @@ class ResultadoLeitura:
     inativos: list[str] = field(default_factory=list)       # códigos marcados INATIVO na descrição
     duplicados: list[str] = field(default_factory=list)     # códigos repetidos (vale a última ocorrência)
     invalidos: list[tuple[int, str]] = field(default_factory=list)  # (linha, motivo)
+    colunas: set[str] = field(default_factory=set)          # colunas opcionais presentes na planilha
 
 
 def _texto(valor: object) -> str:
     return "" if valor is None else str(valor).strip()
+
+
+def _normalizar_cabecalho(valor: object) -> str:
+    nome = normalizar(re.sub(r"[.:]", "", _texto(valor)))
+    return "PRECO" if nome in _SINONIMOS_PRECO else nome
 
 
 def _preco(valor: object) -> float | None:
@@ -49,7 +65,7 @@ def ler_planilha(caminho: str | Path) -> ResultadoLeitura:
     wb = openpyxl.load_workbook(caminho, read_only=True, data_only=True)
     ws = wb[wb.sheetnames[0]]
     linhas = ws.iter_rows(values_only=True)
-    cabecalho = [normalizar(_texto(c)) for c in next(linhas)]
+    cabecalho = [_normalizar_cabecalho(c) for c in next(linhas)]
     faltando = _OBRIGATORIAS - set(cabecalho)
     if faltando:
         raise ValueError(f"Planilha sem coluna(s) obrigatória(s): {', '.join(sorted(faltando))}. Encontrei: {cabecalho}")
@@ -59,7 +75,7 @@ def ler_planilha(caminho: str | Path) -> ResultadoLeitura:
         i = idx.get(nome)
         return _texto(linha[i]) if i is not None and i < len(linha) else ""
 
-    resultado = ResultadoLeitura()
+    resultado = ResultadoLeitura(colunas=set(cabecalho) & _OPCIONAIS)
     por_codigo: dict[str, Produto] = {}
     for n, linha in enumerate(linhas, start=2):
         codigo, descricao = col(linha, "CODIGO"), col(linha, "DESCRICAO")
@@ -76,10 +92,12 @@ def ler_planilha(caminho: str | Path) -> ResultadoLeitura:
         referencia = barras if barras and not ean and barras != codigo else ""
         if codigo in por_codigo:
             resultado.duplicados.append(codigo)
+        i_preco = idx.get("PRECO")
+        preco = _preco(linha[i_preco]) if i_preco is not None and i_preco < len(linha) else None
         por_codigo[codigo] = Produto(
             id=0, codigo=codigo, descricao=descricao, categoria=categoria_para_descricao(descricao),
             tipo=tipo_da_peca(descricao), marca=col(linha, "MARCA"), referencia=referencia, ean=ean,
-            aplicacao=col(linha, "APLICACAO"), preco=_preco(linha[idx["PRECO"]]) if "PRECO" in idx else None,
+            aplicacao=col(linha, "APLICACAO"), preco=preco,
         )
     resultado.produtos = list(por_codigo.values())
     return resultado
