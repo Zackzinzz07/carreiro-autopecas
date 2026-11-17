@@ -23,6 +23,7 @@ from catalogo.config import BASE_DIR, get_settings
 from catalogo.db import SINONIMOS, conectar, contar_por_categoria, criar_schema, listar_produtos
 from catalogo.icones import icone_svg
 from catalogo.lojas import LOJAS, MATRIZ
+from catalogo.models import reais
 from catalogo.whatsapp import link_pedido
 
 RAIZ = BASE_DIR.parent
@@ -49,6 +50,8 @@ def _item(p, foto: str, indice_categoria: dict[str, int]) -> dict:
             item[chave] = valor
     if p.preco is not None:
         item["p"] = p.preco
+    if p.precos_variam:
+        item["v"] = list(p.precos)
     return item
 
 
@@ -111,6 +114,7 @@ def gerar(db_path: str, fotos_dir: Path, saida: Path, landing: Path | None = RAI
         shutil.copy2(BASE_DIR / "static" / nome, saida / "static" / nome)
 
     env = Environment(loader=FileSystemLoader(str(BASE_DIR / "templates")), autoescape=True)
+    env.filters["reais"] = reais
     env.globals.update(icone=lambda c: Markup(icone_svg(c)), slug=slug, lojas=LOJAS, matriz=MATRIZ,
                        link_matriz=link_pedido)
     html = env.get_template("estatico.html").render(

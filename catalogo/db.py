@@ -77,12 +77,27 @@ def criar_schema(conn: sqlite3.Connection) -> None:
     conn.commit()
 
 
+def _codigos_e_precos(bruto: str | None) -> tuple[tuple[str, ...], tuple[float | None, ...]]:
+    if not bruto:
+        return (), ()
+    pares: list[tuple[str, float | None]] = []
+    for item in bruto.split("|"):
+        if "=" in item:
+            cod, _, val = item.rpartition("=")
+            pares.append((cod, float(val) if val != "" else None))
+        else:
+            pares.append((item, None))
+    pares.sort(key=lambda par: par[0])
+    return tuple(c for c, _ in pares), tuple(p for _, p in pares)
+
+
 def _row_para_produto(row: sqlite3.Row) -> Produto:
+    codigos, precos = _codigos_e_precos(row["codigos"]) if "codigos" in row.keys() else ((), ())
     return Produto(
         id=row["id"], codigo=row["codigo"], descricao=row["descricao"], categoria=row["categoria"],
         tipo=row["tipo"], marca=row["marca"], referencia=row["referencia"], ean=row["ean"],
         aplicacao=row["aplicacao"], preco=row["preco"], imagem_url=row["imagem_url"], ativo=bool(row["ativo"]),
-        codigos=tuple(sorted(row["codigos"].split("|"))) if "codigos" in row.keys() else (),
+        codigos=codigos, precos=precos,
     )
 
 
@@ -168,8 +183,8 @@ def listar_produtos(
         f" {_UNANIME('marca')} marca, {_UNANIME('ean')} ean, {_UNANIME('aplicacao')} aplicacao,"
         f" (SELECT CASE WHEN count(x.preco) = count(*) AND count(DISTINCT x.preco) = 1 THEN max(x.preco) END {_IRMAOS}) preco,"
         " max(p.imagem_url) imagem_url, 1 ativo,"
-        # Todos os códigos ativos da descrição, mesmo quando a busca casou só um deles (ex.: digitou o código).
-        f" (SELECT group_concat(x.codigo, '|') {_IRMAOS}) codigos FROM {origem} WHERE {where} GROUP BY p.descricao "
+        # Todos os códigos ativos da descrição (com preço individual), mesmo quando a busca casou só um deles.
+        f" (SELECT group_concat(x.codigo || '=' || ifnull(x.preco, ''), '|') {_IRMAOS}) codigos FROM {origem} WHERE {where} GROUP BY p.descricao "
         f"ORDER BY {ordem} LIMIT ? OFFSET ?",
         [*params, por_pagina, max(pagina - 1, 0) * por_pagina],
     ).fetchall()

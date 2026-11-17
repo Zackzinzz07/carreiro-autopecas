@@ -15,6 +15,7 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;background:
   url(/static/fundo-motor.webp) center/cover no-repeat var(--bg-1)}
 h1,h2,h3{font-family:var(--font-display);margin:0;letter-spacing:-.01em}
 a{color:inherit}
+[hidden]{display:none!important}
 :focus-visible{outline:2px solid var(--cyan-400);outline-offset:2px;border-radius:6px}
 .wrap{max-width:1200px;margin:0 auto;padding:0 20px}
 
@@ -87,6 +88,7 @@ a{color:inherit}
 .card:not(:has(.card-foto)) .card-foot{padding-top:10px}
 .card-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding-top:12px;border-top:1px solid var(--line)}
 .card-preco{font:700 16px var(--font-display)}
+.card-preco small{display:block;font:500 11px/1.1 var(--font-body);color:var(--txt-dim)}
 .card-preco.consulte{font:500 13px var(--font-body);color:#b4c2d6}
 
 .pag{display:flex;align-items:center;justify-content:center;gap:16px;margin:28px 0 8px;color:var(--txt-dim);flex-wrap:wrap}

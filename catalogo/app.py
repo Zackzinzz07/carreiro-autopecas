@@ -15,6 +15,7 @@ from catalogo.config import get_settings
 from catalogo.db import conectar, contar_por_categoria, contar_por_tipo, criar_schema, listar_produtos
 from catalogo.icones import icone_svg
 from catalogo.lojas import LOJAS, MATRIZ
+from catalogo.models import reais
 from catalogo.whatsapp import link_pedido
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -30,6 +31,7 @@ _FOTOS_DIR.mkdir(parents=True, exist_ok=True)
 app.mount("/fotos", StaticFiles(directory=str(_FOTOS_DIR)), name="fotos")
 
 templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
+templates.env.filters["reais"] = reais
 templates.env.globals.update(
     icone=lambda categoria: Markup(icone_svg(categoria)),
     slug=slug,
