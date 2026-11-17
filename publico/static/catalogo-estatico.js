@@ -33,7 +33,7 @@
     if (texto != null) e.textContent = texto;
     return e;
   }
-  function preco(p) { return 'R$ ' + Number(p).toFixed(2).replace('.', ','); }
+  function preco(p) { return 'R$ ' + Number(p).toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.'); }
   function milhar(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, '.'); }
 
   function iconeWhats() {
@@ -50,7 +50,9 @@
 
   function card(p) {
     var cat = dados.categorias[p.c] || { nome: '', slug: '' };
-    var codigos = p.k.join(' · ');
+    var codigos = p.v
+      ? p.k.map(function (c, i) { return p.v[i] != null ? c + ' — ' + preco(p.v[i]) : c; }).join(' · ')
+      : p.k.join(' · ');
     var art = el('article', 'card');
     if (p.f) {
       var fig = el('figure', 'card-foto');
@@ -87,14 +89,27 @@
 
     var pe = el('div', 'card-foot');
     var temPreco = typeof p.p === 'number';
-    pe.appendChild(el('span', 'card-preco' + (temPreco ? '' : ' consulte'), temPreco ? preco(p.p) : 'Consulte o preço'));
-    var texto = 'Olá! Quero consultar a peça: ' + p.d + ' (cód. ' + p.k.join(', ') + ')' + (temPreco ? ' — ' + preco(p.p) : '');
+    var precosValidos = p.v ? p.v.filter(function (x) { return typeof x === 'number'; }) : [];
+    var precoEl = el('span', 'card-preco' + (temPreco || precosValidos.length ? '' : ' consulte'));
+    if (temPreco) {
+      precoEl.textContent = preco(p.p);
+    } else if (precosValidos.length) {
+      precoEl.appendChild(el('small', null, 'a partir de'));
+      precoEl.appendChild(document.createTextNode(' ' + preco(Math.min.apply(null, precosValidos))));
+    } else {
+      precoEl.textContent = 'Consulte o preço';
+    }
+    pe.appendChild(precoEl);
+    var texto = p.v
+      ? 'Olá! Quero consultar a peça: ' + p.d + ' (cód. ' + p.k.map(function (c, i) { return p.v[i] != null ? c + ' — ' + preco(p.v[i]) : c; }).join('; ') + ')'
+      : 'Olá! Quero consultar a peça: ' + p.d + ' (cód. ' + p.k.join(', ') + ')' + (temPreco ? ' — ' + preco(p.p) : '');
     var botao = el('a', 'btn btn-wa js-pedir');
     botao.href = 'https://wa.me/' + dados.matriz + '?text=' + encodeURIComponent(texto);   // sem JS do diálogo: matriz
     botao.target = '_blank'; botao.rel = 'noopener';
     botao.dataset.codigo = p.k.join(', ');
     botao.dataset.desc = p.d;
     botao.dataset.preco = temPreco ? String(p.p) : '';
+    botao.dataset.precos = p.v ? p.k.map(function (c, i) { return c + '=' + (p.v[i] != null ? p.v[i] : ''); }).join('|') : '';
     botao.appendChild(iconeWhats());
     botao.appendChild(document.createTextNode(' Pedir no WhatsApp'));
     pe.appendChild(botao);
